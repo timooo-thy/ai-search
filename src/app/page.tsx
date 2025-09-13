@@ -519,18 +519,18 @@ export default function Home() {
             <div className="space-y-4">
               <h3 className="font-semibold text-foreground">Product</h3>
               <div className="space-y-2">
-                <a
+                <Link
                   href="#features"
                   className="block text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Features
-                </a>
-                <a
+                </Link>
+                <Link
                   href="#how-it-works"
                   className="block text-muted-foreground hover:text-foreground transition-colors"
                 >
                   How it Works
-                </a>
+                </Link>
                 <Link
                   href="/chat"
                   className="block text-muted-foreground hover:text-foreground transition-colors"
@@ -543,48 +543,48 @@ export default function Home() {
             <div className="space-y-4">
               <h3 className="font-semibold text-foreground">Technology</h3>
               <div className="space-y-2">
-                <a
+                <Link
                   href="#tech-stack"
                   className="block text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Tech Stack
-                </a>
-                <a
+                </Link>
+                <Link
                   href="#"
                   className="block text-muted-foreground hover:text-foreground transition-colors"
                 >
                   API Documentation
-                </a>
-                <a
+                </Link>
+                <Link
                   href="#"
                   className="block text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Integration Guide
-                </a>
+                </Link>
               </div>
             </div>
 
             <div className="space-y-4">
               <h3 className="font-semibold text-foreground">Resources</h3>
               <div className="space-y-2">
-                <a
+                <Link
                   href="#"
                   className="block text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Documentation
-                </a>
-                <a
+                </Link>
+                <Link
                   href="#"
                   className="block text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Support
-                </a>
-                <a
+                </Link>
+                <Link
                   href="#"
                   className="block text-muted-foreground hover:text-foreground transition-colors"
                 >
                   GitHub
-                </a>
+                </Link>
               </div>
             </div>
           </div>

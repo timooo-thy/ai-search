@@ -10,6 +10,7 @@ import { authClient } from "@/lib/auth-client";
 import { GithubIcon } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
+import Link from "next/link";
 
 export function SignUpForm({
   className,
@@ -125,9 +126,9 @@ export function SignUpForm({
               </div>
               <div className="text-center text-sm">
                 Already have an account?{" "}
-                <a href="/auth/login" className="underline underline-offset-4">
+                <Link href="/auth/login" className="underline underline-offset-4">
                   Sign in
-                </a>
+                </Link>
               </div>
             </div>
           </form>
@@ -143,8 +144,8 @@ export function SignUpForm({
         </CardContent>
       </Card>
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our <Link href="#">Terms of Service</a>{" "}
+        and <Link href="#">Privacy Policy</Link>.
       </div>
     </div>
   );

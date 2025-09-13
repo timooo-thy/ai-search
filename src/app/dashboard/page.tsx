@@ -319,7 +319,7 @@ export default async function Dashboard() {
               Start Searching
             </Link>
             <Link
-              href="/docs"
+              href="/"
               className="border border-border px-8 py-4 rounded-lg font-semibold text-lg hover:bg-muted transition-all"
             >
               Learn More

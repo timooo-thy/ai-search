@@ -13,6 +13,7 @@ import { User, Settings, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { authClient, Session } from "@/lib/auth-client";
 import { redirect } from "next/navigation";
+import { ModeToggle } from "./mode-toggle";
 
 interface NavbarProps {
   user?: Session["user"] | null;
@@ -53,16 +54,10 @@ export function Navbar({ user }: NavbarProps) {
               // Authenticated navigation
               <>
                 <Link
-                  href="/dashboard"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Dashboard
-                </Link>
-                <Link
                   href="/chat"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  AI Search
+                  AI Chat
                 </Link>
                 <Link
                   href="/projects"
@@ -74,26 +69,20 @@ export function Navbar({ user }: NavbarProps) {
                 {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="flex items-center space-x-2 p-2"
-                    >
+                    <Button variant="ghost">
                       <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                         <span className="text-primary font-semibold text-sm">
                           {user.name?.charAt(0).toUpperCase() ||
                             user.email?.charAt(0).toUpperCase()}
                         </span>
                       </div>
-                      <span className="text-sm text-muted-foreground hidden lg:block">
-                        {user.name || user.email}
-                      </span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuItem asChild>
-                      <Link href="/profile" className="flex items-center">
+                      <Link href="/dashboard" className="flex items-center">
                         <User className="mr-2 h-4 w-4" />
-                        Profile
+                        Account
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -112,6 +101,7 @@ export function Navbar({ user }: NavbarProps) {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+                <ModeToggle />
               </>
             ) : (
               // Unauthenticated navigation
@@ -140,12 +130,13 @@ export function Navbar({ user }: NavbarProps) {
                 >
                   Try Demo
                 </Link>
+                <ModeToggle />
               </>
             )}
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center space-x-4">
             <Button
               variant="ghost"
               size="sm"
@@ -157,6 +148,7 @@ export function Navbar({ user }: NavbarProps) {
                 <Menu className="h-6 w-6" />
               )}
             </Button>
+            <ModeToggle />
           </div>
         </div>
 
@@ -168,18 +160,11 @@ export function Navbar({ user }: NavbarProps) {
                 // Authenticated mobile navigation
                 <>
                   <Link
-                    href="/dashboard"
-                    className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
                     href="/chat"
                     className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    AI Search
+                    AI Chat
                   </Link>
                   <Link
                     href="/projects"
@@ -189,11 +174,11 @@ export function Navbar({ user }: NavbarProps) {
                     Projects
                   </Link>
                   <Link
-                    href="/profile"
+                    href="/dashboard"
                     className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Profile
+                    Account
                   </Link>
                   <Link
                     href="/settings"
@@ -212,27 +197,27 @@ export function Navbar({ user }: NavbarProps) {
               ) : (
                 // Unauthenticated mobile navigation
                 <>
-                  <a
+                  <Link
                     href="#features"
                     className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Features
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#how-it-works"
                     className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     How it Works
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#tech-stack"
                     className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Tech Stack
-                  </a>
+                  </Link>
                   <Link
                     href="/chat"
                     className="block px-3 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors mx-3 mt-2 text-center"
