@@ -61,8 +61,8 @@ export default function Home() {
                         </span>
                       </div>
                       <span className="text-muted-foreground italic">
-                        "How does the authentication flow work in this
-                        codebase?"
+                        &ldquo;How does the authentication flow work in this
+                        codebase?&ldquo;
                       </span>
                     </div>
                   </div>
@@ -181,8 +181,8 @@ export default function Home() {
                   <p className="text-muted-foreground leading-relaxed">
                     Search codebases using natural language queries without
                     needing to know specific file names or code structures. Ask
-                    questions like "How does authentication work?" and get
-                    relevant results instantly.
+                    questions like &ldquo;How does authentication work?&rdquo;
+                    and get relevant results instantly.
                   </p>
                 </div>
               </div>
@@ -319,7 +319,8 @@ export default function Home() {
               <div className="flex items-center space-x-3 mb-4">
                 <span className="text-primary font-semibold">Query:</span>
                 <span className="text-foreground italic">
-                  "How does the authentication flow work in this codebase?"
+                  &ldquo;How does the authentication flow work in this
+                  codebase?&rdquo;
                 </span>
               </div>
             </div>
