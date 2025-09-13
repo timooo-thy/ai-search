@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -15,7 +9,7 @@ datasource db {
 }
 
 model User {
-  id            String    @id
+  id            String         @id
   name          String
   email         String
   emailVerified Boolean
@@ -24,6 +18,7 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+  conversations Conversation[]
 
   @@unique([email])
   @@map("user")
@@ -72,4 +67,57 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+// AI SDK UIMessage related models
+model Conversation {
+  id        String    @id @default(cuid())
+  title     String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("conversation")
+}
+
+model Message {
+  id             String        @id @default(cuid())
+  conversationId String
+  conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           MessageRole
+  metadata       Json? // Custom metadata as JSON
+  parts          MessagePart[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@map("message")
+}
+
+model MessagePart {
+  id        String          @id @default(cuid())
+  messageId String
+  message   Message         @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  type      MessagePartType
+  content   Json // Store part content as JSON for flexibility
+  order     Int // To maintain order of parts
+  state     String? // For parts that have state (streaming, done, etc.)
+  createdAt DateTime        @default(now())
+
+  @@map("message_part")
+}
+
+enum MessageRole {
+  system
+  user
+  assistant
+
+  @@map("message_role")
+}
+
+enum MessagePartType {
+  text
+
+  @@map("message_part_type")
 }

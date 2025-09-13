@@ -1,12 +1,13 @@
+"use client";
+
 import {
-  Plus,
-  BookOpen,
-  Search,
-  Settings,
-  User,
   ChevronUp,
   MoreHorizontal,
   ActivityIcon,
+  User,
+  Settings,
+  Plus,
+  Trash2,
 } from "lucide-react";
 
 import {
@@ -27,38 +28,109 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Session } from "@/lib/auth-client";
 import SignOutButton from "./signout-button";
-import DashboardButton from "./dashboard-button";
-
-const navigationItems = [
-  {
-    title: "New Chat",
-    icon: Plus,
-  },
-  {
-    title: "Library",
-    icon: BookOpen,
-  },
-  {
-    title: "Discover",
-    icon: Search,
-  },
-];
-
-const recentChats = [
-  "[1B] The 5C's representing the key attributes of leadership...",
-  "graph based ai agent w...",
-  "can neighbourhoodlader be...",
-  "i need you to help critiq...",
-];
+import {
+  createConversation,
+  getUserConversationTitles,
+  deleteConversation,
+} from "@/server/ui-message-service";
+import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 type AppSidebarProps = {
-  user: Session["user"] | null;
+  user: Session["user"];
 };
 
 export function AppSidebar({ user }: AppSidebarProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentConversationId = searchParams.get("id");
+
+  const navigationItems = [
+    {
+      title: "New Chat",
+      icon: Plus,
+      action: async () => {
+        try {
+          const conversation = await createConversation(user.id, "New Chat");
+          const conversations = await getUserConversationTitles(user.id);
+          setRecentConversationTitles(
+            conversations.map((c) => ({
+              id: c.id,
+              title: c.title,
+            }))
+          );
+          router.replace(`/chat?id=${conversation.id}`);
+        } catch (error) {
+          toast.error("Failed to create new chat. Please try again.");
+        }
+      },
+    },
+  ];
+
+  const [recentConversationTitles, setRecentConversationTitles] = useState<
+    {
+      id: string;
+      title: string;
+    }[]
+  >([]);
+
+  const [conversationToDelete, setConversationToDelete] = useState<
+    string | null
+  >(null);
+
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      await deleteConversation(conversationId);
+
+      const conversations = await getUserConversationTitles(user.id);
+      setRecentConversationTitles(
+        conversations.map((c) => ({
+          id: c.id,
+          title: c.title,
+        }))
+      );
+
+      // Redirect to chat page without ID if the current conversation was deleted
+      if (currentConversationId === conversationId) {
+        router.replace("/chat");
+      }
+      toast.success("Chat deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete chat. Please try again.");
+    }
+    setConversationToDelete(null);
+  };
+
+  useEffect(() => {
+    async function fetchConversations() {
+      const conversations = await getUserConversationTitles(user.id);
+      setRecentConversationTitles(
+        conversations.map((c) => ({
+          id: c.id,
+          title: c.title,
+        }))
+      );
+    }
+
+    fetchConversations();
+  }, [user.id]);
+
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
@@ -86,10 +158,10 @@ export function AppSidebar({ user }: AppSidebarProps) {
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <button className="flex items-center gap-2">
-                      <item.icon className="size-4" />
+                    <Button onClick={item.action}>
+                      {<item.icon className="size-4" />}
                       <span>{item.title}</span>
-                    </button>
+                    </Button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -101,13 +173,62 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarGroupLabel>Recent</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {recentChats.map((chat, index) => (
+              {recentConversationTitles.map((chat, index) => (
                 <SidebarMenuItem key={index}>
-                  <SidebarMenuButton asChild>
-                    <button className="flex items-start text-left">
-                      <span className="truncate text-sm">{chat}</span>
-                    </button>
-                  </SidebarMenuButton>
+                  <div className="flex items-center gap-1 w-full">
+                    <SidebarMenuButton asChild className="flex-1">
+                      <Button
+                        variant={
+                          chat.id === currentConversationId
+                            ? "outline"
+                            : "ghost"
+                        }
+                        className="bg-secondary-foreground justify-start"
+                        onClick={() => {
+                          router.replace(`/chat?id=${chat.id}`);
+                        }}
+                      >
+                        <span className="truncate text-sm text-left">
+                          {chat.title}
+                        </span>
+                      </Button>
+                    </SidebarMenuButton>
+                    <AlertDialog
+                      open={conversationToDelete === chat.id}
+                      onOpenChange={(open) => {
+                        if (!open) setConversationToDelete(null);
+                      }}
+                    >
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="bg-secondary-foreground hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={() => setConversationToDelete(chat.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Chat</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete "{chat.title}"? This
+                            action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteConversation(chat.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -125,7 +246,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src="/avatar.png" alt="User" />
+                    <AvatarImage src={`${user?.image}`} alt="User Avatar" />
                     <AvatarFallback className="rounded-lg text-primary">
                       {user?.name.charAt(0)}
                     </AvatarFallback>
@@ -143,9 +264,14 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 align="end"
                 sideOffset={4}
               >
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={async () => {
+                    redirect("/dashboard");
+                  }}
+                  className="w-full"
+                >
                   <User className="mr-2 h-4 w-4" />
-                  <DashboardButton />
+                  Account
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />
