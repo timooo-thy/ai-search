@@ -213,8 +213,8 @@ export function AppSidebar({ user }: AppSidebarProps) {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Delete Chat</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to delete "{chat.title}"? This
-                            action cannot be undone.
+                            Are you sure you want to delete &quot;{chat.title}
+                            &quot;? This action cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

@@ -12,15 +12,7 @@ const metadataSchema = z.object({
 
 type MyMetadata = z.infer<typeof metadataSchema>;
 
-export const toolSchemas = {};
-
-export type MyTools = {};
-
-const dataPartSchema = z.object({});
-
-type MyDataPart = z.infer<typeof dataPartSchema>;
-
-export type ChatUIMessage = UIMessage<MyMetadata, MyDataPart, MyTools>;
+export type ChatUIMessage = UIMessage<MyMetadata>;
 
 export type MessageWithParts = Message & {
   parts: MessagePart[];
@@ -52,6 +44,7 @@ export function prismaMessageToUIMessage(
           case "text":
             return {
               type: "text" as const,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               text: (part.content as any).text,
               ...basePart,
             };
@@ -73,10 +66,13 @@ export function uiMessageToPrismaMessage(
     message: {
       conversationId,
       role: uiMessage.role,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       metadata: uiMessage.metadata as any,
     },
     parts: uiMessage.parts.map((part, index) => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       type: part.type.replace("-", "_") as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       content: part as any,
       order: index,
       state: "state" in part ? part.state || null : null,

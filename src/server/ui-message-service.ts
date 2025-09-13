@@ -6,7 +6,6 @@ import {
   MessageWithParts,
   prismaMessageToUIMessage,
 } from "../types/ui-message";
-import { Prisma } from "../../generated/prisma";
 
 // Create a new conversation
 export async function createConversation(userId: string, title: string) {
@@ -44,10 +43,13 @@ export async function saveMessage(
       id: uiMessage.id,
       conversationId,
       role: uiMessage.role,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       metadata: (uiMessage.metadata as any) || null,
       parts: {
         create: uiMessage.parts.map((part, index) => ({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           type: part.type.replace("-", "_") as any,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           content: part as any,
           order: index,
           state: "state" in part ? part.state || null : null,
@@ -125,6 +127,7 @@ export async function createTextMessage(
   id: string,
   role: "system" | "user" | "assistant",
   text: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: any
 ): Promise<ChatUIMessage> {
   return {
