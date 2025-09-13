@@ -42,16 +42,16 @@ export function ChatMessages({
               >
                 {msg.parts.length > 0 &&
                   msg.parts.map(
-                    (part) =>
+                    (part, key) =>
                       part.type === "text" && (
-                        <>
+                        <div key={key}>
                           <div className="whitespace-pre-line">{part.text}</div>
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-xs text-muted-foreground">
                               {msg.metadata?.time}
                             </span>
                           </div>
-                        </>
+                        </div>
                       )
                   )}
               </Card>
