@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Code Orientation AI Application
 
-## Getting Started
+## Problem
 
-First, run the development server:
+New developers often struggle to understand unfamiliar codebases, leading to delays in making their first meaningful contributions. Traditional search methods can be inefficient and overwhelming, making it difficult to quickly find relevant information. Moreover, onboarding processes can be inconsistent, leading to varied experiences for new team members. While there are AI Code Assistants, they still tend to hallucinate and are not fully reliable for understanding complex codebases.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Goal:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Reduce time-to-first-commit and onboarding time for engineers. This application aim to solve this problem using Natural Language driven search and actionable feature cards to measure success with onboarding metrics.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Core Features:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Natural Language Search: Allow users to search the codebase using natural language queries, making it easier to find relevant information without needing to know specific file names or code structures.
+2. Code Graph Visualisation: Generate a visual representation of the codebase structure, including file relationships and dependencies, to help users quickly understand the architecture.
+3. Actionable Feature Cards: Provide users with feature cards that offer insights and actions based on their search queries and the code graph.
+4. Search Template: Quick toggles for repo/org/path/language/filename.
 
-## Learn More
+## Sucess Metrics:
 
-To learn more about Next.js, take a look at the following resources:
+1. Time-to-First-Commit: Measure the time taken for new developers to make their first commit after joining the project.
+2. User Satisfaction: Conduct surveys to assess the satisfaction levels of new developers regarding the onboarding process and their ability to navigate the codebase.
+3. Onboarding Time: Measure the time taken for new developers to become familiar with the codebase and its structure.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tech Stack:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Frontend and Backend: Next.js
+- AI Integration: LangGraph, OpenAI
+- Code Search: GitHub Search API
+- Database: PostgreSQL
+- ORM: Prisma
+- Hosting: Vercel
+- Authentication: BetterAuth
+- State Management: React Query
+- Styling: Tailwind CSS
+- Component Library: Shadcn/UI
+- Cache: Upstash Redis
 
-## Deploy on Vercel
+## Example Flow
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Input(User Query): "How does the authentication flow work in this codebase?"
+2. AI Agent Search: The AI agent processes the natural language query and searches the codebase using the GitHub Search API to find relevant files and code snippets related to authentication.
+3. Code Graph Generation: The AI agent generates a code graph that visualises the relationships between the relevant files and components involved in the authentication flow.
+4. Actionable Feature Cards: The application presents the user with three actionable feature cards:
+   - **Feature Card 1**: "Ownership & Activity" - Top committers, last modified dates, related issues/PRs for the authentication feature.
+   - **Feature Card 2**: "Key Files" - A list of important files related to authentication, with links to view them directly in the codebase.
+   - **Feature Card 3**: "Next Steps" - Suggestions for further exploration, such as related features or components that interact with the authentication flow.
