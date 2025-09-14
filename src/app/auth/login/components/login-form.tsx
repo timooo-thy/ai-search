@@ -105,7 +105,7 @@ export function LoginForm({
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <Button
-                  variant={lastMethod === "github" ? "default" : "outline"}
+                  variant="outline"
                   type="button"
                   className="w-full"
                   onClick={async () =>
@@ -118,16 +118,13 @@ export function LoginForm({
                   <GithubIcon />
                   <span className="sr-only">Continue with GitHub</span>
                   {lastMethod === "github" && (
-                    <Badge
-                      className="ml-2 text-primary-foreground"
-                      variant="outline"
-                    >
+                    <Badge className="ml-2" variant="default">
                       Last used
                     </Badge>
                   )}
                 </Button>
                 <Button
-                  variant={lastMethod === "google" ? "default" : "outline"}
+                  variant="outline"
                   type="button"
                   className="w-full"
                   onClick={async () =>
@@ -145,10 +142,7 @@ export function LoginForm({
                   </svg>
                   <span className="sr-only">Continue with Google</span>
                   {lastMethod === "google" && (
-                    <Badge
-                      className="ml-2 text-primary-foreground"
-                      variant="outline"
-                    >
+                    <Badge className="ml-2" variant="default">
                       Last used
                     </Badge>
                   )}
