@@ -45,7 +45,7 @@ export default async function Dashboard() {
                 Start AI Search
               </Link>
               <Link
-                href="/projects"
+                href="#"
                 className="border border-border px-8 py-4 rounded-lg font-semibold text-lg hover:bg-muted transition-all"
               >
                 Browse Projects
@@ -100,7 +100,7 @@ export default async function Dashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href="/projects">
+                <Link href="#">
                   <Button className="w-full" variant="outline">
                     View Projects
                   </Button>
@@ -120,7 +120,7 @@ export default async function Dashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href="/analytics">
+                <Link href="#">
                   <Button className="w-full" variant="outline">
                     View Analytics
                   </Button>
@@ -140,7 +140,7 @@ export default async function Dashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href="/visualize">
+                <Link href="#">
                   <Button className="w-full" variant="outline">
                     Create Graph
                   </Button>
@@ -160,7 +160,7 @@ export default async function Dashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href="/docs">
+                <Link href="#">
                   <Button className="w-full" variant="outline">
                     Read Docs
                   </Button>
@@ -180,7 +180,7 @@ export default async function Dashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href="/settings">
+                <Link href="#">
                   <Button className="w-full" variant="outline">
                     Open Settings
                   </Button>

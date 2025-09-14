@@ -60,7 +60,7 @@ export function Navbar({ user }: NavbarProps) {
                   AI Chat
                 </Link>
                 <Link
-                  href="/projects"
+                  href="#"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Projects
@@ -86,7 +86,7 @@ export function Navbar({ user }: NavbarProps) {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/settings" className="flex items-center">
+                      <Link href="#" className="flex items-center">
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
                       </Link>
@@ -167,7 +167,7 @@ export function Navbar({ user }: NavbarProps) {
                     AI Chat
                   </Link>
                   <Link
-                    href="/projects"
+                    href="#"
                     className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -181,7 +181,7 @@ export function Navbar({ user }: NavbarProps) {
                     Account
                   </Link>
                   <Link
-                    href="/settings"
+                    href="#"
                     className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
