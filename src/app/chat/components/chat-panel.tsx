@@ -5,37 +5,36 @@ import { ChatHeader } from "./chat-header";
 import { ChatInput } from "./chat-input";
 import { ChatMessages } from "./chat-messages";
 import { useSearchParams } from "next/navigation";
-import { getConversation } from "@/server/ui-message-service";
-import { ConversationWithMessages } from "@/types/ui-message";
+import { getChat } from "@/actions/ui-message-actions";
+import { MyDBUIChat } from "@/types/ui-message-type";
 
 export default function ChatPanel() {
   const searchParams = useSearchParams();
-  const conversationId = searchParams.get("id");
-  const [conversation, setConversation] = useState<
-    ConversationWithMessages | undefined
-  >(undefined);
+  const chatId = searchParams.get("id");
+  const [chat, setChat] = useState<MyDBUIChat | undefined>(undefined);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!conversationId) {
+    if (!chatId) {
+      setChat(undefined);
       return;
     }
 
     const fetchMessages = async () => {
-      const conversation = await getConversation(conversationId);
-      if (conversation) {
-        setConversation(conversation);
+      const chat = await getChat(chatId);
+      if (chat) {
+        setChat(chat);
       }
     };
 
     fetchMessages();
-  }, [conversationId]);
+  }, [chatId]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [conversation?.messages]);
+  }, [chat?.messages]);
 
   const handleSend = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -49,11 +48,7 @@ export default function ChatPanel() {
   return (
     <div className="flex flex-col h-full">
       <ChatHeader />
-      <ChatMessages
-        conversation={conversation}
-        loading={loading}
-        chatEndRef={chatEndRef}
-      />
+      <ChatMessages chat={chat} loading={loading} chatEndRef={chatEndRef} />
       <ChatInput
         input={input}
         loading={loading}

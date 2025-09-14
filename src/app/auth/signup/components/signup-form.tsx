@@ -116,7 +116,7 @@ export function SignUpForm({
                   <GithubIcon />
                   <span className="sr-only">Sign up with GitHub</span>
                   {lastMethod === "github" && (
-                    <Badge className="ml-2" variant="default">
+                    <Badge className="ml-2 rounded-xl" variant="default">
                       Last used
                     </Badge>
                   )}
@@ -140,7 +140,7 @@ export function SignUpForm({
                   </svg>
                   <span className="sr-only">Sign up with Google</span>
                   {lastMethod === "google" && (
-                    <Badge className="ml-2" variant="default">
+                    <Badge className="ml-2 rounded-xl" variant="default">
                       Last used
                     </Badge>
                   )}

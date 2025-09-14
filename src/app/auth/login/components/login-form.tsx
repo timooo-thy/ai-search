@@ -91,7 +91,7 @@ export function LoginForm({
                 Login
                 {lastMethod === "email" && (
                   <Badge
-                    className="ml-2 text-primary-foreground"
+                    className="ml-2 text-primary-foreground rounded-xl"
                     variant="outline"
                   >
                     Last used
@@ -118,7 +118,7 @@ export function LoginForm({
                   <GithubIcon />
                   <span className="sr-only">Continue with GitHub</span>
                   {lastMethod === "github" && (
-                    <Badge className="ml-2" variant="default">
+                    <Badge className="ml-2 rounded-xl" variant="default">
                       Last used
                     </Badge>
                   )}
@@ -142,7 +142,7 @@ export function LoginForm({
                   </svg>
                   <span className="sr-only">Continue with Google</span>
                   {lastMethod === "google" && (
-                    <Badge className="ml-2" variant="default">
+                    <Badge className="ml-2 rounded-xl" variant="default">
                       Last used
                     </Badge>
                   )}

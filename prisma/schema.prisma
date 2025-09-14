@@ -9,7 +9,7 @@ datasource db {
 }
 
 model User {
-  id            String         @id
+  id            String    @id
   name          String
   email         String
   emailVerified Boolean
@@ -18,7 +18,7 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
-  conversations Conversation[]
+  chats         Chat[]
 
   @@unique([email])
   @@map("user")
@@ -69,43 +69,72 @@ model Verification {
   @@map("verification")
 }
 
-// AI SDK UIMessage related models
-model Conversation {
+// Chats table
+model Chat {
   id        String    @id @default(cuid())
   title     String
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages  Message[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  User      User?     @relation(fields: [userId], references: [id])
+  userId    String?
 
-  @@map("conversation")
+  @@map("chat")
 }
 
+// Messages table
 model Message {
-  id             String        @id @default(cuid())
-  conversationId String
-  conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  role           MessageRole
-  metadata       Json? // Custom metadata as JSON
-  parts          MessagePart[]
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id        String      @id @default(cuid())
+  chatId    String
+  chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  role      MessageRole
+  parts     Part[]
 
+  @@index([chatId], map: "messages_chat_id_idx")
+  @@index([chatId, createdAt], map: "messages_chat_id_created_at_idx")
   @@map("message")
 }
 
-model MessagePart {
+// Parts table
+model Part {
   id        String          @id @default(cuid())
   messageId String
-  message   Message         @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  message   Message         @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   type      MessagePartType
-  content   Json // Store part content as JSON for flexibility
-  order     Int // To maintain order of parts
-  state     String? // For parts that have state (streaming, done, etc.)
   createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  order     Int             @default(0)
 
-  @@map("message_part")
+  // Text fields
+  text_text String?
+
+  // Reasoning fields
+  reasoning_text String?
+
+  // File fields
+  file_mediaType String?
+  file_filename  String?
+  file_url       String?
+
+  // Source url fields
+  source_url_sourceId String?
+  source_url_url      String?
+  source_url_title    String?
+
+  // Source document fields
+  source_document_sourceId  String?
+  source_document_mediaType String?
+  source_document_title     String?
+  source_document_filename  String?
+
+  // Provider metadata
+  providerMetadata Json?
+
+  @@index([messageId], map: "parts_message_id_idx")
+  @@index([messageId, order], map: "parts_message_id_order_idx")
+  @@map("part")
 }
 
 enum MessageRole {
@@ -118,6 +147,10 @@ enum MessageRole {
 
 enum MessagePartType {
   text
+  reasoning
+  file
+  source_url
+  source_document
 
   @@map("message_part_type")
 }

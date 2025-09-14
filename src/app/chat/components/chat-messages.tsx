@@ -2,23 +2,30 @@ import { Card } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ConversationWithMessages,
-  prismaMessageToUIMessage,
-} from "@/types/ui-message";
+import { mapDBPartToUIMessagePart } from "@/lib/ui-message-util";
+import { MyDBUIChat } from "@/types/ui-message-type";
 
 interface ChatMessagesProps {
-  conversation: ConversationWithMessages | undefined;
+  chat: MyDBUIChat | undefined;
   loading: boolean;
   chatEndRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export function ChatMessages({
-  conversation,
-  loading,
-  chatEndRef,
-}: ChatMessagesProps) {
-  const uiMessages = conversation?.messages.map(prismaMessageToUIMessage);
+export function ChatMessages({ chat, loading, chatEndRef }: ChatMessagesProps) {
+  const uiMessages = chat?.messages.map((msg) => {
+    return {
+      id: msg.id,
+      role: msg.role,
+      parts: msg.parts.map((part) => mapDBPartToUIMessagePart(part)),
+      metadata: {
+        time: msg.createdAt.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      },
+    };
+  });
+
   return (
     <div className="flex flex-col flex-1 h-full">
       <ScrollArea className="flex-1 px-4 py-6 bg-background">

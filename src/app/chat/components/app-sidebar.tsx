@@ -43,10 +43,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Session } from "@/lib/auth-client";
 import SignOutButton from "./signout-button";
 import {
-  createConversation,
-  getUserConversationTitles,
-  deleteConversation,
-} from "@/server/ui-message-service";
+  createChat,
+  getUserChatTitles,
+  deleteChat,
+} from "@/actions/ui-message-actions";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
@@ -67,15 +67,15 @@ export function AppSidebar({ user }: AppSidebarProps) {
       icon: Plus,
       action: async () => {
         try {
-          const conversation = await createConversation(user.id, "New Chat");
-          const conversations = await getUserConversationTitles(user.id);
+          const chat = await createChat(user.id, "New Chat");
+          const chats = await getUserChatTitles(user.id);
           setRecentConversationTitles(
-            conversations.map((c) => ({
+            chats.map((c) => ({
               id: c.id,
               title: c.title,
             }))
           );
-          router.replace(`/chat?id=${conversation.id}`);
+          router.replace(`/chat?id=${chat.id}`);
         } catch (error) {
           toast.error("Failed to create new chat. Please try again.");
         }
@@ -94,20 +94,20 @@ export function AppSidebar({ user }: AppSidebarProps) {
     string | null
   >(null);
 
-  const handleDeleteConversation = async (conversationId: string) => {
+  const handleDeleteChat = async (chatId: string) => {
     try {
-      await deleteConversation(conversationId);
+      await deleteChat(chatId);
 
-      const conversations = await getUserConversationTitles(user.id);
+      const chats = await getUserChatTitles(user.id);
       setRecentConversationTitles(
-        conversations.map((c) => ({
+        chats.map((c) => ({
           id: c.id,
           title: c.title,
         }))
       );
 
-      // Redirect to chat page without ID if the current conversation was deleted
-      if (currentConversationId === conversationId) {
+      // Redirect to chat page without ID if the current chat was deleted
+      if (currentConversationId === chatId) {
         router.replace("/chat");
       }
       toast.success("Chat deleted successfully");
@@ -118,17 +118,17 @@ export function AppSidebar({ user }: AppSidebarProps) {
   };
 
   useEffect(() => {
-    async function fetchConversations() {
-      const conversations = await getUserConversationTitles(user.id);
+    async function fetchChats() {
+      const chats = await getUserChatTitles(user.id);
       setRecentConversationTitles(
-        conversations.map((c) => ({
+        chats.map((c) => ({
           id: c.id,
           title: c.title,
         }))
       );
     }
 
-    fetchConversations();
+    fetchChats();
   }, [user.id]);
 
   return (
@@ -220,7 +220,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction
-                            onClick={() => handleDeleteConversation(chat.id)}
+                            onClick={() => handleDeleteChat(chat.id)}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
                             Delete
