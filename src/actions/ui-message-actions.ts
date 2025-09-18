@@ -14,52 +14,49 @@ export async function createChat(userId: string, title: string) {
     data: {
       userId,
       title,
-      messages: {
-        create: [
-          {
-            role: "assistant",
-            parts: {
-              create: [
-                {
-                  type: "text",
-                  text_text: "How can I assist you today?",
-                  order: 0,
-                },
-              ],
-            },
-          },
-        ],
-      },
     },
   });
 }
 
-// Save a UIMessage to the database
-export async function saveMessage(
-  uiMessage: MyUIMessage,
+// Save UIMessages to the database
+export async function saveNewMessages(
+  uiMessages: MyUIMessage[],
   chatId: string
-): Promise<MyDBUIMessagePart[]> {
-  const message = await prisma.message.create({
-    data: {
-      id: uiMessage.id,
-      chatId,
-      role: uiMessage.role,
-      parts: {
-        create: mapUIMessagePartsToDBParts(uiMessage.parts).map((part) => ({
-          ...part,
-          providerMetadata:
-            part.providerMetadata !== null
-              ? (part.providerMetadata as Prisma.InputJsonValue)
-              : Prisma.DbNull,
-        })),
-      },
-    },
-    include: {
-      parts: true,
-    },
+) {
+  const existingMessages = await prisma.message.findMany({
+    where: { chatId },
+    select: { id: true },
   });
 
-  return message.parts;
+  const existingIds = new Set(existingMessages.map((msg) => msg.id));
+
+  const newMessages = uiMessages.filter((msg) => !existingIds.has(msg.id));
+
+  if (newMessages.length === 0) {
+    return [];
+  }
+
+  for (const uiMessage of newMessages) {
+    await prisma.message.create({
+      data: {
+        id: uiMessage.id,
+        chatId,
+        role: uiMessage.role,
+        parts: {
+          create: mapUIMessagePartsToDBParts(uiMessage.parts).map((part) => ({
+            ...part,
+            providerMetadata:
+              part.providerMetadata !== null
+                ? (part.providerMetadata as Prisma.InputJsonValue)
+                : Prisma.DbNull,
+          })),
+        },
+      },
+      include: {
+        parts: true,
+      },
+    });
+  }
 }
 
 // Get all messages from a chat as UIMessages
@@ -83,8 +80,12 @@ export async function getChatMessagesById(
 }
 
 // Get a chat with all its messages
-export async function getChat(chatId: string) {
-  return await prisma.chat.findUnique({
+export async function loadChat(chatId: string) {
+  if (!chatId) {
+    return [];
+  }
+
+  const chat = await prisma.chat.findUnique({
     where: { id: chatId },
     include: {
       messages: {
@@ -95,6 +96,23 @@ export async function getChat(chatId: string) {
       },
     },
   });
+
+  const previousMessages: MyUIMessage[] =
+    chat?.messages.map((msg) => {
+      return {
+        id: msg.id,
+        role: msg.role,
+        parts: msg.parts.map((part) => mapDBPartToUIMessagePart(part)),
+        metadata: {
+          time: msg.createdAt.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        },
+      };
+    }) || [];
+
+  return previousMessages;
 }
 
 // Get all chats for a user

@@ -49,7 +49,7 @@ import {
 } from "@/actions/ui-message-actions";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { redirect, useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 type AppSidebarProps = {
@@ -58,8 +58,7 @@ type AppSidebarProps = {
 
 export function AppSidebar({ user }: AppSidebarProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const currentConversationId = searchParams.get("id");
+  const currentConversationId = useParams<{ id: string }>().id;
 
   const navigationItems = [
     {
@@ -75,7 +74,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
               title: c.title,
             }))
           );
-          router.replace(`/chat?id=${chat.id}`);
+          router.replace(`/chat/${chat.id}`);
         } catch (error) {
           toast.error("Failed to create new chat. Please try again.");
         }
@@ -132,7 +131,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
   }, [user.id]);
 
   return (
-    <Sidebar variant="inset">
+    <Sidebar variant="sidebar">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -185,7 +184,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                         }
                         className="bg-secondary-foreground justify-start"
                         onClick={() => {
-                          router.replace(`/chat?id=${chat.id}`);
+                          router.replace(`/chat/${chat.id}`);
                         }}
                       >
                         <span className="truncate text-sm text-left">

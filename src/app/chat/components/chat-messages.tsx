@@ -1,36 +1,27 @@
 import { Card } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
-import { mapDBPartToUIMessagePart } from "@/lib/ui-message-util";
-import { MyDBUIChat } from "@/types/ui-message-type";
+import { MyUIMessage } from "@/types/ui-message-type";
+import { ChatStatus } from "ai";
+import { MemoizedMarkdown } from "./memoized-markdown";
+import { PulseLoader } from "react-spinners";
 
 interface ChatMessagesProps {
-  chat: MyDBUIChat | undefined;
-  loading: boolean;
+  messages: MyUIMessage[];
+  status: ChatStatus;
   chatEndRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export function ChatMessages({ chat, loading, chatEndRef }: ChatMessagesProps) {
-  const uiMessages = chat?.messages.map((msg) => {
-    return {
-      id: msg.id,
-      role: msg.role,
-      parts: msg.parts.map((part) => mapDBPartToUIMessagePart(part)),
-      metadata: {
-        time: msg.createdAt.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      },
-    };
-  });
-
+export function ChatMessages({
+  messages,
+  status,
+  chatEndRef,
+}: ChatMessagesProps) {
   return (
     <div className="flex flex-col flex-1 h-full">
       <ScrollArea className="flex-1 px-4 py-6 bg-background">
         <div className="space-y-4">
-          {uiMessages?.map((msg) => (
+          {messages?.map((msg) => (
             <div
               key={msg.id}
               className={`flex ${
@@ -51,13 +42,14 @@ export function ChatMessages({ chat, loading, chatEndRef }: ChatMessagesProps) {
                   msg.parts.map(
                     (part, key) =>
                       part.type === "text" && (
-                        <div key={key}>
-                          <div className="whitespace-pre-line">{part.text}</div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-muted-foreground">
-                              {msg.metadata?.time}
-                            </span>
-                          </div>
+                        <div
+                          className="flex flex-col"
+                          key={`${msg.id}-${part}-${key}`}
+                        >
+                          <MemoizedMarkdown id={key} content={part.text} />
+                          <span className="text-xs text-muted-foreground">
+                            {msg.metadata?.time}
+                          </span>
                         </div>
                       )
                   )}
@@ -69,11 +61,12 @@ export function ChatMessages({ chat, loading, chatEndRef }: ChatMessagesProps) {
               )}
             </div>
           ))}
-          {loading && (
-            <div className="flex justify-start">
-              <Skeleton className="h-12 w-32 rounded-lg bg-muted" />
+          {status === "streaming" && (
+            <div className="ml-12">
+              <PulseLoader size={6} color="#4a2e2d" />
             </div>
           )}
+
           <div ref={chatEndRef} />
         </div>
       </ScrollArea>

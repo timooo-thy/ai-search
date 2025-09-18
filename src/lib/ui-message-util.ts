@@ -10,9 +10,8 @@ export const mapUIMessagePartsToDBParts = (
   messageParts: MyUIMessagePart[]
 ): MyDBUIMessagePart[] => {
   return messageParts.map((part, index) => {
-    const basePart: MyDBUIMessagePart = {
+    const basePart: Omit<MyDBUIMessagePart, "type"> = {
       order: index,
-      type: part.type as MessagePartType,
       text_text: null,
       reasoning_text: null,
       file_mediaType: null,
@@ -29,27 +28,33 @@ export const mapUIMessagePartsToDBParts = (
     };
 
     switch (part.type) {
+      case "step-start":
+        return {
+          ...basePart,
+          type: MessagePartType.step_start,
+          order: index,
+        };
       case "text":
         return {
           ...basePart,
+          type: MessagePartType.text,
           order: index,
-          type: part.type as MessagePartType,
           text_text: part.text,
           providerMetadata: part.providerMetadata as Prisma.JsonValue | null,
         };
       case "reasoning":
         return {
           ...basePart,
+          type: MessagePartType.reasoning,
           order: index,
-          type: part.type as MessagePartType,
           reasoning_text: part.text,
           providerMetadata: part.providerMetadata as Prisma.JsonValue | null,
         };
       case "file":
         return {
           ...basePart,
+          type: MessagePartType.file,
           order: index,
-          type: part.type as MessagePartType,
           file_mediaType: part.mediaType,
           file_filename: part.filename || null,
           file_url: part.url,
@@ -58,8 +63,8 @@ export const mapUIMessagePartsToDBParts = (
       case "source-document":
         return {
           ...basePart,
+          type: MessagePartType.source_document,
           order: index,
-          type: part.type.replace("-", "_") as MessagePartType,
           source_document_sourceId: part.sourceId,
           source_document_mediaType: part.mediaType,
           source_document_title: part.title || null,
@@ -69,8 +74,8 @@ export const mapUIMessagePartsToDBParts = (
       case "source-url":
         return {
           ...basePart,
+          type: MessagePartType.source_url,
           order: index,
-          type: part.type.replace("-", "_") as MessagePartType,
           source_url_sourceId: part.sourceId,
           source_url_url: part.url,
           source_url_title: part.title || null,
@@ -90,6 +95,10 @@ export const mapDBPartToUIMessagePart = (
     : undefined;
 
   switch (part.type) {
+    case "step_start":
+      return {
+        type: "step-start",
+      };
     case "text":
       return {
         type: part.type,

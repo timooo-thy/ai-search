@@ -2,11 +2,11 @@ import { UIMessage, UIMessagePart } from "ai";
 import type { Message, Part, Chat } from "../../generated/prisma";
 import z from "zod";
 
-const metadataSchema = z.object({
+export const metadataSchema = z.object({
   time: z.string(),
 });
 
-type MyMetadata = z.infer<typeof metadataSchema>;
+export type MyMetadata = z.infer<typeof metadataSchema>;
 
 export type MyUIMessage = UIMessage<
   MyMetadata,

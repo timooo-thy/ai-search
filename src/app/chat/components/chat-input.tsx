@@ -7,17 +7,18 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { MessagesSquareIcon } from "lucide-react";
+import { ChatStatus } from "ai";
 
 interface ChatInputProps {
   input: string;
-  loading: boolean;
+  status: ChatStatus;
   onInputChange: (value: string) => void;
-  onSubmit: (e?: React.FormEvent) => void;
+  onSubmit: (e: React.FormEvent) => Promise<void>;
 }
 
 export function ChatInput({
   input,
-  loading,
+  status,
   onInputChange,
   onSubmit,
 }: ChatInputProps) {
@@ -37,7 +38,7 @@ export function ChatInput({
             onSubmit(e);
           }
         }}
-        disabled={loading}
+        disabled={status !== "ready"}
       />
       <TooltipProvider>
         <Tooltip>
@@ -45,7 +46,11 @@ export function ChatInput({
             <span>
               <Button
                 type="submit"
-                disabled={loading || !input.trim()}
+                disabled={
+                  status === "streaming" ||
+                  status === "submitted" ||
+                  !input.trim()
+                }
                 className="bg-primary text-primary-foreground"
               >
                 <MessagesSquareIcon />

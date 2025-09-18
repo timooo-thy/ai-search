@@ -151,6 +151,7 @@ enum MessagePartType {
   file
   source_url
   source_document
+  step_start
 
   @@map("message_part_type")
 }
