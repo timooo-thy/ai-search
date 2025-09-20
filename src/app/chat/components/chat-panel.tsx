@@ -69,7 +69,7 @@ export default function ChatPanel({
 
       router.replace(`/chat/${chatId}`);
     }
-  }, [initialQuery, sendMessage, status]);
+  }, [initialQuery, sendMessage, status, chatId, router]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "auto" });
