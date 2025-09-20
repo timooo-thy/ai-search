@@ -42,7 +42,9 @@ export function NewChatInterface() {
         const data = await response.json();
         setTimeData(data);
       } catch (error) {
+        console.error("Error fetching time data:", error);
         toast.error("Error fetching time data.");
+
         setTimeData({
           datetime: new Date().toISOString(),
           timezone: "Asia/Singapore",
@@ -76,6 +78,9 @@ export function NewChatInterface() {
           });
         }
       } catch (error) {
+        console.error("Error fetching stock data:", error);
+        toast.error("Error fetching stock data.");
+
         setStockData({
           symbol: "NVDA",
           price: 176.67,
@@ -108,6 +113,7 @@ export function NewChatInterface() {
           });
         }
       } catch (error) {
+        console.error("Error fetching weather data:", error);
         toast.error("Error fetching weather data.");
 
         setWeatherData({

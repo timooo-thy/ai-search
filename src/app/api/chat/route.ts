@@ -54,7 +54,6 @@ export async function POST(req: Request) {
       },
       onFinish: async ({ responseMessage }) => {
         try {
-          console.log("Saving new messages...");
           await saveNewMessages(
             [...validatedMessages.slice(-1), responseMessage],
             id
@@ -65,6 +64,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
+    console.error("Error in POST /api/chat:", error);
     return new Response("Chat not found.", { status: 404 });
   }
 }

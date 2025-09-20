@@ -22,6 +22,7 @@ export default async function ChatPage(props: {
       </SidebarProvider>
     );
   } catch (error) {
+    console.error("Error loading chat:", error);
     notFound();
   }
 }

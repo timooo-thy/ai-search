@@ -73,6 +73,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
           ]);
           router.push(`/chat/${chat.id}`);
         } catch (error) {
+          console.error("Error creating new chat:", error);
           toast.error("Failed to create new chat. Please try again.");
 
           const chats = await getUserChatTitles();
@@ -111,6 +112,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       }
       toast.success("Chat deleted successfully");
     } catch (error) {
+      console.error("Error deleting chat:", error);
       toast.error("Failed to delete chat. Please try again.");
       const chats = await getUserChatTitles();
       setRecentConversationTitles(
