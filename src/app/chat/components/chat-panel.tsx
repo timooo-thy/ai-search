@@ -3,24 +3,27 @@
 import { useEffect, useRef, useState } from "react";
 import { ChatInput } from "./chat-input";
 import { ChatMessages } from "./chat-messages";
-import { metadataSchema, MyUIMessage } from "@/types/ui-message-type";
+import { MyUIMessage } from "@/types/ui-message-type";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { ChatHeader } from "./chat-header";
+import { toast } from "sonner";
 
 type ChatPanelProps = {
   chatId: string;
   previousMessages: MyUIMessage[];
+  userId: string;
 };
 
 export default function ChatPanel({
   chatId,
   previousMessages,
+  userId,
 }: ChatPanelProps) {
   const [input, setInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, sendMessage, status } = useChat({
+  const { messages, sendMessage, status, stop } = useChat({
     id: chatId,
     transport: new DefaultChatTransport({
       api: "/api/chat",
@@ -29,10 +32,16 @@ export default function ChatPanel({
           body: {
             message: messages[messages.length - 1],
             id,
+            userId,
           },
         };
       },
     }),
+    onError: (error) => {
+      toast.error(
+        error?.message || "An error occurred. Please try again later."
+      );
+    },
     messages: previousMessages,
   });
 
@@ -73,6 +82,7 @@ export default function ChatPanel({
         status={status}
         onInputChange={handleInputChange}
         onSubmit={handleSend}
+        onStop={stop}
       />
     </div>
   );

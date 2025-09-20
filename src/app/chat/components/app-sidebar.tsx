@@ -49,7 +49,7 @@ import {
 } from "@/actions/ui-message-actions";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { redirect, useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 type AppSidebarProps = {
@@ -74,7 +74,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
               title: c.title,
             }))
           );
-          router.replace(`/chat/${chat.id}`);
+          router.push(`/chat/${chat.id}`);
         } catch (error) {
           toast.error("Failed to create new chat. Please try again.");
         }
@@ -107,7 +107,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
       // Redirect to chat page without ID if the current chat was deleted
       if (currentConversationId === chatId) {
-        router.replace("/chat");
+        router.push("/chat");
       }
       toast.success("Chat deleted successfully");
     } catch (error) {
@@ -131,7 +131,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
   }, [user.id]);
 
   return (
-    <Sidebar variant="sidebar">
+    <Sidebar variant="inset">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -184,7 +184,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                         }
                         className="bg-secondary-foreground justify-start"
                         onClick={() => {
-                          router.replace(`/chat/${chat.id}`);
+                          router.push(`/chat/${chat.id}`);
                         }}
                       >
                         <span className="truncate text-sm text-left">
@@ -265,7 +265,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
               >
                 <DropdownMenuItem
                   onClick={async () => {
-                    redirect("/dashboard");
+                    router.push("/dashboard");
                   }}
                   className="w-full"
                 >

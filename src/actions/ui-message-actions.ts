@@ -80,13 +80,18 @@ export async function getChatMessagesById(
 }
 
 // Get a chat with all its messages
-export async function loadChat(chatId: string) {
-  if (!chatId) {
-    return [];
+export async function loadChat(chatId: string, userId: string) {
+  const hasAccess = await prisma.chat.findFirst({
+    where: { id: chatId, userId },
+    select: { id: true },
+  });
+
+  if (!hasAccess) {
+    throw new Error("Chat not found or access denied.");
   }
 
   const chat = await prisma.chat.findUnique({
-    where: { id: chatId },
+    where: { id: chatId, userId },
     include: {
       messages: {
         include: {
