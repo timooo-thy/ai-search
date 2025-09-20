@@ -8,6 +8,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { ChatHeader } from "./chat-header";
 import { toast } from "sonner";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type ChatPanelProps = {
   chatId: string;
@@ -18,6 +19,11 @@ export default function ChatPanel({
   chatId,
   previousMessages,
 }: ChatPanelProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("query") || "";
+  const hasProcessedInitialQueryRef = useRef(false);
+
   const [input, setInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -43,6 +49,29 @@ export default function ChatPanel({
   });
 
   useEffect(() => {
+    if (
+      initialQuery &&
+      sendMessage &&
+      !hasProcessedInitialQueryRef.current &&
+      status === "ready"
+    ) {
+      hasProcessedInitialQueryRef.current = true;
+
+      sendMessage({
+        text: decodeURIComponent(initialQuery),
+        metadata: {
+          time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        },
+      });
+
+      router.replace(`/chat/${chatId}`);
+    }
+  }, [initialQuery, sendMessage, status]);
+
+  useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages]);
 
@@ -66,6 +95,7 @@ export default function ChatPanel({
   const handleInputChange = (value: string) => {
     setInput(value);
   };
+
   return (
     <div className="flex flex-col h-full">
       <ChatHeader />

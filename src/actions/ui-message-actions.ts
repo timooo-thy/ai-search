@@ -114,6 +114,10 @@ export async function loadChat(chatId: string) {
     },
   });
 
+  if (!chat) {
+    throw new Error("Chat not found.");
+  }
+
   const previousMessages: MyUIMessage[] =
     chat?.messages.map((msg) => {
       return {
