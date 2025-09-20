@@ -66,17 +66,22 @@ export function AppSidebar({ user }: AppSidebarProps) {
       icon: Plus,
       action: async () => {
         try {
-          const chat = await createChat(user.id, "New Chat");
-          const chats = await getUserChatTitles(user.id);
+          const chat = await createChat("New Chat");
+          setRecentConversationTitles((prev) => [
+            ...prev,
+            { id: chat.id, title: chat.title },
+          ]);
+          router.push(`/chat/${chat.id}`);
+        } catch (error) {
+          toast.error("Failed to create new chat. Please try again.");
+
+          const chats = await getUserChatTitles();
           setRecentConversationTitles(
             chats.map((c) => ({
               id: c.id,
               title: c.title,
             }))
           );
-          router.push(`/chat/${chat.id}`);
-        } catch (error) {
-          toast.error("Failed to create new chat. Please try again.");
         }
       },
     },
@@ -95,15 +100,10 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
   const handleDeleteChat = async (chatId: string) => {
     try {
-      await deleteChat(chatId);
-
-      const chats = await getUserChatTitles(user.id);
-      setRecentConversationTitles(
-        chats.map((c) => ({
-          id: c.id,
-          title: c.title,
-        }))
+      setRecentConversationTitles((prev) =>
+        prev.filter((chat) => chat.id !== chatId)
       );
+      await deleteChat(chatId);
 
       // Redirect to chat page without ID if the current chat was deleted
       if (currentConversationId === chatId) {
@@ -112,13 +112,20 @@ export function AppSidebar({ user }: AppSidebarProps) {
       toast.success("Chat deleted successfully");
     } catch (error) {
       toast.error("Failed to delete chat. Please try again.");
+      const chats = await getUserChatTitles();
+      setRecentConversationTitles(
+        chats.map((c) => ({
+          id: c.id,
+          title: c.title,
+        }))
+      );
     }
     setConversationToDelete(null);
   };
 
   useEffect(() => {
     async function fetchChats() {
-      const chats = await getUserChatTitles(user.id);
+      const chats = await getUserChatTitles();
       setRecentConversationTitles(
         chats.map((c) => ({
           id: c.id,

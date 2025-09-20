@@ -12,13 +12,11 @@ import { toast } from "sonner";
 type ChatPanelProps = {
   chatId: string;
   previousMessages: MyUIMessage[];
-  userId: string;
 };
 
 export default function ChatPanel({
   chatId,
   previousMessages,
-  userId,
 }: ChatPanelProps) {
   const [input, setInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -32,7 +30,6 @@ export default function ChatPanel({
           body: {
             message: messages[messages.length - 1],
             id,
-            userId,
           },
         };
       },

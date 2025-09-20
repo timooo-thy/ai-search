@@ -8,6 +8,7 @@ import { MessageBottomBar } from "./message-bottom-bar";
 import { PulseLoader } from "react-spinners";
 import { toast } from "sonner";
 import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface ChatMessagesProps {
   messages: MyUIMessage[];
@@ -37,9 +38,14 @@ export function ChatMessages({
                   <span className="text-lg">AI</span>
                 </Avatar>
               )}
-              <div className="flex flex-col max-w-[70%]">
+              <div
+                className={cn(
+                  "flex flex-col max-w-[70%]",
+                  msg.role === "user" && "mb-10"
+                )}
+              >
                 <Card
-                  className={`bg-card text-card-foreground px-4 py-2 rounded-lg shadow ${
+                  className={`bg-card text-card-foreground px-4 py-2 rounded-lg shadow min-w-xl min-h-14 ${
                     msg.role === "user" && " ml-auto"
                   }`}
                 >

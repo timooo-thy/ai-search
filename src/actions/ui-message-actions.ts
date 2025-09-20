@@ -1,18 +1,28 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { MyUIMessage, MyDBUIMessagePart } from "../types/ui-message-type";
+import { MyUIMessage } from "../types/ui-message-type";
 import { Prisma } from "../../generated/prisma";
 import {
   mapDBPartToUIMessagePart,
   mapUIMessagePartsToDBParts,
 } from "@/lib/ui-message-util";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 // Create a new chat
-export async function createChat(userId: string, title: string) {
+export async function createChat(title: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
   return await prisma.chat.create({
     data: {
-      userId,
+      userId: session.user.id,
       title,
     },
   });
@@ -23,20 +33,15 @@ export async function saveNewMessages(
   uiMessages: MyUIMessage[],
   chatId: string
 ) {
-  const existingMessages = await prisma.message.findMany({
-    where: { chatId },
-    select: { id: true },
+  const session = await auth.api.getSession({
+    headers: await headers(),
   });
 
-  const existingIds = new Set(existingMessages.map((msg) => msg.id));
-
-  const newMessages = uiMessages.filter((msg) => !existingIds.has(msg.id));
-
-  if (newMessages.length === 0) {
-    return [];
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
   }
 
-  for (const uiMessage of newMessages) {
+  for (const uiMessage of uiMessages) {
     await prisma.message.create({
       data: {
         id: uiMessage.id,
@@ -62,14 +67,22 @@ export async function saveNewMessages(
 // Get all messages from a chat as UIMessages
 export async function getChatMessagesById(
   chatId: string
-): Promise<MyUIMessage[]> {
-  const messages = await prisma.message.findMany({
-    where: { chatId },
-    include: { parts: true },
+): Promise<MyUIMessage[] | undefined> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
+  const chat = await prisma.chat.findFirst({
+    where: { id: chatId, userId: session.user.id },
+    include: { messages: { include: { parts: true } } },
     orderBy: { createdAt: "asc" },
   });
 
-  return messages.map((message) => ({
+  return chat?.messages.map((message) => ({
     id: message.id,
     role: message.role,
     metadata: { time: message.createdAt.toLocaleTimeString() },
@@ -80,18 +93,17 @@ export async function getChatMessagesById(
 }
 
 // Get a chat with all its messages
-export async function loadChat(chatId: string, userId: string) {
-  const hasAccess = await prisma.chat.findFirst({
-    where: { id: chatId, userId },
-    select: { id: true },
+export async function loadChat(chatId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
   });
 
-  if (!hasAccess) {
-    throw new Error("Chat not found or access denied.");
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
   }
 
   const chat = await prisma.chat.findUnique({
-    where: { id: chatId, userId },
+    where: { id: chatId, userId: session.user.id },
     include: {
       messages: {
         include: {
@@ -121,9 +133,17 @@ export async function loadChat(chatId: string, userId: string) {
 }
 
 // Get all chats for a user
-export async function getUserChats(userId: string) {
+export async function getUserChats() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
   return await prisma.chat.findMany({
-    where: { userId },
+    where: { userId: session.user.id },
     include: {
       messages: {
         include: {
@@ -137,9 +157,17 @@ export async function getUserChats(userId: string) {
 }
 
 // Get all recent chat titles for a user
-export async function getUserChatTitles(userId: string) {
+export async function getUserChatTitles() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
   return await prisma.chat.findMany({
-    where: { userId },
+    where: { userId: session.user.id },
     select: { title: true, id: true },
     orderBy: { updatedAt: "desc" },
   });
@@ -147,7 +175,19 @@ export async function getUserChatTitles(userId: string) {
 
 // Delete a chat and all its messages
 export async function deleteChat(chatId: string) {
-  return await prisma.chat.delete({
-    where: { id: chatId },
+  const session = await auth.api.getSession({
+    headers: await headers(),
   });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
+  try {
+    await prisma.chat.delete({
+      where: { id: chatId, userId: session.user.id },
+    });
+  } catch (error) {
+    throw new Error("Failed to delete chat.");
+  }
 }

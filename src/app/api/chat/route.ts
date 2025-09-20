@@ -1,4 +1,5 @@
 import { loadChat, saveNewMessages } from "@/actions/ui-message-actions";
+import { auth } from "@/lib/auth";
 import { metadataSchema, MyUIMessage } from "@/types/ui-message-type";
 import { perplexity } from "@ai-sdk/perplexity";
 import {
@@ -7,15 +8,21 @@ import {
   streamText,
   validateUIMessages,
 } from "ai";
+import { headers } from "next/headers";
 
 export async function POST(req: Request) {
-  const {
-    message,
-    id,
-    userId,
-  }: { message: MyUIMessage; id: string; userId: string } = await req.json();
+  const { message, id }: { message: MyUIMessage; id: string } =
+    await req.json();
   try {
-    const previousMessages = await loadChat(id, userId);
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
+    const previousMessages = await loadChat(id);
 
     const validatedMessages: MyUIMessage[] = await validateUIMessages({
       messages: [...previousMessages, message],
@@ -45,11 +52,11 @@ export async function POST(req: Request) {
           };
         }
       },
-      onFinish: ({ messages }) => {
-        saveNewMessages(messages, id);
+      onFinish: ({ responseMessage }) => {
+        saveNewMessages([...validatedMessages.slice(-1), responseMessage], id);
       },
     });
   } catch (error) {
-    return new Response("Chat not found or access denied.", { status: 404 });
+    return new Response("Chat not found.", { status: 404 });
   }
 }

@@ -12,16 +12,12 @@ export default async function ChatPage(props: {
   const { id } = await props.params;
 
   try {
-    const previousMessages = await loadChat(id, user.id);
+    const previousMessages = await loadChat(id);
     return (
       <SidebarProvider>
         <AppSidebar user={user} />
         <SidebarInset>
-          <ChatPanel
-            chatId={id}
-            previousMessages={previousMessages}
-            userId={user.id}
-          />
+          <ChatPanel chatId={id} previousMessages={previousMessages} />
         </SidebarInset>
       </SidebarProvider>
     );
