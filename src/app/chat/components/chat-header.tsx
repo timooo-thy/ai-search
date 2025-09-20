@@ -1,5 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export function ChatHeader() {
   return (
@@ -7,13 +8,16 @@ export function ChatHeader() {
       <div className="flex items-center gap-2">
         <SidebarTrigger />
       </div>
-      <Tabs defaultValue="chat" className="">
-        <TabsList className="bg-muted">
-          <TabsTrigger value="chat">Chat</TabsTrigger>
-          <TabsTrigger value="sources">Sources</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="flex items-center gap-2">
+        <Tabs defaultValue="chat">
+          <TabsList className="bg-muted">
+            <TabsTrigger value="chat">Chat</TabsTrigger>
+            <TabsTrigger value="sources">Sources</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <ModeToggle />
+      </div>
     </div>
   );
 }
