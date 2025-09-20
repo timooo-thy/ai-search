@@ -52,10 +52,10 @@ export async function POST(req: Request) {
           };
         }
       },
-      onFinish: ({ responseMessage }) => {
-        console.log("Saving new messages...");
+      onFinish: async ({ responseMessage }) => {
         try {
-          saveNewMessages(
+          console.log("Saving new messages...");
+          await saveNewMessages(
             [...validatedMessages.slice(-1), responseMessage],
             id
           );
