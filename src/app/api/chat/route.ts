@@ -53,7 +53,15 @@ export async function POST(req: Request) {
         }
       },
       onFinish: ({ responseMessage }) => {
-        saveNewMessages([...validatedMessages.slice(-1), responseMessage], id);
+        console.log("Saving new messages...");
+        try {
+          saveNewMessages(
+            [...validatedMessages.slice(-1), responseMessage],
+            id
+          );
+        } catch (error) {
+          console.error("Error saving messages:", error);
+        }
       },
     });
   } catch (error) {

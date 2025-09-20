@@ -5,8 +5,6 @@ import { loadChat } from "@/actions/ui-message-actions";
 import ChatPanel from "../components/chat-panel";
 import { notFound } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
 export default async function ChatPage(props: {
   params: Promise<{ id: string }>;
 }) {

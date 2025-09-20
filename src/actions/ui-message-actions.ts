@@ -40,7 +40,7 @@ export async function saveNewMessages(
   if (!session) {
     throw new Error("You must be logged in to create a chat.");
   }
-
+  console.log("Messages to save:", uiMessages);
   for (const uiMessage of uiMessages) {
     await prisma.message.create({
       data: {
@@ -62,6 +62,7 @@ export async function saveNewMessages(
       },
     });
   }
+  console.log("All messages saved.");
 }
 
 // Get all messages from a chat as UIMessages
