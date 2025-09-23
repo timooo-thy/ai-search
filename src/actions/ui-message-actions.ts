@@ -28,8 +28,8 @@ export async function createChat(title: string) {
   });
 }
 
-// Save UIMessages to the database
-export async function saveNewMessages(
+// Save or update UIMessages to the database
+export async function upsertMessages(
   uiMessages: MyUIMessage[],
   chatId: string
 ) {
@@ -42,8 +42,37 @@ export async function saveNewMessages(
   }
 
   for (const uiMessage of uiMessages) {
-    await prisma.message.create({
-      data: {
+    await prisma.message.upsert({
+      where: { id: uiMessage.id },
+      update: {
+        parts: {
+          deleteMany: {},
+          create: mapUIMessagePartsToDBParts(uiMessage.parts).map((part) => ({
+            ...part,
+            providerMetadata:
+              part.providerMetadata !== null
+                ? (part.providerMetadata as Prisma.InputJsonValue)
+                : Prisma.DbNull,
+            tool_getWeatherInformation_input:
+              part.tool_getWeatherInformation_input !== null
+                ? (part.tool_getWeatherInformation_input as Prisma.InputJsonValue)
+                : Prisma.DbNull,
+            tool_getWeatherInformation_output:
+              part.tool_getWeatherInformation_output !== null
+                ? (part.tool_getWeatherInformation_output as Prisma.InputJsonValue)
+                : Prisma.DbNull,
+            tool_getLocation_input:
+              part.tool_getLocation_input !== null
+                ? (part.tool_getLocation_input as Prisma.InputJsonValue)
+                : Prisma.DbNull,
+            tool_getLocation_output:
+              part.tool_getLocation_output !== null
+                ? (part.tool_getLocation_output as Prisma.InputJsonValue)
+                : Prisma.DbNull,
+          })),
+        },
+      },
+      create: {
         id: uiMessage.id,
         chatId,
         role: uiMessage.role,
@@ -53,6 +82,22 @@ export async function saveNewMessages(
             providerMetadata:
               part.providerMetadata !== null
                 ? (part.providerMetadata as Prisma.InputJsonValue)
+                : Prisma.DbNull,
+            tool_getWeatherInformation_input:
+              part.tool_getWeatherInformation_input !== null
+                ? (part.tool_getWeatherInformation_input as Prisma.InputJsonValue)
+                : Prisma.DbNull,
+            tool_getWeatherInformation_output:
+              part.tool_getWeatherInformation_output !== null
+                ? (part.tool_getWeatherInformation_output as Prisma.InputJsonValue)
+                : Prisma.DbNull,
+            tool_getLocation_input:
+              part.tool_getLocation_input !== null
+                ? (part.tool_getLocation_input as Prisma.InputJsonValue)
+                : Prisma.DbNull,
+            tool_getLocation_output:
+              part.tool_getLocation_output !== null
+                ? (part.tool_getLocation_output as Prisma.InputJsonValue)
                 : Prisma.DbNull,
           })),
         },

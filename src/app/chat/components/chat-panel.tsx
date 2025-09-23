@@ -5,7 +5,10 @@ import { ChatInput } from "./chat-input";
 import { ChatMessages } from "./chat-messages";
 import { MyUIMessage } from "@/types/ui-message-type";
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
+import {
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithToolCalls,
+} from "ai";
 import { ChatHeader } from "./chat-header";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -27,7 +30,25 @@ export default function ChatPanel({
   const [input, setInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, sendMessage, status, stop } = useChat({
+  const { messages, sendMessage, status, stop, addToolResult } = useChat({
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    async onToolCall({ toolCall }) {
+      if (toolCall.dynamic) {
+        return;
+      }
+
+      if (toolCall.toolName === "getLocation") {
+        const cities = ["New York", "Los Angeles", "Chicago", "San Francisco"];
+
+        addToolResult({
+          tool: "getLocation",
+          toolCallId: toolCall.toolCallId,
+          output: {
+            location: cities[Math.floor(Math.random() * cities.length)],
+          },
+        });
+      }
+    },
     id: chatId,
     transport: new DefaultChatTransport({
       api: "/api/chat",

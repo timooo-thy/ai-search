@@ -132,6 +132,23 @@ model Part {
   // Provider metadata
   providerMetadata Json?
 
+  // Shared tool call fields
+  tool_toolCallId String?
+  tool_state      String?
+  tool_errorText  String?
+
+  // Tool inputs and outputs stored in separate columns
+  tool_getWeatherInformation_input  Json?
+  tool_getWeatherInformation_output Json?
+  tool_getLocation_input            Json?
+  tool_getLocation_output           Json?
+
+  // Data parts
+  data_weather_id          String?
+  data_weather_location    String?
+  data_weather_weather     Weather?
+  data_weather_temperature Float?
+
   @@index([messageId], map: "parts_message_id_idx")
   @@index([messageId, order], map: "parts_message_id_order_idx")
   @@map("part")
@@ -152,6 +169,30 @@ enum MessagePartType {
   source_url
   source_document
   step_start
+  tool_getWeatherInformation
+  tool_getLocation
+  data_weather
 
   @@map("message_part_type")
+}
+
+enum Weather {
+  Thunderstorm
+  Drizzle
+  Rain
+  Snow
+  Mist
+  Smoke
+  Haze
+  Dust
+  Fog
+  Sand
+  Ash
+  Squall
+  Tornado
+  Clear
+  Clouds
+  Unknown
+
+  @@map("weather")
 }

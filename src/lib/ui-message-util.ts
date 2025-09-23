@@ -1,9 +1,5 @@
-import {
-  MyDBUIMessagePart,
-  MyDBUIMessagePartSelect,
-  MyUIMessagePart,
-} from "@/types/ui-message-type";
-import { MessagePartType, Prisma } from "../../generated/prisma";
+import { MyDBUIMessagePart, MyUIMessagePart } from "@/types/ui-message-type";
+import { MessagePartType, Prisma, Weather } from "../../generated/prisma";
 import type { ProviderMetadata } from "ai";
 
 export const mapUIMessagePartsToDBParts = (
@@ -25,6 +21,17 @@ export const mapUIMessagePartsToDBParts = (
       source_url_url: null,
       source_url_title: null,
       providerMetadata: null,
+      tool_toolCallId: null,
+      tool_state: null,
+      tool_errorText: null,
+      tool_getWeatherInformation_input: null,
+      tool_getWeatherInformation_output: null,
+      tool_getLocation_input: null,
+      tool_getLocation_output: null,
+      data_weather_id: null,
+      data_weather_location: null,
+      data_weather_weather: null,
+      data_weather_temperature: null,
     };
 
     switch (part.type) {
@@ -81,6 +88,54 @@ export const mapUIMessagePartsToDBParts = (
           source_url_title: part.title || null,
           providerMetadata: part.providerMetadata as Prisma.JsonValue | null,
         };
+      case "tool-getWeatherInformation":
+        return {
+          ...basePart,
+          order: index,
+          type: MessagePartType.tool_getWeatherInformation,
+          tool_toolCallId: part.toolCallId,
+          tool_state: part.state,
+          tool_getWeatherInformation_input:
+            part.state === "input-available" ||
+            part.state === "output-available" ||
+            part.state === "output-error"
+              ? (part.input as Prisma.JsonValue)
+              : null,
+          tool_getWeatherInformation_output:
+            part.state === "output-available"
+              ? (part.output as Prisma.JsonValue)
+              : null,
+          tool_errorText: part.state === "output-error" ? part.errorText : null,
+        };
+      case "tool-getLocation":
+        return {
+          ...basePart,
+          order: index,
+          type: MessagePartType.tool_getLocation,
+          tool_toolCallId: part.toolCallId,
+          tool_state: part.state,
+          tool_getLocation_input:
+            part.state === "input-available" ||
+            part.state === "output-available" ||
+            part.state === "output-error"
+              ? (part.input as Prisma.JsonValue)
+              : null,
+          tool_getLocation_output:
+            part.state === "output-available"
+              ? (part.output as Prisma.JsonValue)
+              : null,
+          tool_errorText: part.state === "output-error" ? part.errorText : null,
+        };
+      case "data-weather":
+        return {
+          ...basePart,
+          order: index,
+          type: MessagePartType.data_weather,
+          data_weather_id: part.id || null,
+          data_weather_location: part.data.location || null,
+          data_weather_weather: (part.data.weather as Weather) || null,
+          data_weather_temperature: part.data.temperature || null,
+        };
       default:
         throw new Error(`Unsupported part type: ${part}`);
     }
@@ -88,7 +143,7 @@ export const mapUIMessagePartsToDBParts = (
 };
 
 export const mapDBPartToUIMessagePart = (
-  part: MyDBUIMessagePartSelect
+  part: MyDBUIMessagePart
 ): MyUIMessagePart => {
   const providerMetadata = part.providerMetadata
     ? (part.providerMetadata as ProviderMetadata)
@@ -135,7 +190,113 @@ export const mapDBPartToUIMessagePart = (
         title: part.source_url_title!,
         providerMetadata,
       };
-
+    case "tool_getWeatherInformation":
+      if (!part.tool_state) {
+        throw new Error("getWeatherInformation_state is undefined");
+      }
+      switch (part.tool_state) {
+        case "input-streaming":
+          return {
+            type: "tool-getWeatherInformation",
+            state: "input-streaming",
+            toolCallId: part.tool_toolCallId!,
+            input:
+              (part.tool_getWeatherInformation_input as Partial<{
+                city: string;
+              }>) || undefined,
+          };
+        case "input-available":
+          return {
+            type: "tool-getWeatherInformation",
+            state: "input-available",
+            toolCallId: part.tool_toolCallId!,
+            input:
+              (part.tool_getWeatherInformation_input as { city: string }) ||
+              undefined,
+          };
+        case "output-available":
+          return {
+            type: "tool-getWeatherInformation",
+            state: "output-available",
+            toolCallId: part.tool_toolCallId!,
+            input:
+              (part.tool_getWeatherInformation_input as { city: string }) ||
+              undefined,
+            output:
+              (part.tool_getWeatherInformation_output as {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                data: any;
+                city: string;
+              }) || undefined,
+          };
+        case "output-error":
+          return {
+            type: "tool-getWeatherInformation",
+            state: "output-error",
+            toolCallId: part.tool_toolCallId!,
+            input:
+              (part.tool_getWeatherInformation_input as { city: string }) ||
+              undefined,
+            errorText: part.tool_errorText!,
+          };
+      }
+    case "tool_getLocation":
+      if (!part.tool_state) {
+        throw new Error("getWeatherInformation_state is undefined");
+      }
+      switch (part.tool_state) {
+        case "input-streaming":
+          return {
+            type: "tool-getLocation",
+            state: "input-streaming",
+            toolCallId: part.tool_toolCallId!,
+            input:
+              (part.tool_getLocation_input as Partial<Record<never, never>>) ||
+              undefined,
+          };
+        case "input-available":
+          return {
+            type: "tool-getLocation",
+            state: "input-available",
+            toolCallId: part.tool_toolCallId!,
+            input:
+              (part.tool_getLocation_input as Record<string, never>) ||
+              undefined,
+          };
+        case "output-available":
+          return {
+            type: "tool-getLocation",
+            state: "output-available",
+            toolCallId: part.tool_toolCallId!,
+            input:
+              (part.tool_getLocation_input as Record<string, never>) ||
+              undefined,
+            output:
+              (part.tool_getLocation_output as { location: string }) ||
+              undefined,
+          };
+        case "output-error":
+          return {
+            type: "tool-getLocation",
+            state: "output-error",
+            toolCallId: part.tool_toolCallId!,
+            input:
+              (part.tool_getLocation_input as Record<string, never>) ||
+              undefined,
+            errorText: part.tool_errorText!,
+          };
+      }
+    case "data_weather":
+      return {
+        type: "data-weather",
+        data: {
+          loading: false,
+          location: part.data_weather_location!,
+          weather: (part.data_weather_weather as Weather) || null,
+          temperature: part.data_weather_temperature!,
+        },
+        id: part.data_weather_id!,
+      };
     default:
       throw new Error(`Unsupported part type: ${part.type}`);
   }

@@ -1,45 +1,52 @@
-import { UIMessage, UIMessagePart } from "ai";
+import { InferUITools, UIMessage, UIMessagePart } from "ai";
 import type { Message, Part, Chat } from "../../generated/prisma";
 import z from "zod";
-
+import { tools } from "@/ai/tools";
 export const metadataSchema = z.object({
   time: z.string(),
 });
 
 export type MyMetadata = z.infer<typeof metadataSchema>;
 
-export type MyUIMessage = UIMessage<
-  MyMetadata,
-  Record<string, never>,
-  Record<string, never>
->;
+export type MyUIMessage = UIMessage<MyMetadata, MyDataPart, MyToolSet>;
 
-export type MyUIMessagePart = UIMessagePart<
-  Record<string, never>,
-  Record<string, never>
->;
+export const dataPartSchema = z.object({
+  weather: z.object({
+    weather: z
+      .enum([
+        "Thunderstorm",
+        "Drizzle",
+        "Rain",
+        "Snow",
+        "Mist",
+        "Smoke",
+        "Haze",
+        "Dust",
+        "Fog",
+        "Sand",
+        "Ash",
+        "Squall",
+        "Tornado",
+        "Clear",
+        "Clouds",
+        "Unknown",
+      ])
+      .optional(),
+    location: z.string().optional(),
+    temperature: z.number().optional(),
+    loading: z.boolean().default(true),
+  }),
+});
+
+export type MyDataPart = z.infer<typeof dataPartSchema>;
+
+export type MyToolSet = InferUITools<ReturnType<typeof tools>>;
+
+export type MyUIMessagePart = UIMessagePart<MyDataPart, MyToolSet>;
 
 export type MyDBUIMessagePart = Omit<
   Part,
   "id" | "createdAt" | "updatedAt" | "messageId"
->;
-
-export type MyDBUIMessagePartSelect = Pick<
-  Part,
-  | "type"
-  | "text_text"
-  | "reasoning_text"
-  | "file_mediaType"
-  | "file_filename"
-  | "file_url"
-  | "source_document_sourceId"
-  | "source_document_mediaType"
-  | "source_document_title"
-  | "source_document_filename"
-  | "source_url_sourceId"
-  | "source_url_url"
-  | "source_url_title"
-  | "providerMetadata"
 >;
 
 export type MyDBUIChat = Chat & {

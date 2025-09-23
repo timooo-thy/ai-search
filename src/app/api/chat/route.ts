@@ -1,18 +1,23 @@
-import { loadChat, saveNewMessages } from "@/actions/ui-message-actions";
+import { loadChat, upsertMessages } from "@/actions/ui-message-actions";
 import { auth } from "@/lib/auth";
 import { metadataSchema, MyUIMessage } from "@/types/ui-message-type";
-import { perplexity } from "@ai-sdk/perplexity";
+import { openai } from "@ai-sdk/openai";
 import {
   convertToModelMessages,
   createIdGenerator,
   streamText,
   validateUIMessages,
+  stepCountIs,
+  createUIMessageStream,
+  generateId,
+  createUIMessageStreamResponse,
 } from "ai";
 import { headers } from "next/headers";
-
+import { tools } from "@/ai/tools";
 export async function POST(req: Request) {
   const { message, id }: { message: MyUIMessage; id: string } =
     await req.json();
+
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -24,37 +29,84 @@ export async function POST(req: Request) {
 
     const previousMessages = await loadChat(id);
 
-    const validatedMessages: MyUIMessage[] = await validateUIMessages({
-      messages: [...previousMessages, message],
-      metadataSchema: metadataSchema,
-    });
+    let messagesToValidate: MyUIMessage[];
 
-    const result = streamText({
-      model: perplexity("sonar-pro"),
-      messages: convertToModelMessages(validatedMessages),
-    });
+    const existingMessageIndex = previousMessages.findIndex(
+      (msg) => msg.id === message.id
+    );
 
-    result.consumeStream();
+    if (existingMessageIndex !== -1) {
+      messagesToValidate = [...previousMessages];
 
-    return result.toUIMessageStreamResponse({
-      originalMessages: validatedMessages,
-      generateMessageId: createIdGenerator({
-        prefix: "msg",
-        size: 16,
-      }),
-      messageMetadata: ({ part }) => {
-        if (part.type === "start") {
-          return {
+      const existingMessage = messagesToValidate[existingMessageIndex];
+      const updatedMessage: MyUIMessage = {
+        ...message,
+        metadata: message.metadata ||
+          existingMessage.metadata || {
             time: new Date().toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
             }),
-          };
+          },
+      };
+      messagesToValidate[existingMessageIndex] = updatedMessage;
+    } else {
+      messagesToValidate = [...previousMessages, message];
+    }
+
+    const validatedMessages: MyUIMessage[] = await validateUIMessages({
+      messages: messagesToValidate,
+      metadataSchema: metadataSchema,
+    });
+
+    const stream = createUIMessageStream({
+      execute: ({ writer }) => {
+        if (message.role === "user") {
+          writer.write({
+            type: "start",
+            messageId: generateId(),
+          });
+          writer.write({
+            type: "start-step",
+          });
         }
+
+        const result = streamText({
+          model: openai("gpt-4o-mini"),
+          messages: convertToModelMessages(validatedMessages),
+          stopWhen: stepCountIs(5),
+          tools: tools(writer),
+        });
+
+        result.consumeStream();
+
+        writer.merge(
+          result.toUIMessageStream({
+            sendStart: false,
+            generateMessageId: createIdGenerator({
+              prefix: "msg",
+              size: 16,
+            }),
+            messageMetadata: ({ part }) => {
+              if (part.type === "start") {
+                return {
+                  time: new Date().toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }),
+                };
+              }
+            },
+          })
+        );
       },
+      onError: (error) => {
+        return error instanceof Error ? error.message : String(error);
+      },
+      originalMessages: validatedMessages,
       onFinish: async ({ responseMessage }) => {
         try {
-          await saveNewMessages(
+          await upsertMessages(
             [...validatedMessages.slice(-1), responseMessage],
             id
           );
@@ -63,6 +115,7 @@ export async function POST(req: Request) {
         }
       },
     });
+    return createUIMessageStreamResponse({ stream });
   } catch (error) {
     console.error("Error in POST /api/chat:", error);
     return new Response("Chat not found.", { status: 404 });
