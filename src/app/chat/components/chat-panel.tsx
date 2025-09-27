@@ -18,6 +18,15 @@ type ChatPanelProps = {
   previousMessages: MyUIMessage[];
 };
 
+/**
+ * Render the chat panel for a conversation, handling message input, sending, and repository selection UI.
+ *
+ * Initializes the chat session using the provided chat ID, populates messages with `previousMessages`, processes an optional initial query from the URL (sending it once when ready), auto-scrolls to new messages, and displays header, message list, and input controls.
+ *
+ * @param chatId - The identifier for the chat session used to initialize routing and the chat transport
+ * @param previousMessages - Initial messages to populate the chat view
+ * @returns The chat panel element containing the header, messages list, and input controls
+ */
 export default function ChatPanel({
   chatId,
   previousMessages,

@@ -21,6 +21,17 @@ interface ChatMessagesProps {
   onSubmit: (message: string) => Promise<void>;
 }
 
+/**
+ * Renders the chat message list including avatars, message parts (text, weather, repositories, tool outputs), expandable tool outputs, and assistant action controls.
+ *
+ * @param messages - Array of UI messages to render; each message may include multiple parts with types like `text`, `data-weather`, `data-repositories`, and tool call results.
+ * @param status - Current chat status; shows a streaming loader when equal to `"streaming"`.
+ * @param chatEndRef - Ref attached to the end marker element used to scroll to the latest message.
+ * @param selectedRepo - Currently selected repository identifier used by the Repositories component.
+ * @param setSelectedRepo - State setter to update the selected repository.
+ * @param onSubmit - Async callback invoked by child repository UI to submit a message; receives the message string.
+ * @returns A React element that displays the rendered chat conversation with interactive parts and controls.
+ */
 export function ChatMessages({
   messages,
   status,

@@ -22,6 +22,18 @@ type RepositoriesProps = {
   selectedRepo: string;
   onSubmit: (message: string) => Promise<void>;
 };
+/**
+ * Render a card interface to browse, select, and confirm a repository from the provided data.
+ *
+ * Displays loading, empty, and list states for repositories; allows selecting a repository (unless loading),
+ * opening a repository URL in a new tab, and confirming the current selection.
+ *
+ * @param repositories - Object containing repository details and a loading flag; controls list content and loading UI
+ * @param selectedRepo - Name of the currently selected repository
+ * @param setSelectedRepo - State setter to update the selected repository name
+ * @param onSubmit - Callback invoked with a message when the user confirms the selection
+ * @returns A React element that renders the repository selector card
+ */
 export default function Repositories({
   repositories,
   selectedRepo,

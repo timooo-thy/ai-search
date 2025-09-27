@@ -28,7 +28,15 @@ export async function createChat(title: string) {
   });
 }
 
-// Save or update UIMessages to the database
+/**
+ * Insert or update UI messages and their associated parts for a chat in the database.
+ *
+ * Upserts each provided UI message by id: existing messages have their parts replaced, and missing messages are created.
+ *
+ * @param uiMessages - The array of UI-formatted messages to upsert (each must include parts and an id).
+ * @param chatId - The id of the chat to associate the messages with.
+ * @throws Error if the user is not authenticated.
+ */
 export async function upsertMessages(
   uiMessages: MyUIMessage[],
   chatId: string

@@ -15,6 +15,14 @@ import {
 import { headers } from "next/headers";
 import { tools } from "@/ai/tools";
 
+/**
+ * Handle POST requests to stream AI-assisted chat responses, validate and persist UI messages, and return a streaming UI response.
+ *
+ * Validates the incoming message against existing chat state, runs an OpenAI streaming generation (with repository search tooling), merges the generated stream into the UI message stream, and persists the final messages. Returns 401 if the request is unauthenticated and returns a 404 response on unexpected errors.
+ *
+ * @param req - The incoming Request whose JSON body must contain `{ message: MyUIMessage, id: string }`.
+ * @returns A Response carrying a streaming UI message payload with the assistant's streamed reply and intermediate stream events.
+ */
 export async function POST(req: Request) {
   const { message, id }: { message: MyUIMessage; id: string } =
     await req.json();
