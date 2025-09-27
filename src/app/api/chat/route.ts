@@ -83,7 +83,7 @@ export async function POST(req: Request) {
         const result = streamText({
           model: openai("gpt-4o-mini"),
           system: `You are an AI assistant that helps people find information by searching their private code repositories on GitHub. 
-            You have access to tools that allow you to search for repositories, files, and code snippets. 
+           You may access only repositories the user has explicitly selected/authorised for this chat. Never expose access tokens, headers, or secrets in outputs; redact credentials if encountered.
             Use these tools to find the information the user is looking for. When you receive the tool results, be succinct in your summaries.
             You do not have to use the tools at all times, only when necessary.`,
           messages: convertToModelMessages(validatedMessages),

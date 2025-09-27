@@ -148,7 +148,7 @@ export const mapUIMessagePartsToDBParts = (
             (part.data.details as Prisma.JsonValue) || null,
         };
       default:
-        throw new Error(`Unsupported part type: ${part}`);
+        throw new Error(`Unsupported part type: ${part.type}`);
     }
   });
 };
@@ -334,3 +334,6 @@ export const mapDBPartToUIMessagePart = (
       throw new Error(`Unsupported part type: ${part.type}`);
   }
 };
+
+export const jsonOrDbNull = (v: unknown) =>
+  v == null ? Prisma.DbNull : (v as Prisma.InputJsonValue);

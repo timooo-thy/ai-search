@@ -2,8 +2,8 @@
 
 import prisma from "@/lib/prisma";
 import { MyUIMessage } from "../types/ui-message-type";
-import { Prisma } from "../../generated/prisma";
 import {
+  jsonOrDbNull,
   mapDBPartToUIMessagePart,
   mapUIMessagePartsToDBParts,
 } from "@/lib/ui-message-util";
@@ -49,80 +49,66 @@ export async function upsertMessages(
     throw new Error("You must be logged in to create a chat.");
   }
 
-  for (const uiMessage of uiMessages) {
-    await prisma.message.upsert({
-      where: { id: uiMessage.id },
-      update: {
-        parts: {
-          deleteMany: {},
-          create: mapUIMessagePartsToDBParts(uiMessage.parts).map((part) => ({
-            ...part,
-            providerMetadata:
-              part.providerMetadata !== null
-                ? (part.providerMetadata as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getWeatherInformation_input:
-              part.tool_getWeatherInformation_input !== null
-                ? (part.tool_getWeatherInformation_input as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getWeatherInformation_output:
-              part.tool_getWeatherInformation_output !== null
-                ? (part.tool_getWeatherInformation_output as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getRepositories_input:
-              part.tool_getRepositories_input !== null
-                ? (part.tool_getRepositories_input as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getRepositories_output:
-              part.tool_getRepositories_output !== null
-                ? (part.tool_getRepositories_output as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            data_repositories_details:
-              part.data_repositories_details !== null
-                ? (part.data_repositories_details as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-          })),
+  await prisma.$transaction(async (tx) => {
+    for (const uiMessage of uiMessages) {
+      await tx.message.upsert({
+        where: { id: uiMessage.id },
+        update: {
+          parts: {
+            deleteMany: {},
+            create: mapUIMessagePartsToDBParts(uiMessage.parts).map((part) => ({
+              ...part,
+              providerMetadata: jsonOrDbNull(part.providerMetadata),
+              tool_getWeatherInformation_input: jsonOrDbNull(
+                part.tool_getWeatherInformation_input
+              ),
+              tool_getWeatherInformation_output: jsonOrDbNull(
+                part.tool_getWeatherInformation_output
+              ),
+              tool_getRepositories_input: jsonOrDbNull(
+                part.tool_getRepositories_input
+              ),
+              tool_getRepositories_output: jsonOrDbNull(
+                part.tool_getRepositories_output
+              ),
+              data_repositories_details: jsonOrDbNull(
+                part.data_repositories_details
+              ),
+            })),
+          },
         },
-      },
-      create: {
-        id: uiMessage.id,
-        chatId,
-        role: uiMessage.role,
-        parts: {
-          create: mapUIMessagePartsToDBParts(uiMessage.parts).map((part) => ({
-            ...part,
-            providerMetadata:
-              part.providerMetadata !== null
-                ? (part.providerMetadata as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getWeatherInformation_input:
-              part.tool_getWeatherInformation_input !== null
-                ? (part.tool_getWeatherInformation_input as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getWeatherInformation_output:
-              part.tool_getWeatherInformation_output !== null
-                ? (part.tool_getWeatherInformation_output as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getRepositories_input:
-              part.tool_getRepositories_input !== null
-                ? (part.tool_getRepositories_input as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getRepositories_output:
-              part.tool_getRepositories_output !== null
-                ? (part.tool_getRepositories_output as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            data_repositories_details:
-              part.data_repositories_details !== null
-                ? (part.data_repositories_details as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-          })),
+        create: {
+          id: uiMessage.id,
+          chatId,
+          role: uiMessage.role,
+          parts: {
+            create: mapUIMessagePartsToDBParts(uiMessage.parts).map((part) => ({
+              ...part,
+              providerMetadata: jsonOrDbNull(part.providerMetadata),
+              tool_getWeatherInformation_input: jsonOrDbNull(
+                part.tool_getWeatherInformation_input
+              ),
+              tool_getWeatherInformation_output: jsonOrDbNull(
+                part.tool_getWeatherInformation_output
+              ),
+              tool_getRepositories_input: jsonOrDbNull(
+                part.tool_getRepositories_input
+              ),
+              tool_getRepositories_output: jsonOrDbNull(
+                part.tool_getRepositories_output
+              ),
+              data_repositories_details: jsonOrDbNull(
+                part.data_repositories_details
+              ),
+            })),
+          },
         },
-      },
-      include: {
-        parts: true,
-      },
-    });
-  }
+        include: {
+          parts: true,
+        },
+      });
+    }
+  });
 }
 
 // Get all messages from a chat as UIMessages

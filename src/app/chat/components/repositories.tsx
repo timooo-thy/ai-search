@@ -95,7 +95,7 @@ export default function Repositories({
             ) : (
               <div className="space-y-3">
                 {details.map((repo, index) => (
-                  <div key={repo.name}>
+                  <div key={repo.url}>
                     <div
                       className={`p-3 rounded-lg border-2 cursor-pointer transition-all hover:bg-muted/50 ${
                         selectedRepo === repo.name
@@ -128,7 +128,11 @@ export default function Repositories({
                           className="h-6 w-6 p-0 ml-2 flex-shrink-0"
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(repo.url, "_blank");
+                            window.open(
+                              repo.url,
+                              "_blank",
+                              "noopener,noreferrer"
+                            );
                           }}
                         >
                           <ExternalLink className="h-3 w-3" />

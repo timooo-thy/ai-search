@@ -94,26 +94,9 @@ export default function ChatPanel({
     chatEndRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages]);
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (input.trim()) {
-      sendMessage({
-        text: input,
-        metadata: {
-          time: new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        },
-      });
-      setInput("");
-    }
-  };
-
-  const handleUISend = async (message: string) => {
+  const sendText = (text: string) =>
     sendMessage({
-      text: message,
+      text,
       metadata: {
         time: new Date().toLocaleTimeString([], {
           hour: "2-digit",
@@ -121,6 +104,18 @@ export default function ChatPanel({
         }),
       },
     });
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (input.trim()) {
+      sendText(input);
+      setInput("");
+    }
+  };
+
+  const handleUISend = async (message: string) => {
+    sendText(message);
   };
 
   const handleInputChange = (value: string) => {
