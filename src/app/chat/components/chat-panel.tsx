@@ -28,25 +28,14 @@ export default function ChatPanel({
   const hasProcessedInitialQueryRef = useRef(false);
 
   const [input, setInput] = useState("");
+  const [selectedRepo, setSelectedRepo] = useState<string>("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, sendMessage, status, stop, addToolResult } = useChat({
+  const { messages, sendMessage, status, stop } = useChat({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
       if (toolCall.dynamic) {
         return;
-      }
-
-      if (toolCall.toolName === "getLocation") {
-        const cities = ["New York", "Los Angeles", "Chicago", "San Francisco"];
-
-        addToolResult({
-          tool: "getLocation",
-          toolCallId: toolCall.toolCallId,
-          output: {
-            location: cities[Math.floor(Math.random() * cities.length)],
-          },
-        });
       }
     },
     id: chatId,
@@ -113,6 +102,18 @@ export default function ChatPanel({
     }
   };
 
+  const handleUISend = async (message: string) => {
+    sendMessage({
+      text: message,
+      metadata: {
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      },
+    });
+  };
+
   const handleInputChange = (value: string) => {
     setInput(value);
   };
@@ -124,6 +125,9 @@ export default function ChatPanel({
         messages={messages}
         status={status}
         chatEndRef={chatEndRef}
+        selectedRepo={selectedRepo}
+        setSelectedRepo={setSelectedRepo}
+        onSubmit={handleUISend}
       />
       <ChatInput
         input={input}

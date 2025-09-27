@@ -140,14 +140,17 @@ model Part {
   // Tool inputs and outputs stored in separate columns
   tool_getWeatherInformation_input  Json?
   tool_getWeatherInformation_output Json?
-  tool_getLocation_input            Json?
-  tool_getLocation_output           Json?
+  tool_getRepositories_input        Json?
+  tool_getRepositories_output       Json?
 
   // Data parts
   data_weather_id          String?
   data_weather_location    String?
   data_weather_weather     Weather?
   data_weather_temperature Float?
+
+  data_repositories_id      String?
+  data_repositories_details Json?
 
   @@index([messageId], map: "parts_message_id_idx")
   @@index([messageId, order], map: "parts_message_id_order_idx")
@@ -171,7 +174,9 @@ enum MessagePartType {
   step_start
   tool_getWeatherInformation
   tool_getLocation
+  tool_getRepositories
   data_weather
+  data_repositories
 
   @@map("message_part_type")
 }

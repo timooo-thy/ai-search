@@ -61,13 +61,17 @@ export async function upsertMessages(
               part.tool_getWeatherInformation_output !== null
                 ? (part.tool_getWeatherInformation_output as Prisma.InputJsonValue)
                 : Prisma.DbNull,
-            tool_getLocation_input:
-              part.tool_getLocation_input !== null
-                ? (part.tool_getLocation_input as Prisma.InputJsonValue)
+            tool_getRepositories_input:
+              part.tool_getRepositories_input !== null
+                ? (part.tool_getRepositories_input as Prisma.InputJsonValue)
                 : Prisma.DbNull,
-            tool_getLocation_output:
-              part.tool_getLocation_output !== null
-                ? (part.tool_getLocation_output as Prisma.InputJsonValue)
+            tool_getRepositories_output:
+              part.tool_getRepositories_output !== null
+                ? (part.tool_getRepositories_output as Prisma.InputJsonValue)
+                : Prisma.DbNull,
+            data_repositories_details:
+              part.data_repositories_details !== null
+                ? (part.data_repositories_details as Prisma.InputJsonValue)
                 : Prisma.DbNull,
           })),
         },
@@ -91,13 +95,17 @@ export async function upsertMessages(
               part.tool_getWeatherInformation_output !== null
                 ? (part.tool_getWeatherInformation_output as Prisma.InputJsonValue)
                 : Prisma.DbNull,
-            tool_getLocation_input:
-              part.tool_getLocation_input !== null
-                ? (part.tool_getLocation_input as Prisma.InputJsonValue)
+            tool_getRepositories_input:
+              part.tool_getRepositories_input !== null
+                ? (part.tool_getRepositories_input as Prisma.InputJsonValue)
                 : Prisma.DbNull,
-            tool_getLocation_output:
-              part.tool_getLocation_output !== null
-                ? (part.tool_getLocation_output as Prisma.InputJsonValue)
+            tool_getRepositories_output:
+              part.tool_getRepositories_output !== null
+                ? (part.tool_getRepositories_output as Prisma.InputJsonValue)
+                : Prisma.DbNull,
+            data_repositories_details:
+              part.data_repositories_details !== null
+                ? (part.data_repositories_details as Prisma.InputJsonValue)
                 : Prisma.DbNull,
           })),
         },

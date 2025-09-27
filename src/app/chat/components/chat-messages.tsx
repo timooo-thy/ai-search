@@ -10,17 +10,24 @@ import { toast } from "sonner";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Weather } from "./weather";
+import Repositories from "./repositories";
 
 interface ChatMessagesProps {
   messages: MyUIMessage[];
   status: ChatStatus;
   chatEndRef: React.RefObject<HTMLDivElement | null>;
+  selectedRepo: string;
+  setSelectedRepo: React.Dispatch<React.SetStateAction<string>>;
+  onSubmit: (message: string) => Promise<void>;
 }
 
 export function ChatMessages({
   messages,
   status,
   chatEndRef,
+  selectedRepo,
+  setSelectedRepo,
+  onSubmit,
 }: ChatMessagesProps) {
   const pathname = usePathname();
 
@@ -75,6 +82,45 @@ export function ChatMessages({
                               data={part.data}
                             />
                           );
+                        case "data-repositories":
+                          return (
+                            <Repositories
+                              key={`${msg.id}-${part}-${key}`}
+                              repositories={part.data}
+                              selectedRepo={selectedRepo}
+                              setSelectedRepo={setSelectedRepo}
+                              onSubmit={onSubmit}
+                            />
+                          );
+                        case "tool-getRepositories":
+                          return (
+                            <details
+                              key={`tool-${part.toolCallId}`}
+                              className="relative p-2 rounded-lg bg-background group w-full"
+                            >
+                              <summary className="list-none cursor-pointer select-none flex justify-between items-center pr-2">
+                                <span className="inline-flex items-center px-1 py-0.5 text-xs font-medium rounded-md font-mono text-zinc-900 truncate flex-1">
+                                  {getToolName(part)}
+                                </span>
+                                {part.state === "output-available" ? (
+                                  <span className="text-xs text-zinc-500 ml-2 shrink-0">
+                                    Click to expand
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-zinc-400 animate-pulse ml-2 shrink-0">
+                                    calling...
+                                  </span>
+                                )}
+                              </summary>
+                              {part.state === "output-available" ? (
+                                <div className="mt-4 bg-zinc-50 p-2 rounded overflow-x-auto">
+                                  <pre className="font-mono text-xs whitespace-pre-wrap break-words">
+                                    {JSON.stringify(part.output, null, 2)}
+                                  </pre>
+                                </div>
+                              ) : null}
+                            </details>
+                          );
                         case "tool-getWeatherInformation":
                           return (
                             <details
@@ -104,42 +150,6 @@ export function ChatMessages({
                               ) : null}
                             </details>
                           );
-                        case "tool-getLocation": {
-                          const callId = part.toolCallId;
-
-                          switch (part.state) {
-                            case "input-streaming":
-                              return (
-                                <div key={callId} className="text-sm">
-                                  Preparing location request...
-                                </div>
-                              );
-                            case "input-available":
-                              return (
-                                <div key={callId} className="text-sm">
-                                  Getting location...
-                                </div>
-                              );
-                            case "output-available":
-                              return (
-                                <div
-                                  key={callId}
-                                  className="text-sm break-words"
-                                >
-                                  Location: {part.output.location}
-                                </div>
-                              );
-                            case "output-error":
-                              return (
-                                <div
-                                  key={callId}
-                                  className="text-sm text-red-500 break-words"
-                                >
-                                  Error getting location: {part.errorText}
-                                </div>
-                              );
-                          }
-                        }
 
                         default:
                           return null;
@@ -166,7 +176,7 @@ export function ChatMessages({
                         toast.success("Message copied to clipboard");
                       }}
                       onRewrite={() => console.log("Rewrite clicked")}
-                      modelDetails={"sonar-pro"}
+                      modelDetails={"gpt-4.1-mini"}
                     />
                   </div>
                 )}
