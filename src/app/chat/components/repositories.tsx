@@ -45,7 +45,7 @@ export default function Repositories({
   const handleRepoToggle = (repoName: string) => {
     if (loading) return;
 
-    setSelectedRepo(repoName);
+    setSelectedRepo((prev) => (prev === repoName ? "" : repoName));
   };
 
   return (
