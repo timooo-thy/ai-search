@@ -78,7 +78,7 @@ export function ChatMessages({
                           return (
                             <div
                               className="flex flex-col space-y-1"
-                              key={`${msg.id}-${part}-${key}`}
+                              key={`${msg.id}-${key}`}
                             >
                               <MemoizedMarkdown id={key} content={part.text} />
                               <span className="text-xs text-muted-foreground mt-2">
@@ -89,14 +89,14 @@ export function ChatMessages({
                         case "data-weather":
                           return (
                             <Weather
-                              key={`${msg.id}-${part}-${key}`}
+                              key={`${msg.id}-weather-${key}`}
                               data={part.data}
                             />
                           );
                         case "data-repositories":
                           return (
                             <Repositories
-                              key={`${msg.id}-${part}-${key}`}
+                              key={`${msg.id}-repositories-${key}`}
                               repositories={part.data}
                               selectedRepo={selectedRepo}
                               setSelectedRepo={setSelectedRepo}
@@ -182,7 +182,7 @@ export function ChatMessages({
                             .map((part) =>
                               part.type === "text" ? part.text : ""
                             )
-                            .join("")
+                            .join("\n\n")
                         );
                         toast.success("Message copied to clipboard");
                       }}
