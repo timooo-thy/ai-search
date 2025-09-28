@@ -133,19 +133,19 @@ export const mapUIMessagePartsToDBParts = (
           ...basePart,
           order: index,
           type: MessagePartType.data_weather,
-          data_weather_id: part.id || null,
-          data_weather_location: part.data.location || null,
-          data_weather_weather: (part.data.weather as Weather) || null,
-          data_weather_temperature: part.data.temperature || null,
+          data_weather_id: part.id ?? null,
+          data_weather_location: part.data.location ?? null,
+          data_weather_weather: (part.data.weather as Weather) ?? null,
+          data_weather_temperature: part.data.temperature ?? null,
         };
       case "data-repositories":
         return {
           ...basePart,
           order: index,
           type: MessagePartType.data_repositories,
-          data_repositories_id: part.id || null,
+          data_repositories_id: part.id ?? null,
           data_repositories_details:
-            (part.data.details as Prisma.JsonValue) || null,
+            (part.data.details as Prisma.JsonValue) ?? null,
         };
       default:
         throw new Error(`Unsupported part type: ${part.type}`);
@@ -310,7 +310,7 @@ export const mapDBPartToUIMessagePart = (
           loading: false,
           location: part.data_weather_location!,
           weather: (part.data_weather_weather as Weather) || null,
-          temperature: part.data_weather_temperature!,
+          temperature: part.data_weather_temperature ?? undefined,
         },
         id: part.data_weather_id!,
       };
@@ -328,7 +328,7 @@ export const mapDBPartToUIMessagePart = (
               | null) || [],
           loading: false,
         },
-        id: part.data_repositories_id!,
+        id: part.data_repositories_id ?? undefined,
       };
     default:
       throw new Error(`Unsupported part type: ${part.type}`);

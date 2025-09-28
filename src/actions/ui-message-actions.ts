@@ -35,7 +35,7 @@ export async function createChat(title: string) {
  *
  * @param uiMessages - The array of UI-formatted messages to upsert (each must include parts and an id).
  * @param chatId - The id of the chat to associate the messages with.
- * @throws Error if the user is not authenticated.
+ * @throws Error if the user is not authenticated or if a message does not belong to the specified chat or user.
  */
 export async function upsertMessages(
   uiMessages: MyUIMessage[],
@@ -51,30 +51,48 @@ export async function upsertMessages(
 
   await prisma.$transaction(async (tx) => {
     for (const uiMessage of uiMessages) {
+      const existing = await tx.message.findUnique({
+        where: { id: uiMessage.id },
+        select: { chatId: true, chat: { select: { userId: true } } },
+      });
+
+      if (
+        existing &&
+        (existing.chatId !== chatId || existing.chat.userId !== session.user.id)
+      ) {
+        throw new Error(
+          "Forbidden: message does not belong to this chat or user"
+        );
+      }
+
+      const normalisedParts = mapUIMessagePartsToDBParts(uiMessage.parts).map(
+        (part) => ({
+          ...part,
+          providerMetadata: jsonOrDbNull(part.providerMetadata),
+          tool_getWeatherInformation_input: jsonOrDbNull(
+            part.tool_getWeatherInformation_input
+          ),
+          tool_getWeatherInformation_output: jsonOrDbNull(
+            part.tool_getWeatherInformation_output
+          ),
+          tool_getRepositories_input: jsonOrDbNull(
+            part.tool_getRepositories_input
+          ),
+          tool_getRepositories_output: jsonOrDbNull(
+            part.tool_getRepositories_output
+          ),
+          data_repositories_details: jsonOrDbNull(
+            part.data_repositories_details
+          ),
+        })
+      );
+
       await tx.message.upsert({
         where: { id: uiMessage.id },
         update: {
           parts: {
             deleteMany: {},
-            create: mapUIMessagePartsToDBParts(uiMessage.parts).map((part) => ({
-              ...part,
-              providerMetadata: jsonOrDbNull(part.providerMetadata),
-              tool_getWeatherInformation_input: jsonOrDbNull(
-                part.tool_getWeatherInformation_input
-              ),
-              tool_getWeatherInformation_output: jsonOrDbNull(
-                part.tool_getWeatherInformation_output
-              ),
-              tool_getRepositories_input: jsonOrDbNull(
-                part.tool_getRepositories_input
-              ),
-              tool_getRepositories_output: jsonOrDbNull(
-                part.tool_getRepositories_output
-              ),
-              data_repositories_details: jsonOrDbNull(
-                part.data_repositories_details
-              ),
-            })),
+            create: normalisedParts,
           },
         },
         create: {
@@ -82,29 +100,8 @@ export async function upsertMessages(
           chatId,
           role: uiMessage.role,
           parts: {
-            create: mapUIMessagePartsToDBParts(uiMessage.parts).map((part) => ({
-              ...part,
-              providerMetadata: jsonOrDbNull(part.providerMetadata),
-              tool_getWeatherInformation_input: jsonOrDbNull(
-                part.tool_getWeatherInformation_input
-              ),
-              tool_getWeatherInformation_output: jsonOrDbNull(
-                part.tool_getWeatherInformation_output
-              ),
-              tool_getRepositories_input: jsonOrDbNull(
-                part.tool_getRepositories_input
-              ),
-              tool_getRepositories_output: jsonOrDbNull(
-                part.tool_getRepositories_output
-              ),
-              data_repositories_details: jsonOrDbNull(
-                part.data_repositories_details
-              ),
-            })),
+            create: normalisedParts,
           },
-        },
-        include: {
-          parts: true,
         },
       });
     }
