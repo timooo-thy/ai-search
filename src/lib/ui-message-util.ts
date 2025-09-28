@@ -250,6 +250,10 @@ export const mapDBPartToUIMessagePart = (
               undefined,
             errorText: part.tool_errorText!,
           };
+        default:
+          throw new Error(
+            `Unsupported getWeatherInformation state: ${part.tool_state}`
+          );
       }
     case "tool_getRepositories":
       if (!part.tool_state) {
@@ -302,6 +306,10 @@ export const mapDBPartToUIMessagePart = (
               undefined,
             errorText: part.tool_errorText!,
           };
+        default:
+          throw new Error(
+            `Unsupported getRepositories state: ${part.tool_state}`
+          );
       }
     case "data_weather":
       return {
