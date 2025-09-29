@@ -50,6 +50,14 @@ export async function upsertMessages(
   }
 
   await prisma.$transaction(async (tx) => {
+    const chat = await tx.chat.findFirst({
+      where: { id: chatId, userId: session.user.id },
+      select: { id: true },
+    });
+    if (!chat) {
+      throw new Error("Forbidden: chat does not belong to this user.");
+    }
+
     for (const uiMessage of uiMessages) {
       const existing = await tx.message.findUnique({
         where: { id: uiMessage.id },
@@ -104,6 +112,16 @@ export async function upsertMessages(
           },
         },
       });
+
+      await tx.chat.update({
+        where: {
+          id: chatId,
+          userId: session.user.id,
+        },
+        data: {
+          updatedAt: new Date(),
+        },
+      });
     }
   });
 }
@@ -122,8 +140,9 @@ export async function getChatMessagesById(
 
   const chat = await prisma.chat.findFirst({
     where: { id: chatId, userId: session.user.id },
-    include: { messages: { include: { parts: true } } },
-    orderBy: { createdAt: "asc" },
+    include: {
+      messages: { include: { parts: true }, orderBy: { createdAt: "asc" } },
+    },
   });
 
   return chat?.messages.map((message) => ({
@@ -146,7 +165,7 @@ export async function loadChat(chatId: string) {
     throw new Error("You must be logged in to create a chat.");
   }
 
-  const chat = await prisma.chat.findUnique({
+  const chat = await prisma.chat.findFirst({
     where: { id: chatId, userId: session.user.id },
     include: {
       messages: {

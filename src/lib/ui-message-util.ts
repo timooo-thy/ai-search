@@ -320,7 +320,7 @@ export const mapDBPartToUIMessagePart = (
           weather: (part.data_weather_weather as Weather) || null,
           temperature: part.data_weather_temperature ?? undefined,
         },
-        id: part.data_weather_id!,
+        id: part.data_weather_id ?? undefined,
       };
     case "data_repositories":
       return {
