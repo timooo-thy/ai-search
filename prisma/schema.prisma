@@ -79,7 +79,7 @@ model Chat {
   User      User?     @relation(fields: [userId], references: [id])
   userId    String?
 
-  @@unique([id, userId])
+  @@unique([id, userId], map: "chat_id_user_id_key")
   @@index([userId], map: "chat_user_id_idx")
   @@index([userId, updatedAt], map: "chat_user_id_updated_at_idx")
   @@map("chat")
@@ -176,7 +176,6 @@ enum MessagePartType {
   source_document
   step_start
   tool_getWeatherInformation
-  tool_getLocation
   tool_getRepositories
   data_weather
   data_repositories

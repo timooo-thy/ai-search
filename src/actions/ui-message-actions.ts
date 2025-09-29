@@ -112,17 +112,16 @@ export async function upsertMessages(
           },
         },
       });
-
-      await tx.chat.update({
-        where: {
-          id: chatId,
-          userId: session.user.id,
-        },
-        data: {
-          updatedAt: new Date(),
-        },
-      });
     }
+    await tx.chat.update({
+      where: {
+        id: chatId,
+        userId: session.user.id,
+      },
+      data: {
+        updatedAt: new Date(),
+      },
+    });
   });
 }
 

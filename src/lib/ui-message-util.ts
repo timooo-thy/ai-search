@@ -267,7 +267,7 @@ export const mapDBPartToUIMessagePart = (
             toolCallId: part.tool_toolCallId!,
             input:
               (part.tool_getRepositories_input as Partial<
-                Record<never, never>
+                Record<string, never>
               >) || undefined,
           };
         case "input-available":
