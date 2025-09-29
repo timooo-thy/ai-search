@@ -39,10 +39,11 @@ export function GitHubPATHelp() {
                   <strong>Personal access tokens</strong>
                 </li>
                 <li>
-                  Click <strong>"Generate new token"</strong>
+                  Click <strong>&quot;Generate new token&quot;</strong>
                 </li>
                 <li>
-                  Give your token a descriptive name (e.g., "CodeOrient App")
+                  Give your token a descriptive name (e.g., &quot;CodeOrient
+                  App&quot;)
                 </li>
                 <li>Set an expiration date (recommended: 90 days or 1 year)</li>
                 <li>Select the required scopes:</li>
@@ -61,10 +62,11 @@ export function GitHubPATHelp() {
                   </li>
                 </ul>
                 <li>
-                  Click <strong>"Generate token"</strong>
+                  Click <strong>&quot;Generate token&quot;</strong>
                 </li>
                 <li>
-                  Copy the token immediately (you won't be able to see it again)
+                  Copy the token immediately (you won&apos;t be able to see it
+                  again)
                 </li>
                 <li>Paste it into the field above</li>
               </ol>

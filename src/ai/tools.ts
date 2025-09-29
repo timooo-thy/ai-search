@@ -1,7 +1,6 @@
 import { MyDataPart } from "@/types/ui-message-type";
 import { tool, UIMessage, UIMessageStreamWriter } from "ai";
 import z from "zod";
-import { Octokit } from "octokit";
 import { getUserRepos } from "@/actions/github-actions";
 
 export const getWeatherInformation = (

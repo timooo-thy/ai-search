@@ -153,13 +153,13 @@ export function SettingsForm({ user, validGithubPAT }: SettingsFormProps) {
   const handleInputChange = (
     section: keyof SettingsState,
     field: string,
-    value: any
+    value: string | boolean
   ) => {
     setSettings((prev) => {
       if (section === "githubPAT") {
         return {
           ...prev,
-          githubPAT: value,
+          githubPAT: value as string,
         };
       }
 

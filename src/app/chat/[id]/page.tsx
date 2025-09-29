@@ -1,7 +1,7 @@
 import { AppSidebar } from "@/app/chat/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getSession } from "@/hooks/use-session";
-import { getUserGithubPAT, loadChat } from "@/actions/ui-message-actions";
+import { loadChat } from "@/actions/ui-message-actions";
 import ChatPanel from "../components/chat-panel";
 import { notFound } from "next/navigation";
 import { checkUserGithubPAT } from "@/actions/github-actions";
