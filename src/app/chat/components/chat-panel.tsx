@@ -16,6 +16,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 type ChatPanelProps = {
   chatId: string;
   previousMessages: MyUIMessage[];
+  hasValidGithubPAT: boolean;
 };
 
 /**
@@ -30,6 +31,7 @@ type ChatPanelProps = {
 export default function ChatPanel({
   chatId,
   previousMessages,
+  hasValidGithubPAT,
 }: ChatPanelProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -126,6 +128,7 @@ export default function ChatPanel({
     <div className="flex flex-col h-full">
       <ChatHeader />
       <ChatMessages
+        hasValidGithubPAT={hasValidGithubPAT}
         messages={messages}
         status={status}
         chatEndRef={chatEndRef}
@@ -139,6 +142,7 @@ export default function ChatPanel({
         onInputChange={handleInputChange}
         onSubmit={handleSend}
         onStop={stop}
+        disableChatInput={status !== "ready" || !hasValidGithubPAT}
       />
     </div>
   );

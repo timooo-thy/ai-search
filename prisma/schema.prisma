@@ -19,6 +19,8 @@ model User {
   sessions      Session[]
   accounts      Account[]
   chats         Chat[]
+  githubPAT     String?
+  bio           String?
 
   @@unique([email])
   @@map("user")

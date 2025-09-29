@@ -11,6 +11,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Weather } from "./weather";
 import Repositories from "./repositories";
+import Link from "next/link";
 
 interface ChatMessagesProps {
   messages: MyUIMessage[];
@@ -19,6 +20,7 @@ interface ChatMessagesProps {
   selectedRepo: string;
   setSelectedRepo: React.Dispatch<React.SetStateAction<string>>;
   onSubmit: (message: string) => Promise<void>;
+  hasValidGithubPAT: boolean;
 }
 
 /**
@@ -30,6 +32,7 @@ interface ChatMessagesProps {
  * @param selectedRepo - Currently selected repository identifier used by the Repositories component.
  * @param setSelectedRepo - State setter to update the selected repository.
  * @param onSubmit - Async callback invoked by child repository UI to submit a message; receives the message string.
+ * @param hasValidGithubPAT - Flag indicating whether the user has a valid GitHub Personal Access Token.
  * @returns A React element that displays the rendered chat conversation with interactive parts and controls.
  */
 export function ChatMessages({
@@ -39,10 +42,11 @@ export function ChatMessages({
   selectedRepo,
   setSelectedRepo,
   onSubmit,
+  hasValidGithubPAT,
 }: ChatMessagesProps) {
   const pathname = usePathname();
 
-  return (
+  return hasValidGithubPAT ? (
     <ScrollArea className="h-full">
       <div className="p-2 sm:p-6 sm:space-y-4">
         {messages?.map((msg) => (
@@ -209,5 +213,21 @@ export function ChatMessages({
         <div ref={chatEndRef} />
       </div>
     </ScrollArea>
+  ) : (
+    <div className="flex flex-col items-center justify-center h-full text-center p-10">
+      <h2 className="text-2xl font-semibold mb-4">
+        Connect your GitHub account
+      </h2>
+      <p className="text-muted-foreground mb-6">
+        To use the chat features, please connect your GitHub account by
+        providing a Personal Access Token (PAT).
+      </p>
+      <Link
+        href="/settings"
+        className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
+      >
+        Go to Settings
+      </Link>
+    </div>
   );
 }

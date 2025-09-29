@@ -258,3 +258,91 @@ export async function deleteChat(chatId: string) {
     throw new Error("Failed to delete chat.");
   }
 }
+
+// Fetch the user's GitHub PAT
+export async function getUserGithubPAT() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      githubPAT: true,
+    },
+  });
+
+  return user?.githubPAT || null;
+}
+
+// Fetch the user's profile info
+export async function getUserProfile() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      name: true,
+      bio: true,
+      email: true,
+      githubPAT: true,
+    },
+  });
+
+  return {
+    name: user?.name || "",
+    bio: user?.bio || "",
+    email: user?.email || session.user.email || "",
+    githubPAT: user?.githubPAT || null,
+  };
+}
+
+// Save or update the user's settings
+export async function saveUserSettings(
+  githubPAT?: string,
+  name?: string,
+  bio?: string
+) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { githubPAT, name, bio },
+  });
+}
+
+// Delete the user's GitHub PAT
+export async function deleteUserGithubPAT() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { githubPAT: null },
+  });
+}

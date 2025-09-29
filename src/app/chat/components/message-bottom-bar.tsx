@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useCallback } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MessageBottomBarProps {
   className?: string;
@@ -34,7 +33,6 @@ export function MessageBottomBar({
   modelDetails,
 }: MessageBottomBarProps) {
   const [clickedButtons, setClickedButtons] = useState<Set<string>>(new Set());
-  const isMobile = useIsMobile();
 
   const handleButtonClick = useCallback(
     (
@@ -98,8 +96,7 @@ export function MessageBottomBar({
     <TooltipProvider>
       <div
         className={cn(
-          "flex items-center justify-end gap-1  mb-4 transition-opacity duration-200 group-hover:opacity-100",
-          isMobile ? " opacity-100 " : "opacity-0 ",
+          "flex items-center justify-end gap-1 opacity-100 sm:opacity-0 mb-4 transition-opacity duration-200 group-hover:opacity-100",
           className
         )}
       >

@@ -15,6 +15,7 @@ interface ChatInputProps {
   onInputChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => Promise<void>;
   onStop: () => Promise<void>;
+  disableChatInput: boolean;
 }
 
 export function ChatInput({
@@ -23,6 +24,7 @@ export function ChatInput({
   onInputChange,
   onSubmit,
   onStop,
+  disableChatInput,
 }: ChatInputProps) {
   return (
     <div className="sticky bottom-0">
@@ -40,7 +42,7 @@ export function ChatInput({
               onSubmit(e);
             }
           }}
-          disabled={status !== "ready"}
+          disabled={disableChatInput}
         />
         <TooltipProvider>
           <Tooltip>

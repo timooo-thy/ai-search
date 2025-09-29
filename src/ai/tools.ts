@@ -2,6 +2,7 @@ import { MyDataPart } from "@/types/ui-message-type";
 import { tool, UIMessage, UIMessageStreamWriter } from "ai";
 import z from "zod";
 import { Octokit } from "octokit";
+import { getUserRepos } from "@/actions/github-actions";
 
 export const getWeatherInformation = (
   writer: UIMessageStreamWriter<UIMessage<never, MyDataPart>>
@@ -67,15 +68,17 @@ export const getRepositories = (
         data: { details: [], loading: true },
         id,
       });
-      const octokit = new Octokit({
-        auth: process.env.GITHUB_PAT,
-      });
 
-      const response = await octokit.request("GET /user/repos", {
-        headers: {
-          "X-GitHub-Api-Version": "2022-11-28",
-        },
-      });
+      const response = await getUserRepos();
+
+      if (!response) {
+        writer.write({
+          type: "data-repositories",
+          data: { details: [], loading: false },
+          id,
+        });
+        return { data: [] };
+      }
 
       const details = response.data.map((repo) => ({
         name: repo.name,

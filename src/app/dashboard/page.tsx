@@ -45,10 +45,10 @@ export default async function Dashboard() {
                 Start AI Search
               </Link>
               <Link
-                href="#"
+                href="/settings"
                 className="border border-border px-8 py-4 rounded-lg font-semibold text-lg hover:bg-muted transition-all"
               >
-                Browse Projects
+                Settings
               </Link>
             </div>
           </div>
@@ -180,7 +180,7 @@ export default async function Dashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href="#">
+                <Link href="/settings">
                   <Button className="w-full" variant="outline">
                     Open Settings
                   </Button>

@@ -9,8 +9,13 @@ import { StockData, TimeData, WeatherData } from "@/types/widget-types";
 import WidgetCards from "./widget-cards";
 import { useRouter } from "next/navigation";
 import { createChat } from "@/actions/ui-message-actions";
+import Link from "next/link";
 
-export function NewChatInterface() {
+type NewChatInterfaceProps = {
+  githubPAT: string | null;
+};
+
+export function NewChatInterface({ githubPAT }: NewChatInterfaceProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [timeData, setTimeData] = useState<TimeData | null>(null);
@@ -129,7 +134,7 @@ export function NewChatInterface() {
     fetchWeather();
   }, []);
 
-  return (
+  return githubPAT ? (
     <div className="flex flex-col flex-1 items-center justify-center bg-primary-foreground p-6">
       <div className="w-full max-w-4xl space-y-10">
         <h1 className="text-5xl font-bold text-center text-primary">
@@ -170,6 +175,22 @@ export function NewChatInterface() {
           weatherData={weatherData}
         />
       </div>
+    </div>
+  ) : (
+    <div className="flex flex-col items-center bg-primary-foreground justify-center h-full text-center p-10">
+      <h2 className="text-2xl font-semibold mb-4">
+        Connect your GitHub account
+      </h2>
+      <p className="text-muted-foreground mb-6">
+        To use the chat features, please connect your GitHub account by
+        providing a Personal Access Token (PAT).
+      </p>
+      <Link
+        href="/settings"
+        className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
+      >
+        Go to Settings
+      </Link>
     </div>
   );
 }
