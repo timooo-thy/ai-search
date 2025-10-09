@@ -255,7 +255,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage
-                      src={`${user?.image ?? undefined}`}
+                      src={user?.image ?? undefined}
                       alt="User Avatar"
                     />
                     <AvatarFallback className="rounded-lg text-primary">
