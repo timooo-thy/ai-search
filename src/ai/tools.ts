@@ -71,15 +71,6 @@ export const getRepositories = (
       try {
         const data = await getUserRepos();
 
-        if (!data) {
-          writer.write({
-            type: "data-repositories",
-            data: { details: [], loading: false },
-            id,
-          });
-          return { data: [] };
-        }
-
         const details = data.map((repo) => ({
           name: repo.name,
           description: repo.description,

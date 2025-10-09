@@ -276,7 +276,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 sideOffset={4}
               >
                 <DropdownMenuItem
-                  onSelect={async () => {
+                  onSelect={() => {
                     router.push("/dashboard");
                   }}
                   className="w-full"
