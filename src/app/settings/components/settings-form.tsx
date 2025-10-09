@@ -51,8 +51,8 @@ import {
   saveUserSettings,
 } from "@/actions/ui-message-actions";
 import { toast } from "sonner";
-import { checkUserGithubPAT } from "@/actions/github-actions";
 import { GitHubPATHelp } from "./github-pat-help";
+import { validateGitHubPAT } from "@/actions/github-actions";
 
 type SettingsState = {
   githubPAT: string;
@@ -116,36 +116,25 @@ export function SettingsForm({ user, validGithubPAT }: SettingsFormProps) {
     try {
       const patToSave = settings.githubPAT.trim() || undefined;
 
-      if (patToSave && (await checkUserGithubPAT())) {
-        await saveUserSettings(
-          patToSave,
-          settings.profile.name,
-          settings.profile.bio
-        );
-
-        setSettings((prev) => ({
-          ...prev,
-          hasGithubPAT: true,
-        }));
-      } else {
-        await saveUserSettings(
-          undefined,
-          settings.profile.name,
-          settings.profile.bio
-        );
-
-        setSettings((prev) => ({
-          ...prev,
-          hasGithubPAT: false,
-          githubPAT: "",
-        }));
-
-        toast.error(
-          "GitHub token appears invalid or expired. Please check scopes or rotate."
-        );
+      if (patToSave) {
+        const isValid = await validateGitHubPAT(patToSave);
+        if (!isValid) {
+          toast.error(
+            "GitHub token appears invalid or expired. Please check scopes or rotate."
+          );
+          return;
+        }
       }
 
-      toast.success("User settings saved successfully.");
+      await saveUserSettings(
+        patToSave,
+        settings.profile.name,
+        settings.profile.bio
+      );
+
+      setSettings((prev) => ({ ...prev, hasGithubPAT: !!patToSave }));
+
+      toast.success("Settings saved successfully.");
     } catch (error) {
       console.error("Error saving user settings:", error);
       toast.error("Failed to save user settings. Please try again.");

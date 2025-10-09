@@ -22,7 +22,7 @@ type ChatPanelProps = {
 /**
  * Render the chat panel for a conversation, handling message input, sending, and repository selection UI.
  *
- * Initializes the chat session using the provided chat ID, populates messages with `previousMessages`, processes an optional initial query from the URL (sending it once when ready), auto-scrolls to new messages, and displays header, message list, and input controls.
+ * Initialises the chat session using the provided chat ID, populates messages with `previousMessages`, processes an optional initial query from the URL (sending it once when ready), auto-scrolls to new messages, and displays header, message list, and input controls.
  *
  * @param chatId - The identifier for the chat session used to initialize routing and the chat transport
  * @param previousMessages - Initial messages to populate the chat view
@@ -109,7 +109,7 @@ export default function ChatPanel({
     ) {
       hasProcessedInitialQueryRef.current = true;
 
-      sendText(decodeURIComponent(initialQuery));
+      sendText(initialQuery);
 
       router.replace(`/chat/${chatId}`);
     }

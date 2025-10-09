@@ -10,8 +10,12 @@ export async function checkUserGithubPAT() {
     return false;
   }
 
+  return validateGitHubPAT(githubPAT);
+}
+
+export async function validateGitHubPAT(token: string) {
   const octokit = new Octokit({
-    auth: githubPAT,
+    auth: token,
     request: {
       headers: { "X-GitHub-Api-Version": "2022-11-28" },
     },
