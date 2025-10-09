@@ -4,13 +4,13 @@ import { Octokit } from "octokit";
 import { getUserGithubPAT } from "./ui-message-actions";
 
 export async function checkUserGithubPAT() {
-  const githubPAT = await getUserGithubPAT();
-
-  if (!githubPAT) {
+  try {
+    const githubPAT = await getUserGithubPAT();
+    if (!githubPAT) return false;
+    return validateGitHubPAT(githubPAT);
+  } catch {
     return false;
   }
-
-  return validateGitHubPAT(githubPAT);
 }
 
 export async function validateGitHubPAT(token: string) {
@@ -30,7 +30,13 @@ export async function validateGitHubPAT(token: string) {
 }
 
 export async function getUserRepos() {
-  const githubPAT = await getUserGithubPAT();
+  let githubPAT: string | null;
+
+  try {
+    githubPAT = await getUserGithubPAT();
+  } catch {
+    return [];
+  }
 
   if (!githubPAT) {
     return [];
@@ -44,7 +50,7 @@ export async function getUserRepos() {
   });
 
   try {
-    const { data } = await octokit.request("GET /user/repos", {
+    const { data } = await octokit.rest.repos.listForAuthenticatedUser({
       per_page: 30,
       sort: "updated",
       direction: "desc",
