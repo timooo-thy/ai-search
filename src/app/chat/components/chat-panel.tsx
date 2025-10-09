@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatInput } from "./chat-input";
 import { ChatMessages } from "./chat-messages";
 import { MyUIMessage } from "@/types/ui-message-type";
@@ -69,16 +69,19 @@ export default function ChatPanel({
     messages: previousMessages,
   });
 
-  const sendText = (text: string) =>
-    sendMessage({
-      text,
-      metadata: {
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      },
-    });
+  const sendText = useCallback(
+    (text: string) =>
+      sendMessage({
+        text,
+        metadata: {
+          time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        },
+      }),
+    [sendMessage]
+  );
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();

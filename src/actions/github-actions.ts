@@ -19,11 +19,8 @@ export async function checkUserGithubPAT() {
   try {
     await octokit.rest.users.getAuthenticated();
     return true;
-  } catch (error: any) {
-    console.error("Token is invalid or expired.", {
-      status: error?.status,
-      message: error?.message,
-    });
+  } catch (error) {
+    console.error("Token is invalid or expired.", error);
     return false;
   }
 }
@@ -50,11 +47,8 @@ export async function getUserRepos() {
       visibility: "all",
     });
     return data;
-  } catch (error: any) {
-    console.error("Failed to fetch user repositories.", {
-      status: error?.status,
-      message: error?.message,
-    });
+  } catch (error) {
+    console.error("Failed to fetch user repositories.", error);
     return [];
   }
 }
