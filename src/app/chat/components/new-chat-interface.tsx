@@ -12,10 +12,10 @@ import { createChat } from "@/actions/ui-message-actions";
 import Link from "next/link";
 
 type NewChatInterfaceProps = {
-  githubPAT: string | null;
+  hasValidGithubPAT: boolean;
 };
 
-export function NewChatInterface({ githubPAT }: NewChatInterfaceProps) {
+export function NewChatInterface({ hasValidGithubPAT }: NewChatInterfaceProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [timeData, setTimeData] = useState<TimeData | null>(null);
@@ -31,8 +31,13 @@ export function NewChatInterface({ githubPAT }: NewChatInterfaceProps) {
     if (!searchQuery.trim()) {
       return;
     }
-    const chat = await createChat(searchQuery);
-    router.push(`/chat/${chat.id}?query=${encodeURIComponent(searchQuery)}`);
+    try {
+      const chat = await createChat(searchQuery);
+      router.push(`/chat/${chat.id}?query=${encodeURIComponent(searchQuery)}`);
+    } catch (error) {
+      console.error("Error creating chat:", error);
+      toast.error("Failed to create chat. Please try again.");
+    }
   };
 
   useEffect(() => {
@@ -41,7 +46,11 @@ export function NewChatInterface({ githubPAT }: NewChatInterfaceProps) {
         const response = await fetch(
           "https://api.api-ninjas.com/v1/worldtime?lat=1.3521&lon=103.8198",
           {
-            headers: { "X-Api-Key": process.env.NEXT_PUBLIC_API_NINJAS_KEY! },
+            headers: (() => {
+              const key = process.env.NEXT_PUBLIC_API_NINJAS_KEY;
+              if (!key) throw new Error("API_NINJAS key missing");
+              return { "X-Api-Key": key };
+            })(),
           }
         );
         const data = await response.json();
@@ -67,7 +76,11 @@ export function NewChatInterface({ githubPAT }: NewChatInterfaceProps) {
     const fetchStock = async () => {
       try {
         const response = await fetch(
-          `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=AAPL&apikey=${process.env.NEXT_PUBLIC_ALPHA_VANTAGE_KEY}`
+          (() => {
+            const key = process.env.NEXT_PUBLIC_ALPHA_VANTAGE_KEY;
+            if (!key) throw new Error("ALPHA_VANTAGE key missing");
+            return `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=AAPL&apikey=${key}`;
+          })()
         );
         const data = await response.json();
 
@@ -104,7 +117,11 @@ export function NewChatInterface({ githubPAT }: NewChatInterfaceProps) {
     const fetchWeather = async () => {
       try {
         const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?q=Singapore&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_KEY}&units=metric`
+          (() => {
+            const key = process.env.NEXT_PUBLIC_OPENWEATHER_KEY;
+            if (!key) throw new Error("OPENWEATHER key missing");
+            return `https://api.openweathermap.org/data/2.5/weather?q=Singapore&appid=${key}&units=metric`;
+          })()
         );
         const data = await response.json();
 
@@ -134,7 +151,7 @@ export function NewChatInterface({ githubPAT }: NewChatInterfaceProps) {
     fetchWeather();
   }, []);
 
-  return githubPAT ? (
+  return hasValidGithubPAT ? (
     <div className="flex flex-col flex-1 items-center justify-center bg-primary-foreground p-6">
       <div className="w-full max-w-4xl space-y-10">
         <h1 className="text-5xl font-bold text-center text-primary">

@@ -36,9 +36,8 @@ export const getWeatherInformation = (
         return { data: null, city };
       }
 
-      const weather =
-        data.weather[0].main.charAt(0).toUpperCase() +
-        data.weather[0].main.slice(1);
+      const weather = data.weather[0].main.charAt(0).toUpperCase();
+      data.weather[0].main.slice(1);
 
       writer.write({
         type: "data-weather",
@@ -68,33 +67,39 @@ export const getRepositories = (
         id,
       });
 
-      const response = await getUserRepos();
+      try {
+        const data = await getUserRepos();
 
-      if (!response) {
+        if (!data) {
+          writer.write({
+            type: "data-repositories",
+            data: { details: [], loading: false },
+            id,
+          });
+          return { data: [] };
+        }
+
+        const details = data.map((repo) => ({
+          name: repo.name,
+          description: repo.description,
+          url: repo.html_url,
+        }));
+
+        writer.write({
+          type: "data-repositories",
+          data: { loading: false, details },
+          id,
+        });
+
+        return { data: details };
+      } catch {
         writer.write({
           type: "data-repositories",
           data: { details: [], loading: false },
           id,
         });
-        return { data: [] };
+        return { error: "github_fetch_failed" };
       }
-
-      const details = response.data.map((repo) => ({
-        name: repo.name,
-        description: repo.description,
-        url: repo.html_url,
-      }));
-
-      writer.write({
-        type: "data-repositories",
-        data: {
-          loading: false,
-          details,
-        },
-        id,
-      });
-
-      return { data: details };
     },
   });
 

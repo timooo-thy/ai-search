@@ -175,9 +175,12 @@ export function ChatMessages({
                   <div className="mt-2">
                     <MessageBottomBar
                       onShare={() => {
-                        navigator.clipboard.writeText(
-                          process.env.NEXT_PUBLIC_BASE_URL + pathname
-                        );
+                        const base =
+                          process.env.NEXT_PUBLIC_BASE_URL ||
+                          (typeof window !== "undefined"
+                            ? window.location.origin
+                            : "");
+                        navigator.clipboard.writeText(base + pathname);
                         toast.success("Link copied. Paste to share.");
                       }}
                       onCopy={() => {

@@ -42,10 +42,10 @@ export default function Repositories({
 }: RepositoriesProps) {
   const { details, loading } = repositories;
 
-  const handleRepoToggle = (repoName: string) => {
+  const handleRepoToggle = (repoKey: string) => {
     if (loading) return;
 
-    setSelectedRepo((prev) => (prev === repoName ? "" : repoName));
+    setSelectedRepo((prev) => (prev === repoKey ? "" : repoKey));
   };
 
   return (
@@ -98,11 +98,11 @@ export default function Repositories({
                   <div key={repo.url}>
                     <div
                       className={`p-3 rounded-lg border-2 cursor-pointer transition-all hover:bg-muted/50 ${
-                        selectedRepo === repo.name
+                        selectedRepo === repo.url
                           ? "border-primary bg-primary/5"
                           : "border-border hover:border-primary/50"
                       }`}
-                      onClick={() => handleRepoToggle(repo.name)}
+                      onClick={() => handleRepoToggle(repo.url)}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
@@ -110,7 +110,7 @@ export default function Repositories({
                             <h4 className="font-medium text-sm truncate">
                               {repo.name}
                             </h4>
-                            {selectedRepo === repo.name && (
+                            {selectedRepo === repo.url && (
                               <Badge variant="default" className="text-xs">
                                 Selected
                               </Badge>
@@ -154,7 +154,7 @@ export default function Repositories({
         <div className="text-sm text-muted-foreground">
           {loading
             ? "Please wait..."
-            : selectedRepo && `${selectedRepo} selected`}
+            : selectedRepo && `${selectedRepo.split("/").pop()} selected`}
         </div>
 
         <div className="flex gap-2">

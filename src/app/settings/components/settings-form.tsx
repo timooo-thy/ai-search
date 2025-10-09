@@ -114,14 +114,37 @@ export function SettingsForm({ user, validGithubPAT }: SettingsFormProps) {
     setIsLoading(true);
 
     try {
-      await saveUserSettings(
-        settings.githubPAT,
-        settings.profile.name,
-        settings.profile.bio
-      );
-      if (await checkUserGithubPAT()) {
-        setSettings((prev) => ({ ...prev, hasGithubPAT: true }));
+      const patToSave = settings.githubPAT.trim() || undefined;
+
+      if (patToSave && (await checkUserGithubPAT())) {
+        await saveUserSettings(
+          patToSave,
+          settings.profile.name,
+          settings.profile.bio
+        );
+
+        setSettings((prev) => ({
+          ...prev,
+          hasGithubPAT: true,
+        }));
+      } else {
+        await saveUserSettings(
+          undefined,
+          settings.profile.name,
+          settings.profile.bio
+        );
+
+        setSettings((prev) => ({
+          ...prev,
+          hasGithubPAT: false,
+          githubPAT: "",
+        }));
+
+        toast.error(
+          "GitHub token appears invalid or expired. Please check scopes or rotate."
+        );
       }
+
       toast.success("User settings saved successfully.");
     } catch (error) {
       console.error("Error saving user settings:", error);
@@ -237,11 +260,7 @@ export function SettingsForm({ user, validGithubPAT }: SettingsFormProps) {
                     <Input
                       id="github-pat"
                       type={showPAT ? "text" : "password"}
-                      placeholder={
-                        settings.hasGithubPAT
-                          ? "Token already configured"
-                          : "github_pat_xxxxxxxxxxxxxxxxxxxx"
-                      }
+                      placeholder={"github_pat_xxxxxxxxxxxxxxxxxxxx"}
                       value={settings.githubPAT}
                       onChange={(e) =>
                         setSettings((prev) => ({
@@ -250,6 +269,9 @@ export function SettingsForm({ user, validGithubPAT }: SettingsFormProps) {
                         }))
                       }
                       className="pr-10"
+                      autoComplete="new-password"
+                      autoCorrect="off"
+                      spellCheck={false}
                     />
                     <Button
                       type="button"
@@ -369,6 +391,7 @@ export function SettingsForm({ user, validGithubPAT }: SettingsFormProps) {
                       <SelectContent>
                         <SelectItem value="10">10 results</SelectItem>
                         <SelectItem value="20">20 results</SelectItem>
+                        <SelectItem value="30">30 results</SelectItem>
                         <SelectItem value="50">50 results</SelectItem>
                         <SelectItem value="100">100 results</SelectItem>
                       </SelectContent>

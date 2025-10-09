@@ -5,9 +5,11 @@ import { getUserProfile } from "@/actions/ui-message-actions";
 import { getSession } from "@/hooks/use-session";
 
 export default async function SettingsPage() {
-  const validGithubPAT = await checkUserGithubPAT();
-  const userInfo = await getUserProfile();
   const user = await getSession();
+  const [validGithubPAT, userInfo] = await Promise.all([
+    checkUserGithubPAT(),
+    getUserProfile(),
+  ]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">

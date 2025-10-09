@@ -84,6 +84,7 @@ export function GitHubPATHelp() {
                   <Link
                     href="https://github.com/settings/personal-access-tokens"
                     target="_blank"
+                    rel="noopener noreferrer"
                     className="flex items-center gap-2"
                   >
                     Open GitHub Settings

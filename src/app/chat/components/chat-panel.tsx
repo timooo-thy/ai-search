@@ -69,33 +69,6 @@ export default function ChatPanel({
     messages: previousMessages,
   });
 
-  useEffect(() => {
-    if (
-      initialQuery &&
-      sendMessage &&
-      !hasProcessedInitialQueryRef.current &&
-      status === "ready"
-    ) {
-      hasProcessedInitialQueryRef.current = true;
-
-      sendMessage({
-        text: decodeURIComponent(initialQuery),
-        metadata: {
-          time: new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        },
-      });
-
-      router.replace(`/chat/${chatId}`);
-    }
-  }, [initialQuery, sendMessage, status, chatId, router]);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "auto" });
-  }, [messages]);
-
   const sendText = (text: string) =>
     sendMessage({
       text,
@@ -123,6 +96,25 @@ export default function ChatPanel({
   const handleInputChange = (value: string) => {
     setInput(value);
   };
+
+  useEffect(() => {
+    if (
+      initialQuery &&
+      sendText &&
+      !hasProcessedInitialQueryRef.current &&
+      status === "ready"
+    ) {
+      hasProcessedInitialQueryRef.current = true;
+
+      sendText(decodeURIComponent(initialQuery));
+
+      router.replace(`/chat/${chatId}`);
+    }
+  }, [initialQuery, status, chatId, router, sendText]);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "auto" });
+  }, [messages]);
 
   return (
     <div className="flex flex-col h-full">
