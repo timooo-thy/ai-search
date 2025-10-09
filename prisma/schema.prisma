@@ -21,6 +21,7 @@ model User {
   chats         Chat[]
   githubPAT     String?
   bio           String?
+  searches      Int       @default(0)
 
   @@unique([email])
   @@map("user")

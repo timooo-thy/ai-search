@@ -9,16 +9,34 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Navbar } from "@/components/navbar";
+import RecentSearch from "./components/recent-search";
+import {
+  getRecentChatTitles,
+  getUserStats,
+} from "@/actions/ui-message-actions";
+import UsageStatistic from "./components/usage-statistic";
 
 export default async function Dashboard() {
   const user = await getSession();
+
+  let recentChats: { id: string; title: string; updatedAt: Date }[] = [];
+  let usageStats = null;
+
+  try {
+    [recentChats, usageStats] = await Promise.all([
+      getRecentChatTitles(),
+      getUserStats(),
+    ]);
+  } catch (error) {
+    console.error("Failed to fetch dashboard data:", error);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
       <Navbar user={user} />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+      <section className="pt-32 pb-10 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mb-8">
@@ -56,7 +74,7 @@ export default async function Dashboard() {
       </section>
 
       {/* Quick Actions */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
@@ -192,7 +210,7 @@ export default async function Dashboard() {
       </section>
 
       {/* Recent Activity */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
+      <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
@@ -204,104 +222,14 @@ export default async function Dashboard() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <span className="text-lg">🕐</span>
-                  <span>Recent Searches</span>
-                </CardTitle>
-                <CardDescription>
-                  Your latest AI-powered code searches and discoveries.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-sm">
-                        Authentication flow analysis
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        React project • 2 hours ago
-                      </p>
-                    </div>
-                    <Button size="sm" variant="ghost">
-                      View
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-sm">
-                        Database connection setup
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Node.js API • 1 day ago
-                      </p>
-                    </div>
-                    <Button size="sm" variant="ghost">
-                      View
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-sm">
-                        Component state management
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Vue.js app • 3 days ago
-                      </p>
-                    </div>
-                    <Button size="sm" variant="ghost">
-                      View
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <span className="text-lg">📈</span>
-                  <span>Usage Stats</span>
-                </CardTitle>
-                <CardDescription>
-                  Your productivity metrics and search insights.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">
-                      Searches This Week
-                    </span>
-                    <span className="text-2xl font-bold text-primary">47</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">
-                      Projects Analyzed
-                    </span>
-                    <span className="text-2xl font-bold text-primary">12</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Time Saved</span>
-                    <span className="text-2xl font-bold text-primary">
-                      8.5h
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Success Rate</span>
-                    <span className="text-2xl font-bold text-primary">94%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <RecentSearch recentChats={recentChats} />
+            <UsageStatistic usageStats={usageStats} />
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
             Ready to Explore Some Code?
