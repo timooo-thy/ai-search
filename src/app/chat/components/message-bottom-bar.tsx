@@ -96,7 +96,7 @@ export function MessageBottomBar({
     <TooltipProvider>
       <div
         className={cn(
-          "flex items-center justify-end gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200",
+          "flex items-center justify-end gap-1 opacity-100 sm:opacity-0 mb-4 transition-opacity duration-200 group-hover:opacity-100",
           className
         )}
       >

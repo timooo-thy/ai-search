@@ -26,12 +26,14 @@ export const mapUIMessagePartsToDBParts = (
       tool_errorText: null,
       tool_getWeatherInformation_input: null,
       tool_getWeatherInformation_output: null,
-      tool_getLocation_input: null,
-      tool_getLocation_output: null,
+      tool_getRepositories_input: null,
+      tool_getRepositories_output: null,
       data_weather_id: null,
       data_weather_location: null,
       data_weather_weather: null,
       data_weather_temperature: null,
+      data_repositories_id: null,
+      data_repositories_details: null,
     };
 
     switch (part.type) {
@@ -107,20 +109,20 @@ export const mapUIMessagePartsToDBParts = (
               : null,
           tool_errorText: part.state === "output-error" ? part.errorText : null,
         };
-      case "tool-getLocation":
+      case "tool-getRepositories":
         return {
           ...basePart,
           order: index,
-          type: MessagePartType.tool_getLocation,
+          type: MessagePartType.tool_getRepositories,
           tool_toolCallId: part.toolCallId,
           tool_state: part.state,
-          tool_getLocation_input:
+          tool_getRepositories_input:
             part.state === "input-available" ||
             part.state === "output-available" ||
             part.state === "output-error"
               ? (part.input as Prisma.JsonValue)
               : null,
-          tool_getLocation_output:
+          tool_getRepositories_output:
             part.state === "output-available"
               ? (part.output as Prisma.JsonValue)
               : null,
@@ -131,13 +133,22 @@ export const mapUIMessagePartsToDBParts = (
           ...basePart,
           order: index,
           type: MessagePartType.data_weather,
-          data_weather_id: part.id || null,
-          data_weather_location: part.data.location || null,
-          data_weather_weather: (part.data.weather as Weather) || null,
-          data_weather_temperature: part.data.temperature || null,
+          data_weather_id: part.id ?? null,
+          data_weather_location: part.data.location ?? null,
+          data_weather_weather: (part.data.weather as Weather) ?? null,
+          data_weather_temperature: part.data.temperature ?? null,
+        };
+      case "data-repositories":
+        return {
+          ...basePart,
+          order: index,
+          type: MessagePartType.data_repositories,
+          data_repositories_id: part.id ?? null,
+          data_repositories_details:
+            (part.data.details as Prisma.JsonValue) ?? null,
         };
       default:
-        throw new Error(`Unsupported part type: ${part}`);
+        throw new Error(`Unsupported part type: ${part.type}`);
     }
   });
 };
@@ -239,52 +250,66 @@ export const mapDBPartToUIMessagePart = (
               undefined,
             errorText: part.tool_errorText!,
           };
+        default:
+          throw new Error(
+            `Unsupported getWeatherInformation state: ${part.tool_state}`
+          );
       }
-    case "tool_getLocation":
+    case "tool_getRepositories":
       if (!part.tool_state) {
-        throw new Error("getWeatherInformation_state is undefined");
+        throw new Error("getRepositories_state is undefined");
       }
       switch (part.tool_state) {
         case "input-streaming":
           return {
-            type: "tool-getLocation",
+            type: "tool-getRepositories",
             state: "input-streaming",
             toolCallId: part.tool_toolCallId!,
             input:
-              (part.tool_getLocation_input as Partial<Record<never, never>>) ||
-              undefined,
+              (part.tool_getRepositories_input as Partial<
+                Record<string, never>
+              >) || undefined,
           };
         case "input-available":
           return {
-            type: "tool-getLocation",
+            type: "tool-getRepositories",
             state: "input-available",
             toolCallId: part.tool_toolCallId!,
             input:
-              (part.tool_getLocation_input as Record<string, never>) ||
+              (part.tool_getRepositories_input as Record<string, never>) ||
               undefined,
           };
         case "output-available":
           return {
-            type: "tool-getLocation",
+            type: "tool-getRepositories",
             state: "output-available",
             toolCallId: part.tool_toolCallId!,
             input:
-              (part.tool_getLocation_input as Record<string, never>) ||
+              (part.tool_getRepositories_input as Record<string, never>) ||
               undefined,
             output:
-              (part.tool_getLocation_output as { location: string }) ||
-              undefined,
+              (part.tool_getRepositories_output as {
+                data: {
+                  name: string;
+                  description: string | null;
+                  url: string;
+                }[];
+              }) || undefined,
           };
         case "output-error":
           return {
-            type: "tool-getLocation",
+            type: "tool-getRepositories",
             state: "output-error",
             toolCallId: part.tool_toolCallId!,
             input:
-              (part.tool_getLocation_input as Record<string, never>) ||
+              (part.tool_getRepositories_input as Record<string, never>) ||
               undefined,
             errorText: part.tool_errorText!,
           };
+        default:
+          throw new Error(
+            `Unsupported getRepositories state: ${part.tool_state}`
+          );
       }
     case "data_weather":
       return {
@@ -293,11 +318,30 @@ export const mapDBPartToUIMessagePart = (
           loading: false,
           location: part.data_weather_location!,
           weather: (part.data_weather_weather as Weather) || null,
-          temperature: part.data_weather_temperature!,
+          temperature: part.data_weather_temperature ?? undefined,
         },
-        id: part.data_weather_id!,
+        id: part.data_weather_id ?? undefined,
+      };
+    case "data_repositories":
+      return {
+        type: "data-repositories",
+        data: {
+          details:
+            (part.data_repositories_details as
+              | {
+                  name: string;
+                  description: string | null;
+                  url: string;
+                }[]
+              | null) || [],
+          loading: false,
+        },
+        id: part.data_repositories_id ?? undefined,
       };
     default:
       throw new Error(`Unsupported part type: ${part.type}`);
   }
 };
+
+export const jsonOrDbNull = (v: unknown) =>
+  v == null ? Prisma.DbNull : (v as Prisma.InputJsonValue);

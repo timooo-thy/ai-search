@@ -2,6 +2,7 @@ import { InferUITools, UIMessage, UIMessagePart } from "ai";
 import type { Message, Part, Chat } from "../../generated/prisma";
 import z from "zod";
 import { tools } from "@/ai/tools";
+
 export const metadataSchema = z.object({
   time: z.string(),
 });
@@ -34,6 +35,16 @@ export const dataPartSchema = z.object({
       .optional(),
     location: z.string().optional(),
     temperature: z.number().optional(),
+    loading: z.boolean().default(true),
+  }),
+  repositories: z.object({
+    details: z.array(
+      z.object({
+        name: z.string(),
+        description: z.string().nullable(),
+        url: z.string().url(),
+      })
+    ),
     loading: z.boolean().default(true),
   }),
 });

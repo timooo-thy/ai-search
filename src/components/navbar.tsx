@@ -69,7 +69,10 @@ export function Navbar({ user }: NavbarProps) {
                 {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost">
+                    <Button
+                      variant="ghost"
+                      className="hover:bg-transparent cursor-pointer"
+                    >
                       <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                         <span className="text-primary font-semibold text-sm">
                           {user.name?.charAt(0).toUpperCase() ||

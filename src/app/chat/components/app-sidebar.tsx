@@ -58,7 +58,7 @@ type AppSidebarProps = {
 
 export function AppSidebar({ user }: AppSidebarProps) {
   const router = useRouter();
-  const currentConversationId = useParams<{ id: string }>().id;
+  const currentConversationId = useParams<{ id?: string }>().id;
 
   const navigationItems = [
     {
@@ -181,8 +181,8 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarGroupLabel>Recent</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {recentConversationTitles.map((chat, index) => (
-                <SidebarMenuItem key={index}>
+              {recentConversationTitles.map((chat) => (
+                <SidebarMenuItem key={chat.id}>
                   <div className="flex items-center gap-1 w-full">
                     <SidebarMenuButton asChild className="flex-1">
                       <Button
@@ -254,7 +254,10 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={`${user?.image}`} alt="User Avatar" />
+                    <AvatarImage
+                      src={user?.image ?? undefined}
+                      alt="User Avatar"
+                    />
                     <AvatarFallback className="rounded-lg text-primary">
                       {user?.name.charAt(0)}
                     </AvatarFallback>
@@ -273,7 +276,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 sideOffset={4}
               >
                 <DropdownMenuItem
-                  onClick={async () => {
+                  onSelect={() => {
                     router.push("/dashboard");
                   }}
                   className="w-full"
@@ -281,7 +284,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   <User className="mr-2 h-4 w-4" />
                   Account
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => router.push("/settings")}>
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </DropdownMenuItem>

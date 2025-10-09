@@ -14,6 +14,15 @@ import {
 } from "ai";
 import { headers } from "next/headers";
 import { tools } from "@/ai/tools";
+
+/**
+ * Handle POST requests to stream AI-assisted chat responses, validate and persist UI messages, and return a streaming UI response.
+ *
+ * Validates the incoming message against existing chat state, runs an OpenAI streaming generation (with repository search tooling), merges the generated stream into the UI message stream, and persists the final messages. Returns 401 if the request is unauthenticated and returns a 404 response on unexpected errors.
+ *
+ * @param req - The incoming Request whose JSON body must contain `{ message: MyUIMessage, id: string }`.
+ * @returns A Response carrying a streaming UI message payload with the assistant's streamed reply and intermediate stream events.
+ */
 export async function POST(req: Request) {
   const { message, id }: { message: MyUIMessage; id: string } =
     await req.json();
@@ -73,6 +82,10 @@ export async function POST(req: Request) {
 
         const result = streamText({
           model: openai("gpt-4o-mini"),
+          system: `You are an AI assistant that helps people find information by searching their private code repositories on GitHub. 
+           You may access only repositories the user has explicitly selected/authorised for this chat. Never expose access tokens, headers, or secrets in outputs; redact credentials if encountered.
+            Use these tools to find the information the user is looking for. When you receive the tool results, be succinct in your summaries.
+            You do not have to use the tools at all times, only when necessary.`,
           messages: convertToModelMessages(validatedMessages),
           stopWhen: stepCountIs(5),
           tools: tools(writer),

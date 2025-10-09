@@ -9,8 +9,13 @@ import { StockData, TimeData, WeatherData } from "@/types/widget-types";
 import WidgetCards from "./widget-cards";
 import { useRouter } from "next/navigation";
 import { createChat } from "@/actions/ui-message-actions";
+import Link from "next/link";
 
-export function NewChatInterface() {
+type NewChatInterfaceProps = {
+  hasValidGithubPAT: boolean;
+};
+
+export function NewChatInterface({ hasValidGithubPAT }: NewChatInterfaceProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [timeData, setTimeData] = useState<TimeData | null>(null);
@@ -26,8 +31,13 @@ export function NewChatInterface() {
     if (!searchQuery.trim()) {
       return;
     }
-    const chat = await createChat(searchQuery);
-    router.push(`/chat/${chat.id}?query=${encodeURIComponent(searchQuery)}`);
+    try {
+      const chat = await createChat(searchQuery);
+      router.push(`/chat/${chat.id}?query=${encodeURIComponent(searchQuery)}`);
+    } catch (error) {
+      console.error("Error creating chat:", error);
+      toast.error("Failed to create chat. Please try again.");
+    }
   };
 
   useEffect(() => {
@@ -36,7 +46,11 @@ export function NewChatInterface() {
         const response = await fetch(
           "https://api.api-ninjas.com/v1/worldtime?lat=1.3521&lon=103.8198",
           {
-            headers: { "X-Api-Key": process.env.NEXT_PUBLIC_API_NINJAS_KEY! },
+            headers: (() => {
+              const key = process.env.NEXT_PUBLIC_API_NINJAS_KEY;
+              if (!key) throw new Error("API_NINJAS key missing");
+              return { "X-Api-Key": key };
+            })(),
           }
         );
         const data = await response.json();
@@ -62,7 +76,11 @@ export function NewChatInterface() {
     const fetchStock = async () => {
       try {
         const response = await fetch(
-          `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=AAPL&apikey=${process.env.NEXT_PUBLIC_ALPHA_VANTAGE_KEY}`
+          (() => {
+            const key = process.env.NEXT_PUBLIC_ALPHA_VANTAGE_KEY;
+            if (!key) throw new Error("ALPHA_VANTAGE key missing");
+            return `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=AAPL&apikey=${key}`;
+          })()
         );
         const data = await response.json();
 
@@ -99,7 +117,11 @@ export function NewChatInterface() {
     const fetchWeather = async () => {
       try {
         const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?q=Singapore&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_KEY}&units=metric`
+          (() => {
+            const key = process.env.NEXT_PUBLIC_OPENWEATHER_KEY;
+            if (!key) throw new Error("OPENWEATHER key missing");
+            return `https://api.openweathermap.org/data/2.5/weather?q=Singapore&appid=${key}&units=metric`;
+          })()
         );
         const data = await response.json();
 
@@ -129,7 +151,7 @@ export function NewChatInterface() {
     fetchWeather();
   }, []);
 
-  return (
+  return hasValidGithubPAT ? (
     <div className="flex flex-col flex-1 items-center justify-center bg-primary-foreground p-6">
       <div className="w-full max-w-4xl space-y-10">
         <h1 className="text-5xl font-bold text-center text-primary">
@@ -170,6 +192,22 @@ export function NewChatInterface() {
           weatherData={weatherData}
         />
       </div>
+    </div>
+  ) : (
+    <div className="flex flex-col items-center bg-primary-foreground justify-center h-full text-center p-10">
+      <h2 className="text-2xl font-semibold mb-4">
+        Connect your GitHub account
+      </h2>
+      <p className="text-muted-foreground mb-6">
+        To use the chat features, please connect your GitHub account by
+        providing a Personal Access Token (PAT).
+      </p>
+      <Link
+        href="/settings"
+        className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
+      >
+        Go to Settings
+      </Link>
     </div>
   );
 }

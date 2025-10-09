@@ -2,8 +2,8 @@
 
 import prisma from "@/lib/prisma";
 import { MyUIMessage } from "../types/ui-message-type";
-import { Prisma } from "../../generated/prisma";
 import {
+  jsonOrDbNull,
   mapDBPartToUIMessagePart,
   mapUIMessagePartsToDBParts,
 } from "@/lib/ui-message-util";
@@ -28,7 +28,15 @@ export async function createChat(title: string) {
   });
 }
 
-// Save or update UIMessages to the database
+/**
+ * Insert or update UI messages and their associated parts for a chat in the database.
+ *
+ * Upserts each provided UI message by id: existing messages have their parts replaced, and missing messages are created.
+ *
+ * @param uiMessages - The array of UI-formatted messages to upsert (each must include parts and an id).
+ * @param chatId - The id of the chat to associate the messages with.
+ * @throws Error if the user is not authenticated or if a message does not belong to the specified chat or user.
+ */
 export async function upsertMessages(
   uiMessages: MyUIMessage[],
   chatId: string
@@ -41,72 +49,80 @@ export async function upsertMessages(
     throw new Error("You must be logged in to create a chat.");
   }
 
-  for (const uiMessage of uiMessages) {
-    await prisma.message.upsert({
-      where: { id: uiMessage.id },
-      update: {
-        parts: {
-          deleteMany: {},
-          create: mapUIMessagePartsToDBParts(uiMessage.parts).map((part) => ({
-            ...part,
-            providerMetadata:
-              part.providerMetadata !== null
-                ? (part.providerMetadata as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getWeatherInformation_input:
-              part.tool_getWeatherInformation_input !== null
-                ? (part.tool_getWeatherInformation_input as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getWeatherInformation_output:
-              part.tool_getWeatherInformation_output !== null
-                ? (part.tool_getWeatherInformation_output as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getLocation_input:
-              part.tool_getLocation_input !== null
-                ? (part.tool_getLocation_input as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getLocation_output:
-              part.tool_getLocation_output !== null
-                ? (part.tool_getLocation_output as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-          })),
+  await prisma.$transaction(async (tx) => {
+    const chat = await tx.chat.findFirst({
+      where: { id: chatId, userId: session.user.id },
+      select: { id: true },
+    });
+    if (!chat) {
+      throw new Error("Forbidden: chat does not belong to this user.");
+    }
+
+    for (const uiMessage of uiMessages) {
+      const existing = await tx.message.findUnique({
+        where: { id: uiMessage.id },
+        select: { chatId: true, chat: { select: { userId: true } } },
+      });
+
+      if (
+        existing &&
+        (existing.chatId !== chatId || existing.chat.userId !== session.user.id)
+      ) {
+        throw new Error(
+          "Forbidden: message does not belong to this chat or user"
+        );
+      }
+
+      const normalisedParts = mapUIMessagePartsToDBParts(uiMessage.parts).map(
+        (part) => ({
+          ...part,
+          providerMetadata: jsonOrDbNull(part.providerMetadata),
+          tool_getWeatherInformation_input: jsonOrDbNull(
+            part.tool_getWeatherInformation_input
+          ),
+          tool_getWeatherInformation_output: jsonOrDbNull(
+            part.tool_getWeatherInformation_output
+          ),
+          tool_getRepositories_input: jsonOrDbNull(
+            part.tool_getRepositories_input
+          ),
+          tool_getRepositories_output: jsonOrDbNull(
+            part.tool_getRepositories_output
+          ),
+          data_repositories_details: jsonOrDbNull(
+            part.data_repositories_details
+          ),
+        })
+      );
+
+      await tx.message.upsert({
+        where: { id: uiMessage.id },
+        update: {
+          parts: {
+            deleteMany: {},
+            create: normalisedParts,
+          },
         },
-      },
-      create: {
-        id: uiMessage.id,
-        chatId,
-        role: uiMessage.role,
-        parts: {
-          create: mapUIMessagePartsToDBParts(uiMessage.parts).map((part) => ({
-            ...part,
-            providerMetadata:
-              part.providerMetadata !== null
-                ? (part.providerMetadata as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getWeatherInformation_input:
-              part.tool_getWeatherInformation_input !== null
-                ? (part.tool_getWeatherInformation_input as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getWeatherInformation_output:
-              part.tool_getWeatherInformation_output !== null
-                ? (part.tool_getWeatherInformation_output as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getLocation_input:
-              part.tool_getLocation_input !== null
-                ? (part.tool_getLocation_input as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-            tool_getLocation_output:
-              part.tool_getLocation_output !== null
-                ? (part.tool_getLocation_output as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-          })),
+        create: {
+          id: uiMessage.id,
+          chatId,
+          role: uiMessage.role,
+          parts: {
+            create: normalisedParts,
+          },
         },
+      });
+    }
+    await tx.chat.update({
+      where: {
+        id: chatId,
+        userId: session.user.id,
       },
-      include: {
-        parts: true,
+      data: {
+        updatedAt: new Date(),
       },
     });
-  }
+  });
 }
 
 // Get all messages from a chat as UIMessages
@@ -123,8 +139,9 @@ export async function getChatMessagesById(
 
   const chat = await prisma.chat.findFirst({
     where: { id: chatId, userId: session.user.id },
-    include: { messages: { include: { parts: true } } },
-    orderBy: { createdAt: "asc" },
+    include: {
+      messages: { include: { parts: true }, orderBy: { createdAt: "asc" } },
+    },
   });
 
   return chat?.messages.map((message) => ({
@@ -147,7 +164,7 @@ export async function loadChat(chatId: string) {
     throw new Error("You must be logged in to create a chat.");
   }
 
-  const chat = await prisma.chat.findUnique({
+  const chat = await prisma.chat.findFirst({
     where: { id: chatId, userId: session.user.id },
     include: {
       messages: {
@@ -240,4 +257,92 @@ export async function deleteChat(chatId: string) {
     console.error("Error deleting chat:", error);
     throw new Error("Failed to delete chat.");
   }
+}
+
+// Fetch the user's GitHub PAT
+export async function getUserGithubPAT() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      githubPAT: true,
+    },
+  });
+
+  return user?.githubPAT || null;
+}
+
+// Fetch the user's profile info
+export async function getUserProfile() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      name: true,
+      bio: true,
+      email: true,
+      githubPAT: true,
+    },
+  });
+
+  return {
+    name: user?.name || "",
+    bio: user?.bio || "",
+    email: user?.email || session.user.email || "",
+    githubPAT: user?.githubPAT || null,
+  };
+}
+
+// Save or update the user's settings
+export async function saveUserSettings(
+  githubPAT?: string,
+  name?: string,
+  bio?: string
+) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { githubPAT, name, bio },
+  });
+}
+
+// Delete the user's GitHub PAT
+export async function deleteUserGithubPAT() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { githubPAT: null },
+  });
 }
