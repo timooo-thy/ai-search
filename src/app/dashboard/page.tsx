@@ -18,10 +18,18 @@ import UsageStatistic from "./components/usage-statistic";
 
 export default async function Dashboard() {
   const user = await getSession();
-  const [recentChats, usageStats] = await Promise.all([
-    getRecentChatTitles(),
-    getUserStats(),
-  ]);
+
+  let recentChats: { id: string; title: string; updatedAt: Date }[] = [];
+  let usageStats = null;
+
+  try {
+    [recentChats, usageStats] = await Promise.all([
+      getRecentChatTitles(),
+      getUserStats(),
+    ]);
+  } catch (error) {
+    console.error("Failed to fetch dashboard data:", error);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
@@ -202,7 +210,7 @@ export default async function Dashboard() {
       </section>
 
       {/* Recent Activity */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-muted/30">
+      <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">

@@ -11,7 +11,7 @@ type UsageStatisticProps = {
     totalSearches: number;
     totalChats: number;
     totalMessages: number;
-  };
+  } | null;
 };
 
 export default function UsageStatistic({ usageStats }: UsageStatisticProps) {
@@ -35,7 +35,7 @@ export default function UsageStatistic({ usageStats }: UsageStatisticProps) {
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Lifetime Searches</span>
             <span className="text-2xl font-bold text-primary">
-              {usageStats.totalSearches}
+              {usageStats?.totalSearches || 0}
             </span>
           </div>
           <div className="flex justify-between items-center">
@@ -53,7 +53,7 @@ export default function UsageStatistic({ usageStats }: UsageStatisticProps) {
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Total Messages</span>
             <span className="text-2xl font-bold text-primary">
-              {usageStats.totalMessages}
+              {usageStats?.totalMessages || 0}
             </span>
           </div>
         </div>

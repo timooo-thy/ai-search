@@ -28,9 +28,9 @@ export default function RecentSearch({ recentChats }: RecentSearchProps) {
           Your latest AI-powered code searches and discoveries.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {recentChats.length > 0 &&
+      <CardContent className="h-full">
+        <div className="space-y-4 h-full">
+          {recentChats.length > 0 ? (
             recentChats.map((chat) => (
               <div
                 key={chat.id}
@@ -52,7 +52,13 @@ export default function RecentSearch({ recentChats }: RecentSearchProps) {
                   View
                 </Button>
               </div>
-            ))}
+            ))
+          ) : (
+            <p className="text-sm font-semibold text-muted-foreground text-center py-4 h-full flex items-center justify-center">
+              No recent searches yet. Start a new search to see your history
+              here.
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
