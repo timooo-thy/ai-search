@@ -113,15 +113,21 @@ export async function upsertMessages(
         },
       });
     }
-    await tx.chat.update({
-      where: {
-        id: chatId,
-        userId: session.user.id,
-      },
-      data: {
-        updatedAt: new Date(),
-      },
-    });
+    await Promise.all([
+      tx.user.update({
+        where: { id: session.user.id },
+        data: { searches: { increment: 1 } },
+      }),
+      tx.chat.update({
+        where: {
+          id: chatId,
+          userId: session.user.id,
+        },
+        data: {
+          updatedAt: new Date(),
+        },
+      }),
+    ]);
   });
 }
 
@@ -237,6 +243,62 @@ export async function getUserChatTitles() {
     select: { title: true, id: true },
     orderBy: { updatedAt: "desc" },
   });
+}
+
+// Get all recent chat titles for a user
+export async function getRecentChatTitles(count: number = 3) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to create a chat.");
+  }
+
+  return await prisma.chat.findMany({
+    where: { userId: session.user.id },
+    select: { title: true, id: true, updatedAt: true },
+    orderBy: { updatedAt: "desc" },
+    take: count,
+  });
+}
+
+// Get usage stats for a user
+export async function getUserStats() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to get usage stats.");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { searches: true },
+  });
+
+  const [totalChats, totalMessages] = await Promise.all([
+    // Count total chats
+    prisma.chat.count({
+      where: { userId: session.user.id },
+    }),
+
+    // Count total messages
+    prisma.message.count({
+      where: {
+        chat: {
+          userId: session.user.id,
+        },
+      },
+    }),
+  ]);
+
+  return {
+    totalSearches: user?.searches || 0,
+    totalChats,
+    totalMessages,
+  };
 }
 
 // Delete a chat and all its messages
