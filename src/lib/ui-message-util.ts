@@ -28,12 +28,16 @@ export const mapUIMessagePartsToDBParts = (
       tool_getWeatherInformation_output: null,
       tool_getRepositories_input: null,
       tool_getRepositories_output: null,
+      tool_visualiseCodeGraph_input: null,
+      tool_visualiseCodeGraph_output: null,
       data_weather_id: null,
       data_weather_location: null,
       data_weather_weather: null,
       data_weather_temperature: null,
       data_repositories_id: null,
       data_repositories_details: null,
+      data_codeGraph_id: null,
+      data_codeGraph: null,
     };
 
     switch (part.type) {
@@ -128,6 +132,25 @@ export const mapUIMessagePartsToDBParts = (
               : null,
           tool_errorText: part.state === "output-error" ? part.errorText : null,
         };
+      case "tool-visualiseCodeGraph":
+        return {
+          ...basePart,
+          order: index,
+          type: MessagePartType.tool_visualiseCodeGraph,
+          tool_toolCallId: part.toolCallId,
+          tool_state: part.state,
+          tool_visualiseCodeGraph_input:
+            part.state === "input-available" ||
+            part.state === "output-available" ||
+            part.state === "output-error"
+              ? (part.input as Prisma.JsonValue)
+              : null,
+          tool_visualiseCodeGraph_output:
+            part.state === "output-available"
+              ? (part.output as Prisma.JsonValue)
+              : null,
+          tool_errorText: part.state === "output-error" ? part.errorText : null,
+        };
       case "data-weather":
         return {
           ...basePart,
@@ -146,6 +169,14 @@ export const mapUIMessagePartsToDBParts = (
           data_repositories_id: part.id ?? null,
           data_repositories_details:
             (part.data.details as Prisma.JsonValue) ?? null,
+        };
+      case "data-codeGraph":
+        return {
+          ...basePart,
+          order: index,
+          type: MessagePartType.data_codeGraph,
+          data_codeGraph_id: part.id ?? null,
+          data_codeGraph: (part.data as Prisma.JsonValue) ?? null,
         };
       default:
         throw new Error(`Unsupported part type: ${part.type}`);
@@ -311,6 +342,63 @@ export const mapDBPartToUIMessagePart = (
             `Unsupported getRepositories state: ${part.tool_state}`
           );
       }
+    case "tool_visualiseCodeGraph":
+      if (!part.tool_state) {
+        throw new Error("visualiseCodeGraph_state is undefined");
+      }
+      switch (part.tool_state) {
+        case "input-streaming":
+          return {
+            type: "tool-visualiseCodeGraph",
+            state: "input-streaming",
+            toolCallId: part.tool_toolCallId!,
+            input:
+              (part.tool_visualiseCodeGraph_input as Partial<
+                Record<string, never>
+              >) || undefined,
+          };
+        case "input-available":
+          return {
+            type: "tool-visualiseCodeGraph",
+            state: "input-available",
+            toolCallId: part.tool_toolCallId!,
+            input:
+              (part.tool_visualiseCodeGraph_input as {
+                query: string;
+                repo: string;
+              }) || undefined,
+          };
+        case "output-available":
+          return {
+            type: "tool-visualiseCodeGraph",
+            state: "output-available",
+            toolCallId: part.tool_toolCallId!,
+            input:
+              (part.tool_visualiseCodeGraph_input as {
+                query: string;
+                repo: string;
+              }) || undefined,
+            output:
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (part.tool_visualiseCodeGraph_output as any) || undefined,
+          };
+        case "output-error":
+          return {
+            type: "tool-visualiseCodeGraph",
+            state: "output-error",
+            toolCallId: part.tool_toolCallId!,
+            input:
+              (part.tool_visualiseCodeGraph_input as {
+                query: string;
+                repo: string;
+              }) || undefined,
+            errorText: part.tool_errorText!,
+          };
+        default:
+          throw new Error(
+            `Unsupported visualiseCodeGraph state: ${part.tool_state}`
+          );
+      }
     case "data_weather":
       return {
         type: "data-weather",
@@ -337,6 +425,28 @@ export const mapDBPartToUIMessagePart = (
           loading: false,
         },
         id: part.data_repositories_id ?? undefined,
+      };
+    case "data_codeGraph":
+      return {
+        type: "data-codeGraph",
+        data: (part.data_codeGraph as {
+          nodes: {
+            id: string;
+            label: string;
+            type?: "file" | "function" | "class" | "component";
+            filePath?: string;
+            codeSnippet?: string;
+            description?: string;
+          }[];
+          edges: {
+            source: string;
+            target: string;
+            label?: string;
+            type?: "imports" | "calls" | "extends" | "uses";
+          }[];
+          loading: boolean;
+        } | null) || { nodes: [], edges: [], loading: false },
+        id: part.data_codeGraph_id ?? undefined,
       };
     default:
       throw new Error(`Unsupported part type: ${part.type}`);

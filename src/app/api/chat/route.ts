@@ -14,6 +14,8 @@ import {
 } from "ai";
 import { headers } from "next/headers";
 import { tools } from "@/ai/tools";
+import { chatSystemPrompt } from "@/ai/prompts";
+import * as Sentry from "@sentry/nextjs";
 
 /**
  * Handle POST requests to stream AI-assisted chat responses, validate and persist UI messages, and return a streaming UI response.
@@ -24,6 +26,8 @@ import { tools } from "@/ai/tools";
  * @returns A Response carrying a streaming UI message payload with the assistant's streamed reply and intermediate stream events.
  */
 export async function POST(req: Request) {
+  const startTime = Date.now();
+
   const { message, id }: { message: MyUIMessage; id: string } =
     await req.json();
 
@@ -82,12 +86,9 @@ export async function POST(req: Request) {
 
         const result = streamText({
           model: openai("gpt-4o-mini"),
-          system: `You are an AI assistant that helps people find information by searching their private code repositories on GitHub. 
-           You may access only repositories the user has explicitly selected/authorised for this chat. Never expose access tokens, headers, or secrets in outputs; redact credentials if encountered.
-            Use these tools to find the information the user is looking for. When you receive the tool results, be succinct in your summaries.
-            You do not have to use the tools at all times, only when necessary.`,
+          system: chatSystemPrompt,
           messages: convertToModelMessages(validatedMessages),
-          stopWhen: stepCountIs(5),
+          stopWhen: stepCountIs(2),
           tools: tools(writer),
         });
 
@@ -119,18 +120,49 @@ export async function POST(req: Request) {
       originalMessages: validatedMessages,
       onFinish: async ({ responseMessage }) => {
         try {
+          const endTime = Date.now();
+          const duration = endTime - startTime;
+
+          Sentry.captureMessage("Chat request completed", {
+            level: "info",
+            tags: {
+              context: "chat_completion",
+              messageRole: message.role,
+            },
+            extra: {
+              chatId: id,
+              duration_ms: duration,
+              duration_seconds: (duration / 1000).toFixed(2),
+              hasResponse: !!responseMessage,
+            },
+          });
+
           await upsertMessages(
             [...validatedMessages.slice(-1), responseMessage],
             id
           );
         } catch (error) {
-          console.error("Error saving messages:", error);
+          Sentry.captureException(error, {
+            tags: { context: "save_messages" },
+          });
         }
       },
     });
     return createUIMessageStreamResponse({ stream });
   } catch (error) {
-    console.error("Error in POST /api/chat:", error);
-    return new Response("Chat not found.", { status: 404 });
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+
+    Sentry.captureException(error, {
+      tags: { context: "chat_post" },
+      extra: {
+        duration_ms: duration,
+        duration_seconds: (duration / 1000).toFixed(2),
+      },
+    });
+
+    return new Response("An error occurred processing your request.", {
+      status: 500,
+    });
   }
 }

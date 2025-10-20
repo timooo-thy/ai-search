@@ -12,8 +12,17 @@ import { cn } from "@/lib/utils";
 import { Weather } from "./weather";
 import Repositories from "./repositories";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 
-interface ChatMessagesProps {
+const CodeGraph = dynamic(
+  () =>
+    import("./code-graph/code-graph").then((mod) => ({
+      default: mod.CodeGraph,
+    })),
+  { ssr: false }
+);
+
+type ChatMessagesProps = {
   messages: MyUIMessage[];
   status: ChatStatus;
   chatEndRef: React.RefObject<HTMLDivElement | null>;
@@ -21,7 +30,8 @@ interface ChatMessagesProps {
   setSelectedRepo: React.Dispatch<React.SetStateAction<string>>;
   onSubmit: (message: string) => Promise<void>;
   hasValidGithubPAT: boolean;
-}
+  userName: string;
+};
 
 /**
  * Renders the chat message list including avatars, message parts (text, weather, repositories, tool outputs), expandable tool outputs, and assistant action controls.
@@ -33,6 +43,7 @@ interface ChatMessagesProps {
  * @param setSelectedRepo - State setter to update the selected repository.
  * @param onSubmit - Async callback invoked by child repository UI to submit a message; receives the message string.
  * @param hasValidGithubPAT - Flag indicating whether the user has a valid GitHub Personal Access Token.
+ * @param userName - The name of the user.
  * @returns A React element that displays the rendered chat conversation with interactive parts and controls.
  */
 export function ChatMessages({
@@ -43,6 +54,7 @@ export function ChatMessages({
   setSelectedRepo,
   onSubmit,
   hasValidGithubPAT,
+  userName,
 }: ChatMessagesProps) {
   const pathname = usePathname();
 
@@ -107,64 +119,71 @@ export function ChatMessages({
                               onSubmit={onSubmit}
                             />
                           );
-                        case "tool-getRepositories":
+                        case "data-codeGraph":
                           return (
-                            <details
-                              key={`tool-${part.toolCallId}`}
-                              className="relative p-2 rounded-lg bg-background group w-full"
-                            >
-                              <summary className="list-none cursor-pointer select-none flex justify-between items-center pr-2">
-                                <span className="inline-flex items-center px-1 py-0.5 text-xs font-medium rounded-md font-mono text-zinc-900 truncate flex-1">
-                                  {getToolName(part)}
-                                </span>
-                                {part.state === "output-available" ? (
-                                  <span className="text-xs text-zinc-500 ml-2 shrink-0">
-                                    Click to expand
-                                  </span>
-                                ) : (
-                                  <span className="text-xs text-zinc-400 animate-pulse ml-2 shrink-0">
-                                    calling...
-                                  </span>
-                                )}
-                              </summary>
-                              {part.state === "output-available" ? (
-                                <div className="mt-4 bg-zinc-50 p-2 rounded overflow-x-auto">
-                                  <pre className="font-mono text-xs whitespace-pre-wrap break-words">
-                                    {JSON.stringify(part.output, null, 2)}
-                                  </pre>
-                                </div>
-                              ) : null}
-                            </details>
+                            <CodeGraph
+                              key={`${msg.id}-codeGraph-${key}`}
+                              graph={part.data}
+                            />
                           );
-                        case "tool-getWeatherInformation":
-                          return (
-                            <details
-                              key={`tool-${part.toolCallId}`}
-                              className="relative p-2 rounded-lg bg-background group w-full"
-                            >
-                              <summary className="list-none cursor-pointer select-none flex justify-between items-center pr-2">
-                                <span className="inline-flex items-center px-1 py-0.5 text-xs font-medium rounded-md font-mono text-zinc-900 truncate flex-1">
-                                  {getToolName(part)}
-                                </span>
-                                {part.state === "output-available" ? (
-                                  <span className="text-xs text-zinc-500 ml-2 shrink-0">
-                                    Click to expand
-                                  </span>
-                                ) : (
-                                  <span className="text-xs text-zinc-400 animate-pulse ml-2 shrink-0">
-                                    calling...
-                                  </span>
-                                )}
-                              </summary>
-                              {part.state === "output-available" ? (
-                                <div className="mt-4 bg-zinc-50 p-2 rounded overflow-x-auto">
-                                  <pre className="font-mono text-xs whitespace-pre-wrap break-words">
-                                    {JSON.stringify(part.output, null, 2)}
-                                  </pre>
-                                </div>
-                              ) : null}
-                            </details>
-                          );
+                        // case "tool-getRepositories":
+                        //   return (
+                        //     <details
+                        //       key={`tool-${part.toolCallId}`}
+                        //       className="relative p-2 rounded-lg bg-background group w-full"
+                        //     >
+                        //       <summary className="list-none cursor-pointer select-none flex justify-between items-center pr-2">
+                        //         <span className="inline-flex items-center px-1 py-0.5 text-xs font-medium rounded-md font-mono text-zinc-900 truncate flex-1">
+                        //           {getToolName(part)}
+                        //         </span>
+                        //         {part.state === "output-available" ? (
+                        //           <span className="text-xs text-zinc-500 ml-2 shrink-0">
+                        //             Click to expand
+                        //           </span>
+                        //         ) : (
+                        //           <span className="text-xs text-zinc-400 animate-pulse ml-2 shrink-0">
+                        //             calling...
+                        //           </span>
+                        //         )}
+                        //       </summary>
+                        //       {part.state === "output-available" ? (
+                        //         <div className="mt-4 bg-zinc-50 p-2 rounded overflow-x-auto">
+                        //           <pre className="font-mono text-xs whitespace-pre-wrap break-words">
+                        //             {JSON.stringify(part.output, null, 2)}
+                        //           </pre>
+                        //         </div>
+                        //       ) : null}
+                        //     </details>
+                        //   );
+                        // case "tool-getWeatherInformation":
+                        //   return (
+                        //     <details
+                        //       key={`tool-${part.toolCallId}`}
+                        //       className="relative p-2 rounded-lg bg-background group w-full"
+                        //     >
+                        //       <summary className="list-none cursor-pointer select-none flex justify-between items-center pr-2">
+                        //         <span className="inline-flex items-center px-1 py-0.5 text-xs font-medium rounded-md font-mono text-zinc-900 truncate flex-1">
+                        //           {getToolName(part)}
+                        //         </span>
+                        //         {part.state === "output-available" ? (
+                        //           <span className="text-xs text-zinc-500 ml-2 shrink-0">
+                        //             Click to expand
+                        //           </span>
+                        //         ) : (
+                        //           <span className="text-xs text-zinc-400 animate-pulse ml-2 shrink-0">
+                        //             calling...
+                        //           </span>
+                        //         )}
+                        //       </summary>
+                        //       {part.state === "output-available" ? (
+                        //         <div className="mt-4 bg-zinc-50 p-2 rounded overflow-x-auto">
+                        //           <pre className="font-mono text-xs whitespace-pre-wrap break-words">
+                        //             {JSON.stringify(part.output, null, 2)}
+                        //           </pre>
+                        //         </div>
+                        //       ) : null}
+                        //     </details>
+                        //   );
 
                         default:
                           return null;
@@ -201,7 +220,9 @@ export function ChatMessages({
               </div>
               {msg.role === "user" && (
                 <Avatar className="bg-muted text-muted-foreground flex justify-center items-center shrink-0 h-8 w-8 sm:h-10 sm:w-10">
-                  <span className="text-sm sm:text-lg">U</span>
+                  <span className="text-sm sm:text-lg">
+                    {(userName?.slice(0, 1) || "U").toUpperCase()}
+                  </span>
                 </Avatar>
               )}
             </div>

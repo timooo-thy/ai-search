@@ -17,6 +17,7 @@ type ChatPanelProps = {
   chatId: string;
   previousMessages: MyUIMessage[];
   hasValidGithubPAT: boolean;
+  userName: string;
 };
 
 /**
@@ -26,12 +27,15 @@ type ChatPanelProps = {
  *
  * @param chatId - The identifier for the chat session used to initialize routing and the chat transport
  * @param previousMessages - Initial messages to populate the chat view
+ * @param hasValidGithubPAT - Flag indicating if the user has a valid GitHub Personal Access Token
+ * @param userName - The name of the user
  * @returns The chat panel element containing the header, messages list, and input controls
  */
 export default function ChatPanel({
   chatId,
   previousMessages,
   hasValidGithubPAT,
+  userName,
 }: ChatPanelProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -130,6 +134,7 @@ export default function ChatPanel({
         selectedRepo={selectedRepo}
         setSelectedRepo={setSelectedRepo}
         onSubmit={handleUISend}
+        userName={userName}
       />
       <ChatInput
         input={input}

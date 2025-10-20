@@ -2,6 +2,7 @@
 
 import { Octokit } from "octokit";
 import { getUserGithubPAT } from "./ui-message-actions";
+import * as Sentry from "@sentry/nextjs";
 
 export async function checkUserGithubPAT() {
   try {
@@ -24,7 +25,9 @@ export async function validateGitHubPAT(token: string) {
     await octokit.rest.users.getAuthenticated();
     return true;
   } catch (error) {
-    console.error("Token is invalid or expired.", error);
+    Sentry.captureException(error, {
+      tags: { context: "github_pat_validation" },
+    });
     return false;
   }
 }
@@ -58,7 +61,105 @@ export async function getUserRepos() {
     });
     return data;
   } catch (error) {
-    console.error("Failed to fetch user repositories.", error);
+    Sentry.captureException(error, {
+      tags: { context: "github_fetch_repos" },
+    });
+    return [];
+  }
+}
+
+export async function searchUserRepoWithContent(
+  query: string,
+  repo: string,
+  maxResults: number = 5
+): Promise<
+  Array<{ name: string; path: string; url: string; content: string }>
+> {
+  let githubPAT: string | null;
+
+  try {
+    githubPAT = await getUserGithubPAT();
+  } catch {
+    return [];
+  }
+
+  if (!githubPAT) {
+    return [];
+  }
+
+  const octokit = new Octokit({
+    auth: githubPAT,
+    request: {
+      headers: { "X-GitHub-Api-Version": "2022-11-28" },
+    },
+  });
+
+  try {
+    const repoParts = repo.split("/");
+    if (repoParts.length !== 2 || !repoParts[0] || !repoParts[1]) {
+      Sentry.captureMessage("Invalid repository format", {
+        level: "error",
+        tags: { context: "github_search_code" },
+      });
+      return [];
+    }
+
+    const [owner, repoName] = repoParts;
+
+    Sentry.captureMessage("GitHub code search initiated", {
+      level: "info",
+      tags: { context: "github_search_code" },
+      extra: { query, repo },
+    });
+
+    const { data } = await octokit.rest.search.code({
+      q: `${query} repo:${repo} in:file`,
+      per_page: maxResults,
+    });
+
+    const resultsWithContent = await Promise.all(
+      data.items.map(async (item) => {
+        try {
+          const { data: fileData } = await octokit.rest.repos.getContent({
+            owner,
+            repo: repoName,
+            path: item.path,
+          });
+
+          if ("content" in fileData && fileData.content) {
+            const decodedContent = Buffer.from(
+              fileData.content,
+              "base64"
+            ).toString("utf-8");
+
+            return {
+              name: item.name,
+              path: item.path,
+              url: item.html_url,
+              content: decodedContent,
+            };
+          }
+
+          return null;
+        } catch (error) {
+          Sentry.captureException(error, {
+            tags: { context: "github_fetch_file_content" },
+          });
+          return null;
+        }
+      })
+    );
+
+    return resultsWithContent.filter(
+      (
+        item
+      ): item is { name: string; path: string; url: string; content: string } =>
+        item !== null
+    );
+  } catch (error) {
+    Sentry.captureException(error, {
+      tags: { context: "github_search_code" },
+    });
     return [];
   }
 }

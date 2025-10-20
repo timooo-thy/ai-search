@@ -5,6 +5,7 @@ import { loadChat } from "@/actions/ui-message-actions";
 import ChatPanel from "../components/chat-panel";
 import { notFound } from "next/navigation";
 import { checkUserGithubPAT } from "@/actions/github-actions";
+import * as Sentry from "@sentry/nextjs";
 
 export default async function ChatPage(props: {
   params: Promise<{ id: string }>;
@@ -23,12 +24,18 @@ export default async function ChatPage(props: {
             chatId={id}
             previousMessages={previousMessages}
             hasValidGithubPAT={hasValidGithubPAT}
+            userName={user.name}
           />
         </SidebarInset>
       </SidebarProvider>
     );
   } catch (error) {
-    console.error("Error loading chat:", error);
+    Sentry.captureException(error, {
+      extra: {
+        chatId: id,
+        message: "Error loading chat",
+      },
+    });
     notFound();
   }
 }

@@ -47,6 +47,49 @@ export const dataPartSchema = z.object({
     ),
     loading: z.boolean().default(true),
   }),
+  codeGraph: z
+    .object({
+      nodes: z.array(
+        z.object({
+          id: z.string(),
+          label: z.string(),
+          type: z.enum(["file", "function", "class", "component"]).optional(),
+          filePath: z.string().optional(),
+          codeSnippet: z.string().optional(),
+          description: z.string().optional(),
+        })
+      ),
+      edges: z.array(
+        z.object({
+          source: z.string(),
+          target: z.string(),
+          label: z.string().optional(),
+          type: z.enum(["imports", "calls", "extends", "uses"]).optional(),
+        })
+      ),
+      loading: z.boolean().default(true),
+    })
+    .refine(
+      (data) => {
+        const nodeIds = data.nodes.map((n) => n.id);
+        return nodeIds.length === new Set(nodeIds).size;
+      },
+      {
+        message: "All node IDs must be unique",
+      }
+    )
+    .refine(
+      (data) => {
+        const nodeIds = new Set(data.nodes.map((n) => n.id));
+        return data.edges.every(
+          (e) => nodeIds.has(e.source) && nodeIds.has(e.target)
+        );
+      },
+      {
+        message:
+          "All edge source and target values must reference existing node IDs",
+      }
+    ),
 });
 
 export type MyDataPart = z.infer<typeof dataPartSchema>;
