@@ -27,7 +27,9 @@ Reduce time-to-first-commit and onboarding time for engineers. This application 
 - AI Integration: Vercel AI SDK, OpenAI
 - Code Search: GitHub Search API
 - Database: PostgreSQL
+- Graph Visualisation: React Flow
 - ORM: Prisma
+- Logging and Error Tracking: Sentry
 - Hosting: Vercel
 - Authentication: BetterAuth
 - Styling: Tailwind CSS
