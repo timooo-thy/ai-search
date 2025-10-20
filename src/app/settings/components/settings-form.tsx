@@ -53,6 +53,7 @@ import {
 import { toast } from "sonner";
 import { GitHubPATHelp } from "./github-pat-help";
 import { validateGitHubPAT } from "@/actions/github-actions";
+import * as Sentry from "@sentry/nextjs";
 
 type SettingsState = {
   githubPAT: string;
@@ -136,7 +137,9 @@ export function SettingsForm({ user, validGithubPAT }: SettingsFormProps) {
 
       toast.success("Settings saved successfully.");
     } catch (error) {
-      console.error("Error saving user settings:", error);
+      Sentry.logger.error("Error saving user settings:", {
+        error,
+      });
       toast.error("Failed to save user settings. Please try again.");
     } finally {
       setIsLoading(false);
@@ -155,7 +158,9 @@ export function SettingsForm({ user, validGithubPAT }: SettingsFormProps) {
       }));
       toast.success("GitHub token removed successfully.");
     } catch (error) {
-      console.error("Error deleting GitHub PAT:", error);
+      Sentry.logger.error("Error deleting GitHub PAT:", {
+        error,
+      });
       toast.error("Failed to remove GitHub token. Please try again.");
     } finally {
       setIsLoading(false);

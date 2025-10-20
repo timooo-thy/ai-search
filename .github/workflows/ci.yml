@@ -50,3 +50,4 @@ jobs:
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           GITHUB_CLIENT_ID: ${{ secrets.SG_GITHUB_CLIENT_ID }}
           GITHUB_CLIENT_SECRET: ${{ secrets.SG_GITHUB_CLIENT_SECRET }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}

@@ -24,13 +24,12 @@ Reduce time-to-first-commit and onboarding time for engineers. This application 
 ## Tech Stack:
 
 - Frontend and Backend: Next.js
-- AI Integration: LangGraph, OpenAI
+- AI Integration: Vercel AI SDK, OpenAI
 - Code Search: GitHub Search API
 - Database: PostgreSQL
 - ORM: Prisma
 - Hosting: Vercel
 - Authentication: BetterAuth
-- State Management: React Query
 - Styling: Tailwind CSS
 - Component Library: Shadcn/UI
 - Cache: Upstash Redis

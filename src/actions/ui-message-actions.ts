@@ -9,6 +9,7 @@ import {
 } from "@/lib/ui-message-util";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import * as Sentry from "@sentry/nextjs";
 
 // Create a new chat
 export async function createChat(title: string) {
@@ -89,9 +90,16 @@ export async function upsertMessages(
           tool_getRepositories_output: jsonOrDbNull(
             part.tool_getRepositories_output
           ),
+          tool_visualiseCodeGraph_input: jsonOrDbNull(
+            part.tool_visualiseCodeGraph_input
+          ),
+          tool_visualiseCodeGraph_output: jsonOrDbNull(
+            part.tool_visualiseCodeGraph_output
+          ),
           data_repositories_details: jsonOrDbNull(
             part.data_repositories_details
           ),
+          data_codeGraph: jsonOrDbNull(part.data_codeGraph),
         })
       );
 
@@ -316,7 +324,9 @@ export async function deleteChat(chatId: string) {
       where: { id: chatId, userId: session.user.id },
     });
   } catch (error) {
-    console.error("Error deleting chat:", error);
+    Sentry.logger.error("Error deleting chat:", {
+      error,
+    });
     throw new Error("Failed to delete chat.");
   }
 }

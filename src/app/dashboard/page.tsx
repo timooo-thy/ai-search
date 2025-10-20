@@ -15,6 +15,7 @@ import {
   getUserStats,
 } from "@/actions/ui-message-actions";
 import UsageStatistic from "./components/usage-statistic";
+import * as Sentry from "@sentry/nextjs";
 
 export default async function Dashboard() {
   const user = await getSession();
@@ -28,7 +29,9 @@ export default async function Dashboard() {
       getUserStats(),
     ]);
   } catch (error) {
-    console.error("Failed to fetch dashboard data:", error);
+    Sentry.logger.error("Failed to fetch dashboard data:", {
+      error,
+    });
   }
 
   return (

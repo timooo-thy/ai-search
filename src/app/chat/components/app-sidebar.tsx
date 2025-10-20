@@ -51,6 +51,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import * as Sentry from "@sentry/nextjs";
 
 type AppSidebarProps = {
   user: Session["user"];
@@ -73,7 +74,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
           ]);
           router.push(`/chat/${chat.id}`);
         } catch (error) {
-          console.error("Error creating new chat:", error);
+          Sentry.logger.error("Error creating new chat:", {
+            error,
+          });
           toast.error("Failed to create new chat. Please try again.");
 
           const chats = await getUserChatTitles();
@@ -112,7 +115,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
       }
       toast.success("Chat deleted successfully");
     } catch (error) {
-      console.error("Error deleting chat:", error);
+      Sentry.logger.error("Error deleting chat:", {
+        error,
+      });
       toast.error("Failed to delete chat. Please try again.");
       const chats = await getUserChatTitles();
       setRecentConversationTitles(

@@ -14,6 +14,8 @@ import {
 } from "ai";
 import { headers } from "next/headers";
 import { tools } from "@/ai/tools";
+import { chatSystemPrompt } from "@/ai/prompts";
+import * as Sentry from "@sentry/nextjs";
 
 /**
  * Handle POST requests to stream AI-assisted chat responses, validate and persist UI messages, and return a streaming UI response.
@@ -82,12 +84,9 @@ export async function POST(req: Request) {
 
         const result = streamText({
           model: openai("gpt-4o-mini"),
-          system: `You are an AI assistant that helps people find information by searching their private code repositories on GitHub. 
-           You may access only repositories the user has explicitly selected/authorised for this chat. Never expose access tokens, headers, or secrets in outputs; redact credentials if encountered.
-            Use these tools to find the information the user is looking for. When you receive the tool results, be succinct in your summaries.
-            You do not have to use the tools at all times, only when necessary.`,
+          system: chatSystemPrompt,
           messages: convertToModelMessages(validatedMessages),
-          stopWhen: stepCountIs(5),
+          stopWhen: stepCountIs(2),
           tools: tools(writer),
         });
 
@@ -124,13 +123,17 @@ export async function POST(req: Request) {
             id
           );
         } catch (error) {
-          console.error("Error saving messages:", error);
+          Sentry.logger.error("Error saving messages:", {
+            error,
+          });
         }
       },
     });
     return createUIMessageStreamResponse({ stream });
   } catch (error) {
-    console.error("Error in POST /api/chat:", error);
+    Sentry.logger.error("Error in POST /api/chat:", {
+      error,
+    });
     return new Response("Chat not found.", { status: 404 });
   }
 }

@@ -16,3 +16,26 @@ export type WeatherData = {
   description: string;
   location: string;
 };
+
+export type CodeGraphNode = {
+  id: string;
+  label: string;
+  type?: "file" | "function" | "class" | "component";
+  filePath?: string;
+  codeSnippet?: string;
+  description?: string;
+};
+
+export type CodeGraphEdge = {
+  source: string;
+  target: string;
+  label?: string;
+  type?: "imports" | "calls" | "extends" | "uses";
+  animated?: boolean;
+};
+
+export type CodeGraphData = {
+  nodes: CodeGraphNode[];
+  edges: CodeGraphEdge[];
+  loading: boolean;
+};

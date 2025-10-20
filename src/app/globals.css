@@ -1,7 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "reactflow/dist/style.css";
 
 @custom-variant dark (&:is(.dark *));
+
+.react-flow svg {
+  overflow: visible;
+}
 
 :root {
   --background: oklch(0.9384 0.0205 74.6569);
