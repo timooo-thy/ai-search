@@ -123,12 +123,18 @@ export async function POST(req: Request) {
           const endTime = Date.now();
           const duration = endTime - startTime;
 
-          Sentry.logger.info("Chat request completed", {
-            chatId: id,
-            duration_ms: duration,
-            duration_seconds: (duration / 1000).toFixed(2),
-            messageRole: message.role,
-            hasResponse: !!responseMessage,
+          Sentry.captureMessage("Chat request completed", {
+            level: "info",
+            tags: {
+              context: "chat_completion",
+              messageRole: message.role,
+            },
+            extra: {
+              chatId: id,
+              duration_ms: duration,
+              duration_seconds: (duration / 1000).toFixed(2),
+              hasResponse: !!responseMessage,
+            },
           });
 
           await upsertMessages(

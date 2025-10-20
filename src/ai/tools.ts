@@ -54,8 +54,9 @@ export const getWeatherInformation = (
           return { data: null, city };
         }
 
-        const weather = data.weather[0].main.charAt(0).toUpperCase();
-        data.weather[0].main.slice(1);
+        const weather =
+          data.weather[0].main.charAt(0).toUpperCase() +
+          data.weather[0].main.slice(1);
 
         writer.write({
           type: "data-weather",
@@ -151,9 +152,13 @@ export const visualiseCodeGraph = (
         id,
       });
 
-      Sentry.logger.info("Visualising code graph for query:", {
-        query,
-        repo,
+      Sentry.captureMessage("Visualising code graph for query:", {
+        level: "info",
+        tags: { context: "code_graph_visualisation" },
+        extra: {
+          query,
+          repo,
+        },
       });
 
       try {

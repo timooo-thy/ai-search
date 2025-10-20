@@ -98,6 +98,7 @@ export async function searchUserRepoWithContent(
     const repoParts = repo.split("/");
     if (repoParts.length !== 2 || !repoParts[0] || !repoParts[1]) {
       Sentry.captureMessage("Invalid repository format", {
+        level: "error",
         tags: { context: "github_search_code" },
       });
       return [];
@@ -105,9 +106,10 @@ export async function searchUserRepoWithContent(
 
     const [owner, repoName] = repoParts;
 
-    Sentry.logger.info("Searching GitHub repository for code:", {
-      query,
-      repo,
+    Sentry.captureMessage("GitHub code search initiated", {
+      level: "info",
+      tags: { context: "github_search_code" },
+      extra: { query, repo },
     });
 
     const { data } = await octokit.rest.search.code({
