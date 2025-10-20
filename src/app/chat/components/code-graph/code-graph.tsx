@@ -85,9 +85,6 @@ export function CodeGraph({ graph, className }: CodeGraphProps) {
 
   useEffect(() => {
     setNodes(layoutedNodes);
-    Sentry.logger.info("User triggered test log", {
-      log_source: "sentry_test",
-    });
   }, [layoutedNodes, setNodes]);
 
   useEffect(() => {
