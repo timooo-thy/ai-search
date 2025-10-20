@@ -26,6 +26,7 @@ type CodeGraphProps = {
 const nodeTypes = {
   custom: CustomCodeNode,
 };
+
 /**
  * Interactive code graph visualisation component
  *
@@ -42,15 +43,6 @@ export function CodeGraph({ graph, className }: CodeGraphProps) {
     [nodes, edges]
   );
 
-  if (nodes.length === 0 && edges.length === 0 && !loading) {
-    return (
-      <Card className={cn("w-full h-[800px] py-0", className)}>
-        <div className="flex items-center justify-center h-full text-muted-foreground">
-          <p>No graph data available</p>
-        </div>
-      </Card>
-    );
-  }
   // Convert CodeEdge to ReactFlow Edge format
   const formattedEdges: Edge[] = useMemo(
     () =>
@@ -101,6 +93,18 @@ export function CodeGraph({ graph, className }: CodeGraphProps) {
   useEffect(() => {
     setEdges(formattedEdges);
   }, [formattedEdges, setEdges]);
+
+  if (nodes.length === 0 && edges.length === 0 && !loading) {
+    return (
+      <TooltipProvider>
+        <Card className={cn("w-full h-[800px] py-0", className)}>
+          <div className="flex items-center justify-center h-full text-muted-foreground">
+            <p>No graph data available</p>
+          </div>
+        </Card>
+      </TooltipProvider>
+    );
+  }
 
   return (
     <TooltipProvider>
