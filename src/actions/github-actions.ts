@@ -95,7 +95,11 @@ export async function searchUserRepoWithContent(
   });
 
   try {
-    if (!repo.includes("/")) {
+    const repoParts = repo.split("/");
+    if (repoParts.length !== 2 || !repoParts[0] || !repoParts[1]) {
+      Sentry.captureMessage("Invalid repository format", {
+        tags: { context: "github_search_code" },
+      });
       return [];
     }
 

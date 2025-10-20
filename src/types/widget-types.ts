@@ -31,11 +31,4 @@ export type CodeGraphEdge = {
   target: string;
   label?: string;
   type?: "imports" | "calls" | "extends" | "uses";
-  animated?: boolean;
-};
-
-export type CodeGraphData = {
-  nodes: CodeGraphNode[];
-  edges: CodeGraphEdge[];
-  loading: boolean;
 };

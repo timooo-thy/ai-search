@@ -39,7 +39,6 @@ EDGE REQUIREMENTS:
 - target: Node id where relationship points to
 - label: Brief description (e.g., "imports auth utils", "calls to validate")
 - type: Must be "imports", "calls", "extends", or "uses"
-- animated: true for direct call chains and hot paths, false for static imports
 
 GUIDELINES:
 - Prioritize entities most relevant to the search query

@@ -21,6 +21,8 @@ type CustomCodeNodeProps = {
 };
 
 export function CustomCodeNode({ data }: CustomCodeNodeProps) {
+  const lang = getLanguageFromFilePath(data.filePath);
+
   return (
     <Tooltip delayDuration={200}>
       <TooltipTrigger asChild>
@@ -92,13 +94,10 @@ export function CustomCodeNode({ data }: CustomCodeNodeProps) {
                   Code Preview
                 </p>
                 <span className="text-xs text-muted-foreground font-mono bg-background/80 px-2 py-1 rounded">
-                  {getLanguageFromFilePath(data.filePath)}
+                  {lang}
                 </span>
               </div>
-              <CodePreview
-                code={data.codeSnippet}
-                language={getLanguageFromFilePath(data.filePath)}
-              />
+              <CodePreview code={data.codeSnippet} language={lang} />
             </div>
           )}
         </Card>
