@@ -29,8 +29,9 @@ export default async function Dashboard() {
       getUserStats(),
     ]);
   } catch (error) {
-    Sentry.logger.error("Failed to fetch dashboard data:", {
-      error,
+    Sentry.captureException(error, {
+      tags: { context: "dashboard_data_fetch" },
+      extra: { message: "Failed to fetch dashboard data" },
     });
   }
 

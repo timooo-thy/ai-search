@@ -74,8 +74,8 @@ export function AppSidebar({ user }: AppSidebarProps) {
           ]);
           router.push(`/chat/${chat.id}`);
         } catch (error) {
-          Sentry.logger.error("Error creating new chat:", {
-            error,
+          Sentry.captureException(error, {
+            tags: { context: "create_new_chat_failure" },
           });
           toast.error("Failed to create new chat. Please try again.");
 
@@ -115,8 +115,8 @@ export function AppSidebar({ user }: AppSidebarProps) {
       }
       toast.success("Chat deleted successfully");
     } catch (error) {
-      Sentry.logger.error("Error deleting chat:", {
-        error,
+      Sentry.captureException(error, {
+        tags: { context: "delete_chat_failure" },
       });
       toast.error("Failed to delete chat. Please try again.");
       const chats = await getUserChatTitles();

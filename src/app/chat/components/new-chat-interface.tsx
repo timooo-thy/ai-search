@@ -36,8 +36,8 @@ export function NewChatInterface({ hasValidGithubPAT }: NewChatInterfaceProps) {
       const chat = await createChat(searchQuery);
       router.push(`/chat/${chat.id}?query=${encodeURIComponent(searchQuery)}`);
     } catch (error) {
-      Sentry.logger.error("Error creating chat:", {
-        error,
+      Sentry.captureException(error, {
+        tags: { context: "create_chat_failure" },
       });
       toast.error("Failed to create chat. Please try again.");
     }
@@ -59,8 +59,8 @@ export function NewChatInterface({ hasValidGithubPAT }: NewChatInterfaceProps) {
         const data = await response.json();
         setTimeData(data);
       } catch (error) {
-        Sentry.logger.error("Error fetching time data:", {
-          error,
+        Sentry.captureException(error, {
+          tags: { context: "time_fetch_failed" },
         });
         toast.error("Error fetching time data.");
 
@@ -101,8 +101,8 @@ export function NewChatInterface({ hasValidGithubPAT }: NewChatInterfaceProps) {
           });
         }
       } catch (error) {
-        Sentry.logger.error("Error fetching stock data:", {
-          error,
+        Sentry.captureException(error, {
+          tags: { context: "stock_fetch_failed" },
         });
         toast.error("Error fetching stock data.");
 
@@ -142,8 +142,8 @@ export function NewChatInterface({ hasValidGithubPAT }: NewChatInterfaceProps) {
           });
         }
       } catch (error) {
-        Sentry.logger.error("Error fetching weather data:", {
-          error,
+        Sentry.captureException(error, {
+          tags: { context: "weather_fetch_failed" },
         });
         toast.error("Error fetching weather data.");
 

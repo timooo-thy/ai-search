@@ -26,6 +26,8 @@ import * as Sentry from "@sentry/nextjs";
  * @returns A Response carrying a streaming UI message payload with the assistant's streamed reply and intermediate stream events.
  */
 export async function POST(req: Request) {
+  const startTime = Date.now();
+
   const { message, id }: { message: MyUIMessage; id: string } =
     await req.json();
 
@@ -118,22 +120,43 @@ export async function POST(req: Request) {
       originalMessages: validatedMessages,
       onFinish: async ({ responseMessage }) => {
         try {
+          const endTime = Date.now();
+          const duration = endTime - startTime;
+
+          Sentry.logger.info("Chat request completed", {
+            chatId: id,
+            duration_ms: duration,
+            duration_seconds: (duration / 1000).toFixed(2),
+            messageRole: message.role,
+            hasResponse: !!responseMessage,
+          });
+
           await upsertMessages(
             [...validatedMessages.slice(-1), responseMessage],
             id
           );
         } catch (error) {
-          Sentry.logger.error("Error saving messages:", {
-            error,
+          Sentry.captureException(error, {
+            tags: { context: "save_messages" },
           });
         }
       },
     });
     return createUIMessageStreamResponse({ stream });
   } catch (error) {
-    Sentry.logger.error("Error in POST /api/chat:", {
-      error,
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+
+    Sentry.captureException(error, {
+      tags: { context: "chat_post" },
+      extra: {
+        duration_ms: duration,
+        duration_seconds: (duration / 1000).toFixed(2),
+      },
     });
-    return new Response("Chat not found.", { status: 404 });
+
+    return new Response("An error occurred processing your request.", {
+      status: 500,
+    });
   }
 }

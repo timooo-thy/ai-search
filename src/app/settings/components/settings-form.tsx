@@ -137,8 +137,8 @@ export function SettingsForm({ user, validGithubPAT }: SettingsFormProps) {
 
       toast.success("Settings saved successfully.");
     } catch (error) {
-      Sentry.logger.error("Error saving user settings:", {
-        error,
+      Sentry.captureException(error, {
+        tags: { context: "settings_save" },
       });
       toast.error("Failed to save user settings. Please try again.");
     } finally {
@@ -158,8 +158,8 @@ export function SettingsForm({ user, validGithubPAT }: SettingsFormProps) {
       }));
       toast.success("GitHub token removed successfully.");
     } catch (error) {
-      Sentry.logger.error("Error deleting GitHub PAT:", {
-        error,
+      Sentry.captureException(error, {
+        tags: { context: "github_pat_delete" },
       });
       toast.error("Failed to remove GitHub token. Please try again.");
     } finally {

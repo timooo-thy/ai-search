@@ -55,8 +55,8 @@ export function CodePreview({
         }, 2000);
       }
     } catch (error) {
-      Sentry.logger.error("Failed to copy code to clipboard:", {
-        error,
+      Sentry.captureException(error, {
+        tags: { context: "code_copy_failure" },
       });
       if (isMountedRef.current) {
         setCopied(false);

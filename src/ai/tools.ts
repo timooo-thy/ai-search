@@ -32,6 +32,12 @@ export const getWeatherInformation = (
           `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_KEY}&units=metric`
         );
 
+        if (!response.ok) {
+          throw new Error(
+            `OpenWeather error: ${response.status} ${response.statusText}`
+          );
+        }
+
         const data = await response.json();
 
         if (!data.main) {
@@ -48,9 +54,8 @@ export const getWeatherInformation = (
           return { data: null, city };
         }
 
-        const weather =
-          data.weather[0].main.charAt(0).toUpperCase() +
-          data.weather[0].main.slice(1);
+        const weather = data.weather[0].main.charAt(0).toUpperCase();
+        data.weather[0].main.slice(1);
 
         writer.write({
           type: "data-weather",
@@ -65,8 +70,8 @@ export const getWeatherInformation = (
 
         return { data, city };
       } catch (error) {
-        Sentry.logger.error("Error fetching weather data:", {
-          error,
+        Sentry.captureException(error, {
+          tags: { context: "weather_fetch_failed" },
         });
         writer.write({
           type: "data-weather",
@@ -113,8 +118,8 @@ export const getRepositories = (
 
         return { data: details };
       } catch (error) {
-        Sentry.logger.error("Error fetching repositories:", {
-          error,
+        Sentry.captureException(error, {
+          tags: { context: "github_fetch_repos" },
         });
         writer.write({
           type: "data-repositories",
@@ -154,6 +159,15 @@ export const visualiseCodeGraph = (
       try {
         const data = await searchUserRepoWithContent(query, repo);
 
+        if (!data.length) {
+          writer.write({
+            type: "data-codeGraph",
+            data: { nodes: [], edges: [], loading: false },
+            id,
+          });
+          return { error: "no_results" };
+        }
+
         const result = await generateObject({
           model: openai("gpt-4o-mini"),
           maxOutputTokens: 32768,
@@ -172,8 +186,8 @@ export const visualiseCodeGraph = (
 
         return { data: { nodes, edges } };
       } catch (error) {
-        Sentry.logger.error("Error visualising code graph:", {
-          error,
+        Sentry.captureException(error, {
+          tags: { context: "code_graph_generation_failed" },
         });
         writer.write({
           type: "data-codeGraph",

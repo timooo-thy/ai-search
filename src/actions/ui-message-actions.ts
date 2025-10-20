@@ -324,8 +324,8 @@ export async function deleteChat(chatId: string) {
       where: { id: chatId, userId: session.user.id },
     });
   } catch (error) {
-    Sentry.logger.error("Error deleting chat:", {
-      error,
+    Sentry.captureException(error, {
+      tags: { context: "delete_chat_failure" },
     });
     throw new Error("Failed to delete chat.");
   }

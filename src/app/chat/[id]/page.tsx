@@ -30,8 +30,11 @@ export default async function ChatPage(props: {
       </SidebarProvider>
     );
   } catch (error) {
-    Sentry.logger.error("Error loading chat:", {
-      error,
+    Sentry.captureException(error, {
+      extra: {
+        chatId: id,
+        message: "Error loading chat",
+      },
     });
     notFound();
   }

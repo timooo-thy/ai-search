@@ -13,7 +13,7 @@ Child spans can exist within a parent span
 
 ## Custom Span instrumentation in component actions
 
-The `name` and `op` properties should be meaninful for the activities in the call.
+The `name` and `op` properties should be meaningful for the activities in the call.
 Attach attributes based on relevant information and metrics from the request
 
 ```javascript

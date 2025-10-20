@@ -25,8 +25,8 @@ export async function validateGitHubPAT(token: string) {
     await octokit.rest.users.getAuthenticated();
     return true;
   } catch (error) {
-    Sentry.logger.error("GitHub PAT validation failed", {
-      error,
+    Sentry.captureException(error, {
+      tags: { context: "github_pat_validation" },
     });
     return false;
   }
@@ -61,8 +61,8 @@ export async function getUserRepos() {
     });
     return data;
   } catch (error) {
-    Sentry.logger.error("Failed to fetch user repositories.", {
-      error,
+    Sentry.captureException(error, {
+      tags: { context: "github_fetch_repos" },
     });
     return [];
   }
@@ -96,7 +96,6 @@ export async function searchUserRepoWithContent(
 
   try {
     if (!repo.includes("/")) {
-      Sentry.logger.error("Invalid repository format. Expected 'owner/repo'.");
       return [];
     }
 
@@ -132,8 +131,8 @@ export async function searchUserRepoWithContent(
 
           return null;
         } catch (error) {
-          Sentry.logger.error(`Failed to fetch content for ${item.path}`, {
-            error,
+          Sentry.captureException(error, {
+            tags: { context: "github_fetch_file_content" },
           });
           return null;
         }
@@ -147,8 +146,8 @@ export async function searchUserRepoWithContent(
         item !== null
     );
   } catch (error) {
-    Sentry.logger.error("Failed to search and fetch code.", {
-      error,
+    Sentry.captureException(error, {
+      tags: { context: "github_search_code" },
     });
     return [];
   }
