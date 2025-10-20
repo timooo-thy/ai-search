@@ -103,12 +103,17 @@ export async function searchUserRepoWithContent(
       return [];
     }
 
+    const [owner, repoName] = repoParts;
+
+    Sentry.logger.info("Searching GitHub repository for code:", {
+      query,
+      repo,
+    });
+
     const { data } = await octokit.rest.search.code({
       q: `${query} repo:${repo} in:file`,
       per_page: maxResults,
     });
-
-    const [owner, repoName] = repo.split("/");
 
     const resultsWithContent = await Promise.all(
       data.items.map(async (item) => {
