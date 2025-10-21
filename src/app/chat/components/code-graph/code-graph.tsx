@@ -11,7 +11,6 @@ import ReactFlow, {
   MarkerType,
 } from "reactflow";
 import { Card } from "@/components/ui/card";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { MyDataPart } from "@/types/ui-message-type";
 import { CustomCodeNode } from "./custom-code-node";

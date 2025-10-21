@@ -44,6 +44,7 @@ export function ChatInput({
               type="submit"
               disabled={!input.trim()}
               className="bg-primary text-primary-foreground rounded-2xl h-10 w-10"
+              aria-label="Send message"
             >
               <ArrowUp />
             </Button>
@@ -54,6 +55,7 @@ export function ChatInput({
                 await onStop();
               }}
               className="bg-destructive text-destructive-foreground rounded-2xl h-10 w-10"
+              aria-label="Stop generating message"
             >
               <StopCircle />
             </Button>

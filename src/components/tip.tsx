@@ -33,8 +33,10 @@ export const Tip = ({
             onMouseLeave={() => setOpen(false)}
             onTouchStart={() => setOpen(!open)}
             onKeyDown={(e) => {
-              e.preventDefault();
-              e.key === "Enter" && setOpen(!open);
+              if (e.key === "Enter") {
+                e.preventDefault();
+                setOpen(!open);
+              }
             }}
           >
             {children}
