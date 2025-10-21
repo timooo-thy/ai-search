@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { MyUIMessage } from "@/types/ui-message-type";
 import { ChatStatus, getToolName } from "ai";
 import { MemoizedMarkdown } from "./memoized-markdown";
@@ -12,15 +12,7 @@ import { cn } from "@/lib/utils";
 import { Weather } from "./weather";
 import Repositories from "./repositories";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-
-const CodeGraph = dynamic(
-  () =>
-    import("./code-graph/code-graph").then((mod) => ({
-      default: mod.CodeGraph,
-    })),
-  { ssr: false }
-);
+import { CodeGraph } from "./code-graph/code-graph";
 
 type ChatMessagesProps = {
   messages: MyUIMessage[];
@@ -59,8 +51,8 @@ export function ChatMessages({
   const pathname = usePathname();
 
   return hasValidGithubPAT ? (
-    <ScrollArea className="h-full">
-      <div className="p-2 sm:p-6 sm:space-y-4">
+    <div className="h-full">
+      <div className="p-4 sm:p-6 sm:space-y-4">
         {messages?.map((msg) => (
           <div key={msg.id} className={msg.role === "assistant" ? "group" : ""}>
             <div
@@ -92,7 +84,7 @@ export function ChatMessages({
                       switch (part.type) {
                         case "text":
                           return (
-                            <div
+                            <ScrollArea
                               className="flex flex-col space-y-1"
                               key={`${msg.id}-${key}`}
                             >
@@ -100,7 +92,8 @@ export function ChatMessages({
                               <span className="text-xs text-muted-foreground mt-2">
                                 {msg.metadata?.time}
                               </span>
-                            </div>
+                              <ScrollBar orientation="horizontal" />
+                            </ScrollArea>
                           );
                         case "data-weather":
                           return (
@@ -236,7 +229,7 @@ export function ChatMessages({
 
         <div ref={chatEndRef} />
       </div>
-    </ScrollArea>
+    </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full text-center p-10">
       <h2 className="text-2xl font-semibold mb-4">

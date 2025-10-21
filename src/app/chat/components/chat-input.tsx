@@ -1,12 +1,6 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { MessagesSquareIcon, StopCircle } from "lucide-react";
+import { ArrowUp, StopCircle } from "lucide-react";
 import { ChatStatus } from "ai";
 
 interface ChatInputProps {
@@ -30,13 +24,13 @@ export function ChatInput({
     <div className="sticky bottom-0">
       <form
         onSubmit={onSubmit}
-        className="flex items-end gap-2 px-4 py-4 border-t border-border bg-card"
+        className="flex items-end gap-2 px-4 py-4 border-t border-border bg-card relative"
       >
         <Textarea
           value={input}
           onChange={(e) => onInputChange(e.target.value)}
           placeholder="Type your message..."
-          className="bg-background text-foreground rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="bg-background text-foreground px-4 focus:outline-none focus:ring-2 focus:ring-ring min-h-20 rounded-2xl md:text-base pb-16"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               onSubmit(e);
@@ -44,36 +38,29 @@ export function ChatInput({
           }}
           disabled={disableChatInput}
         />
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span>
-                {status !== "streaming" ? (
-                  <Button
-                    type="submit"
-                    disabled={!input.trim()}
-                    className="bg-primary text-primary-foreground"
-                  >
-                    <MessagesSquareIcon />
-                    Send
-                  </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    onClick={async () => {
-                      await onStop();
-                    }}
-                    className="bg-destructive text-destructive-foreground"
-                  >
-                    <StopCircle />
-                    Stop
-                  </Button>
-                )}
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>Send message</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="absolute bottom-7 right-7">
+          {status !== "streaming" ? (
+            <Button
+              type="submit"
+              disabled={!input.trim()}
+              className="bg-primary text-primary-foreground rounded-2xl h-10 w-10"
+              aria-label="Send message"
+            >
+              <ArrowUp />
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              onClick={async () => {
+                await onStop();
+              }}
+              className="bg-destructive text-destructive-foreground rounded-2xl h-10 w-10"
+              aria-label="Stop generating message"
+            >
+              <StopCircle />
+            </Button>
+          )}
+        </div>
       </form>
     </div>
   );
