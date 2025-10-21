@@ -93,7 +93,16 @@ export function CodePreview({
         showLineNumbers={true}
         wrapLines={true}
         lineProps={{
-          style: { wordBreak: "break-all", whiteSpace: "pre-wrap" },
+          style: {
+            fontSize: 12,
+            wordBreak: "break-all",
+            whiteSpace: "pre-wrap",
+          },
+        }}
+        codeTagProps={{
+          style: {
+            fontFamily: "inherit",
+          },
         }}
       >
         {code}

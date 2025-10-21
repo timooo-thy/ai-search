@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils";
 import { MyDataPart } from "@/types/ui-message-type";
 import { CustomCodeNode } from "./custom-code-node";
 import { getEdgeColor, getLayoutedElements } from "./graph-utils";
-import * as Sentry from "@sentry/nextjs";
 
 type CodeGraphProps = {
   graph: MyDataPart["codeGraph"];
@@ -93,48 +92,44 @@ export function CodeGraph({ graph, className }: CodeGraphProps) {
 
   if (nodes.length === 0 && edges.length === 0 && !loading) {
     return (
-      <TooltipProvider>
-        <Card className={cn("w-full h-[800px] py-0", className)}>
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            <p>No graph data available</p>
-          </div>
-        </Card>
-      </TooltipProvider>
+      <Card className={cn("w-full h-[800px] py-0", className)}>
+        <div className="flex items-center justify-center h-full text-muted-foreground">
+          <p>No graph data available</p>
+        </div>
+      </Card>
     );
   }
 
   return (
-    <TooltipProvider>
-      <Card className={cn("w-full h-[800px] py-0", className)}>
-        {loading ? (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            <p>Visualising your code...</p>
-          </div>
-        ) : (
-          <ReactFlow
-            nodes={reactFlowNodes}
-            edges={reactFlowEdges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            nodeTypes={nodeTypes}
-            fitView
-            fitViewOptions={{
-              padding: 0.3,
-              includeHiddenNodes: false,
-            }}
-            minZoom={0.5}
-            maxZoom={2}
-            nodesDraggable={false}
-            nodesConnectable={false}
-            elementsSelectable={true}
-            className="bg-muted/30"
-            proOptions={{ hideAttribution: true }}
-          >
-            <Background gap={16} size={1} />
-            <Controls />
-          </ReactFlow>
-        )}
-      </Card>
-    </TooltipProvider>
+    <Card className={cn("w-full h-[800px] py-0", className)}>
+      {loading ? (
+        <div className="flex items-center justify-center h-full text-muted-foreground">
+          <p>Visualising your code...</p>
+        </div>
+      ) : (
+        <ReactFlow
+          nodes={reactFlowNodes}
+          edges={reactFlowEdges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          nodeTypes={nodeTypes}
+          fitView
+          fitViewOptions={{
+            padding: 0.3,
+            includeHiddenNodes: false,
+          }}
+          minZoom={0.5}
+          maxZoom={2}
+          nodesDraggable={false}
+          nodesConnectable={false}
+          elementsSelectable={true}
+          className="bg-muted/30"
+          proOptions={{ hideAttribution: true }}
+        >
+          <Background gap={16} size={1} />
+          <Controls />
+        </ReactFlow>
+      )}
+    </Card>
   );
 }
