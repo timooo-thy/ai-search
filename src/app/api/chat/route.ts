@@ -85,7 +85,7 @@ export async function POST(req: Request) {
         }
 
         const result = streamText({
-          model: openai("gpt-4.1"),
+          model: openai(process.env.OPENAI_CHAT_MODEL!),
           system: chatSystemPrompt,
           messages: convertToModelMessages(validatedMessages),
           stopWhen: stepCountIs(2),

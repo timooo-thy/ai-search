@@ -206,7 +206,7 @@ export function ChatMessages({
                         toast.success("Message copied to clipboard");
                       }}
                       onRewrite={() => console.log("Rewrite clicked")}
-                      modelDetails={"gpt-4.1-mini"}
+                      modelDetails={process.env.OPENAI_CHAT_MODEL!}
                     />
                   </div>
                 )}

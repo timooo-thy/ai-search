@@ -195,11 +195,11 @@ export const visualiseCodeGraph = (
           {
             name: "generate_search_queries",
             op: "ai.inference",
-            attributes: { model: "gpt-4.1", repo },
+            attributes: { model: process.env.OPENAI_CHAT_MODEL, repo },
           },
           async () =>
             await generateObject({
-              model: openai("gpt-4.1"),
+              model: openai(process.env.OPENAI_CHAT_MODEL!),
               system: queryCodeGraphSystemPrompt,
               schema: z.object({
                 query_1: z.string(),
@@ -290,7 +290,7 @@ export const visualiseCodeGraph = (
         }
 
         const result = await generateObject({
-          model: openai("gpt-4.1"),
+          model: openai(process.env.OPENAI_CHAT_MODEL!),
           maxOutputTokens: 32768,
           system: codeGraphSystemPrompt,
           schema: dataPartSchema.shape.codeGraph,
