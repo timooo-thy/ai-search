@@ -206,7 +206,7 @@ export function ChatMessages({
                         toast.success("Message copied to clipboard");
                       }}
                       onRewrite={() => console.log("Rewrite clicked")}
-                      modelDetails={process.env.OPENAI_CHAT_MODEL!}
+                      modelDetails={process.env.NEXT_PUBLIC_OPENAI_CHAT_MODEL!}
                     />
                   </div>
                 )}

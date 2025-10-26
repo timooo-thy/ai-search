@@ -215,14 +215,18 @@ export const visualiseCodeGraph = (
 
         const { query_1, query_2, query_3 } = queries.object;
 
-        if (!query_1 && !query_2 && !query_3) {
+        const validQueries = [query_1, query_2, query_3].filter(
+          (q) => q && q.trim()
+        );
+
+        if (validQueries.length === 0) {
           writer.write({
             type: "data-codeGraph",
             data: {
               nodes: [],
               edges: [],
               loading: false,
-              queries: [],
+              queries: validQueries,
               analysing: false,
             },
             id,
@@ -235,7 +239,7 @@ export const visualiseCodeGraph = (
               nodes: [],
               edges: [],
               loading: true,
-              queries: [query_1, query_2, query_3],
+              queries: validQueries,
               analysing: false,
             },
             id,
@@ -270,7 +274,7 @@ export const visualiseCodeGraph = (
               edges: [],
               loading: false,
               analysing: false,
-              queries: [query_1, query_2, query_3],
+              queries: validQueries,
             },
             id,
           });
@@ -283,7 +287,7 @@ export const visualiseCodeGraph = (
               edges: [],
               loading: true,
               analysing: true,
-              queries: [query_1, query_2, query_3],
+              queries: validQueries,
             },
             id,
           });
@@ -306,7 +310,7 @@ export const visualiseCodeGraph = (
             edges,
             loading: false,
             analysing: false,
-            queries: [query_1, query_2, query_3],
+            queries: validQueries,
           },
           id,
         });
