@@ -3,6 +3,7 @@
 import { Octokit } from "octokit";
 import { getUserGithubPAT } from "./ui-message-actions";
 import * as Sentry from "@sentry/nextjs";
+import { formatTreeStructure } from "@/lib/ui-message-util";
 
 export async function checkUserGithubPAT() {
   try {
@@ -275,7 +276,7 @@ export async function getRepoStructure(repo: string) {
           .filter((item) => item.type === "blob")
           .map((item) => item.path);
 
-        return paths;
+        return formatTreeStructure(paths);
       } catch (error) {
         Sentry.captureException(error, {
           tags: { context: "github_fetch_repo_structure" },
