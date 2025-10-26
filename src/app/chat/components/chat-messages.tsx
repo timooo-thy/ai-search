@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { MyUIMessage } from "@/types/ui-message-type";
-import { ChatStatus, getToolName } from "ai";
+import { ChatStatus } from "ai";
 import { MemoizedMarkdown } from "./memoized-markdown";
 import { MessageBottomBar } from "./message-bottom-bar";
 import { PulseLoader } from "react-spinners";
@@ -206,7 +206,7 @@ export function ChatMessages({
                         toast.success("Message copied to clipboard");
                       }}
                       onRewrite={() => console.log("Rewrite clicked")}
-                      modelDetails={"gpt-4.1-mini"}
+                      modelDetails={process.env.NEXT_PUBLIC_OPENAI_CHAT_MODEL!}
                     />
                   </div>
                 )}

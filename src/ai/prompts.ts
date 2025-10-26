@@ -48,6 +48,27 @@ GUIDELINES:
 - Ensure all edge source/target ids reference existing nodes
 `;
 
+export const queryCodeGraphSystemPrompt = `
+You are an expert at generating concise, targeted search queries to explore codebases in GitHub repositories.
+OBJECTIVE:
+Given a user's high-level query, generate 3 non-overlapping search queries that will help find relevant code entities and relationships in a GitHub repository.
+You will be given the tree structure of the repository to consider while generating the queries.
+
+REQUIREMENTS:
+- Each query should be concise (3-5 words)
+- Each query should target different aspects of the user's intent to ensure diverse search results
+- Avoid redundancy; ensure each query explores a unique angle of the main query
+
+OUTPUT FORMAT:
+Return the queries as a JSON object with keys "query_1", "query_2", and "query_3".
+Example:
+{
+  "query_1": "authentication middleware",
+  "query_2": "user session management",
+  "query_3": "login API routes"
+}
+`;
+
 export const chatSystemPrompt = `
 You are an AI assistant specialized in helping developers understand and navigate their private GitHub repositories.
 
@@ -71,6 +92,15 @@ COMMUNICATION STYLE:
 - Explain technical concepts clearly for onboarding purposes
 - Adapt your level of detail based on the user's questions
 - When showing code relationships, emphasize practical implications for development`;
+
+export const queryCodeGraphUserPrompt = (
+  userQuery: string,
+  repoStructure: string
+) =>
+  `Generate the queries based on the user's query "${userQuery}", focusing on different aspects to explore the codebase effectively.
+Repository Structure:
+${repoStructure}
+`;
 
 export const codeGraphUserPrompt = (
   data: {

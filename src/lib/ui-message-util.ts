@@ -445,7 +445,15 @@ export const mapDBPartToUIMessagePart = (
             type?: "imports" | "calls" | "extends" | "uses";
           }[];
           loading: boolean;
-        } | null) || { nodes: [], edges: [], loading: false },
+          queries: string[];
+          analysing: boolean;
+        } | null) || {
+          nodes: [],
+          edges: [],
+          loading: false,
+          analysing: false,
+          queries: [],
+        },
         id: part.data_codeGraph_id ?? undefined,
       };
     default:
@@ -455,3 +463,30 @@ export const mapDBPartToUIMessagePart = (
 
 export const jsonOrDbNull = (v: unknown) =>
   v == null ? Prisma.DbNull : (v as Prisma.InputJsonValue);
+
+export function formatTreeStructure(paths: string[]): string {
+  const sortedPaths = [...paths].sort();
+
+  const lines: string[] = [];
+  const seenDirs = new Set<string>();
+
+  sortedPaths.forEach((path) => {
+    const parts = path.split("/");
+
+    // Add directories
+    for (let i = 0; i < parts.length - 1; i++) {
+      const dirPath = parts.slice(0, i + 1).join("/");
+      if (!seenDirs.has(dirPath)) {
+        seenDirs.add(dirPath);
+        const indent = "  ".repeat(i);
+        lines.push(`${indent}- ${parts[i]}/`);
+      }
+    }
+
+    // Add file
+    const indent = "  ".repeat(parts.length - 1);
+    lines.push(`${indent}- ${parts[parts.length - 1]}`);
+  });
+
+  return lines.join("\n");
+}
