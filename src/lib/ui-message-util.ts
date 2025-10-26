@@ -445,7 +445,15 @@ export const mapDBPartToUIMessagePart = (
             type?: "imports" | "calls" | "extends" | "uses";
           }[];
           loading: boolean;
-        } | null) || { nodes: [], edges: [], loading: false },
+          queries: string[];
+          analysing: boolean;
+        } | null) || {
+          nodes: [],
+          edges: [],
+          loading: false,
+          analysing: false,
+          queries: [],
+        },
         id: part.data_codeGraph_id ?? undefined,
       };
     default:

@@ -57,8 +57,9 @@ export const getWeatherInformation = (
           return { data: null, city };
         }
 
-        const weather = data.weather[0].main.charAt(0).toUpperCase();
-        data.weather[0].main.slice(1);
+        const weather =
+          data.weather[0].main.charAt(0).toUpperCase() +
+          data.weather[0].main.slice(1);
 
         writer.write({
           type: "data-weather",

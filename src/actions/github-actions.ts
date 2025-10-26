@@ -271,7 +271,11 @@ export async function getRepoStructure(repo: string) {
 
         span.setAttribute("tree.item_count", treeData.tree.length);
 
-        return treeData.tree;
+        const paths = treeData.tree
+          .filter((item) => item.type === "blob")
+          .map((item) => item.path);
+
+        return paths;
       } catch (error) {
         Sentry.captureException(error, {
           tags: { context: "github_fetch_repo_structure" },

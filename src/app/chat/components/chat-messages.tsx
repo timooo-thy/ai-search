@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { MyUIMessage } from "@/types/ui-message-type";
-import { ChatStatus, getToolName } from "ai";
+import { ChatStatus } from "ai";
 import { MemoizedMarkdown } from "./memoized-markdown";
 import { MessageBottomBar } from "./message-bottom-bar";
 import { PulseLoader } from "react-spinners";
