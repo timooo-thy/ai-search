@@ -15,7 +15,7 @@ Reduce time-to-first-commit and onboarding time for engineers. This application 
 3. Actionable Feature Cards: Provide users with feature cards that offer insights and actions based on their search queries and the code graph.
 4. Search Template: Quick toggles for repo/org/path/language/filename.
 
-## Sucess Metrics:
+## Success Metrics:
 
 1. Time-to-First-Commit: Measure the time taken for new developers to make their first commit after joining the project.
 2. User Satisfaction: Conduct surveys to assess the satisfaction levels of new developers regarding the onboarding process and their ability to navigate the codebase.

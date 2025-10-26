@@ -34,7 +34,7 @@ const nodeTypes = {
  * @param graph - Object containing nodes and edges of the code graph
  */
 export function CodeGraph({ graph, className }: CodeGraphProps) {
-  const { nodes, edges, loading } = graph;
+  const { nodes, edges, loading, queries, analysing } = graph;
 
   const layoutedNodes: Node[] = useMemo(
     () => getLayoutedElements(nodes, edges, "TB"),
@@ -102,8 +102,33 @@ export function CodeGraph({ graph, className }: CodeGraphProps) {
   return (
     <Card className={cn("w-full h-[800px] py-0", className)}>
       {loading ? (
-        <div className="flex items-center justify-center h-full text-muted-foreground">
-          <p>Visualising your code...</p>
+        <div className="flex flex-col items-center justify-center h-full text-muted-foreground px-6">
+          {analysing ? (
+            <p className="text-lg">Visualising your code...</p>
+          ) : queries && queries.length > 0 ? (
+            <>
+              <p className="text-lg font-medium mb-6">Searching codebase...</p>
+              <div className="space-y-3 w-full max-w-2xl">
+                {queries.map((query, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg animate-pulse"
+                    style={{
+                      animationDelay: `${index * 150}ms`,
+                      animationDuration: "1.5s",
+                    }}
+                  >
+                    <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full animate-ping" />
+                    <span className="text-sm font-mono text-foreground/80">
+                      {query}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="text-lg">Generating search queries...</p>
+          )}
         </div>
       ) : (
         <ReactFlow

@@ -2,6 +2,7 @@ import { dataPartSchema, MyDataPart } from "@/types/ui-message-type";
 import { generateObject, tool, UIMessage, UIMessageStreamWriter } from "ai";
 import z from "zod";
 import {
+  getRepoStructure,
   getUserRepos,
   searchUserRepoWithContent,
 } from "@/actions/github-actions";
@@ -11,6 +12,8 @@ import {
   codeGraphUserPrompt,
   getRepositoriesToolPrompt,
   getWeatherToolPrompt,
+  queryCodeGraphSystemPrompt,
+  queryCodeGraphUserPrompt,
   visualiseCodeGraphPrompt,
 } from "./prompts";
 import * as Sentry from "@sentry/nextjs";
@@ -54,9 +57,8 @@ export const getWeatherInformation = (
           return { data: null, city };
         }
 
-        const weather =
-          data.weather[0].main.charAt(0).toUpperCase() +
-          data.weather[0].main.slice(1);
+        const weather = data.weather[0].main.charAt(0).toUpperCase();
+        data.weather[0].main.slice(1);
 
         writer.write({
           type: "data-weather",
@@ -138,17 +140,19 @@ export const visualiseCodeGraph = (
   tool({
     description: visualiseCodeGraphPrompt,
     inputSchema: z.object({
-      query: z
-        .string()
-        .describe(
-          "Specific code element or feature to search for in the repository"
-        ),
+      query: z.string().describe("User's query"),
       repo: z.string().describe("Repository name in 'owner/repo' format"),
     }),
     execute: async ({ query, repo }, { toolCallId: id }) => {
       writer.write({
         type: "data-codeGraph",
-        data: { nodes: [], edges: [], loading: true },
+        data: {
+          nodes: [],
+          edges: [],
+          loading: true,
+          analysing: false,
+          queries: [],
+        },
         id,
       });
 
@@ -162,19 +166,130 @@ export const visualiseCodeGraph = (
       });
 
       try {
-        const data = await searchUserRepoWithContent(query, repo);
+        const repoStructure = await Sentry.startSpan(
+          {
+            name: "get_repo_structure",
+            op: "github.api",
+            attributes: { repo },
+          },
+          async () => await getRepoStructure(repo)
+        );
+
+        if (!repoStructure || repoStructure.length === 0) {
+          writer.write({
+            type: "data-codeGraph",
+            data: {
+              nodes: [],
+              edges: [],
+              loading: false,
+              analysing: false,
+              queries: [],
+            },
+            id,
+          });
+          return { error: "empty_repository" };
+        }
+
+        const queries = await Sentry.startSpan(
+          {
+            name: "generate_search_queries",
+            op: "ai.inference",
+            attributes: { model: "gpt-4.1", repo },
+          },
+          async () =>
+            await generateObject({
+              model: openai("gpt-4.1"),
+              system: queryCodeGraphSystemPrompt,
+              schema: z.object({
+                query_1: z.string(),
+                query_2: z.string(),
+                query_3: z.string(),
+              }),
+              prompt: queryCodeGraphUserPrompt(
+                query,
+                JSON.stringify(repoStructure, null, 2)
+              ),
+            })
+        );
+
+        const { query_1, query_2, query_3 } = queries.object;
+
+        if (!query_1 && !query_2 && !query_3) {
+          writer.write({
+            type: "data-codeGraph",
+            data: {
+              nodes: [],
+              edges: [],
+              loading: false,
+              queries: [],
+              analysing: false,
+            },
+            id,
+          });
+          return { error: "no_queries_generated" };
+        } else {
+          writer.write({
+            type: "data-codeGraph",
+            data: {
+              nodes: [],
+              edges: [],
+              loading: true,
+              queries: [query_1, query_2, query_3],
+              analysing: false,
+            },
+            id,
+          });
+        }
+        Sentry.logger.info(
+          `Generated queries: ${query_1}, ${query_2}, ${query_3}`
+        );
+        Sentry.logger.info(`Searching repository: ${repo}`);
+
+        const [data1, data2, data3] = await Sentry.startSpan(
+          {
+            name: "search_repository",
+            op: "github.search",
+            attributes: { repo, queries: 3 },
+          },
+          async () =>
+            await Promise.all([
+              searchUserRepoWithContent(query_1, repo),
+              searchUserRepoWithContent(query_2, repo),
+              searchUserRepoWithContent(query_3, repo),
+            ])
+        );
+
+        const data = [...data1, ...data2, ...data3];
 
         if (!data.length) {
           writer.write({
             type: "data-codeGraph",
-            data: { nodes: [], edges: [], loading: false },
+            data: {
+              nodes: [],
+              edges: [],
+              loading: false,
+              analysing: false,
+              queries: [query_1, query_2, query_3],
+            },
             id,
           });
           return { error: "no_results" };
+        } else {
+          writer.write({
+            type: "data-codeGraph",
+            data: {
+              nodes: [],
+              edges: [],
+              loading: true,
+              analysing: true,
+              queries: [query_1, query_2, query_3],
+            },
+            id,
+          });
         }
 
         const result = await generateObject({
-          model: openai("gpt-4o-mini"),
+          model: openai("gpt-4.1"),
           maxOutputTokens: 32768,
           system: codeGraphSystemPrompt,
           schema: dataPartSchema.shape.codeGraph,
@@ -185,7 +300,13 @@ export const visualiseCodeGraph = (
 
         writer.write({
           type: "data-codeGraph",
-          data: { nodes, edges, loading: false },
+          data: {
+            nodes,
+            edges,
+            loading: false,
+            analysing: false,
+            queries: [query_1, query_2, query_3],
+          },
           id,
         });
 
@@ -196,7 +317,13 @@ export const visualiseCodeGraph = (
         });
         writer.write({
           type: "data-codeGraph",
-          data: { nodes: [], edges: [], loading: false },
+          data: {
+            nodes: [],
+            edges: [],
+            loading: false,
+            analysing: false,
+            queries: [],
+          },
           id,
         });
         return { error: "code_graph_generation_failed" };

@@ -64,10 +64,17 @@ export const dataPartSchema = z.object({
           source: z.string(),
           target: z.string(),
           label: z.string().optional(),
-          type: z.enum(["imports", "calls", "extends", "uses"]).optional(),
+          type: z
+            .enum(["imports", "calls", "extends", "uses"])
+            .optional()
+            .describe(
+              "Type of relationship between source and target nodes (maximum 4 words)"
+            ),
         })
       ),
       loading: z.boolean().default(true),
+      analysing: z.boolean().default(false),
+      queries: z.array(z.string()).max(3).optional(),
     })
     .refine(
       (data) => {
