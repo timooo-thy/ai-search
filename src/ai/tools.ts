@@ -272,9 +272,15 @@ export const visualiseCodeGraph = (
         );
 
         const data = [...data1, ...data2, ...data3];
-        const sources = data.map((d) => {
-          return { path: d.path, url: d.url };
+
+        const seenSources = new Map<string, { path: string; url: string }>();
+        data.forEach((item) => {
+          const key = `${item.path}::${item.url}`;
+          if (!seenSources.has(key)) {
+            seenSources.set(key, { path: item.path, url: item.url });
+          }
         });
+        const sources = Array.from(seenSources.values());
 
         if (!data.length) {
           writer.write({

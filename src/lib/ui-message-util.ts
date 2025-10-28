@@ -426,7 +426,7 @@ export const mapDBPartToUIMessagePart = (
         },
         id: part.data_repositories_id ?? undefined,
       };
-    case "data_codeGraph":
+    case "data_codeGraph": {
       const codeGraphData = part.data_codeGraph as {
         nodes?: {
           id: string;
@@ -463,6 +463,7 @@ export const mapDBPartToUIMessagePart = (
         },
         id: part.data_codeGraph_id ?? undefined,
       };
+    }
     default:
       throw new Error(`Unsupported part type: ${part.type}`);
   }

@@ -72,7 +72,7 @@ export async function getUserRepos() {
 export async function searchUserRepoWithContent(
   query: string,
   repo: string,
-  maxResults: number = 5
+  maxResults: number = 6
 ): Promise<
   Array<{ name: string; path: string; url: string; content: string }>
 > {
