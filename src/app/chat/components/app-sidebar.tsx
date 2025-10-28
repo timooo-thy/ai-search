@@ -145,7 +145,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
   }, [user.id]);
 
   return (
-    <Sidebar variant="inset">
+    <Sidebar variant="sidebar">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

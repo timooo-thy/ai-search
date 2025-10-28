@@ -153,6 +153,7 @@ export const visualiseCodeGraph = (
           loading: true,
           analysing: false,
           queries: [],
+          sources: [],
         },
         id,
       });
@@ -185,6 +186,7 @@ export const visualiseCodeGraph = (
               loading: false,
               analysing: false,
               queries: [],
+              sources: [],
             },
             id,
           });
@@ -231,6 +233,7 @@ export const visualiseCodeGraph = (
               loading: false,
               queries: validQueries,
               analysing: false,
+              sources: [],
             },
             id,
           });
@@ -244,6 +247,7 @@ export const visualiseCodeGraph = (
               loading: true,
               queries: validQueries,
               analysing: false,
+              sources: [],
             },
             id,
           });
@@ -269,6 +273,15 @@ export const visualiseCodeGraph = (
 
         const data = [...data1, ...data2, ...data3];
 
+        const seenSources = new Map<string, { path: string; url: string }>();
+        data.forEach((item) => {
+          const key = `${item.path}::${item.url}`;
+          if (!seenSources.has(key)) {
+            seenSources.set(key, { path: item.path, url: item.url });
+          }
+        });
+        const sources = Array.from(seenSources.values());
+
         if (!data.length) {
           writer.write({
             type: "data-codeGraph",
@@ -278,6 +291,7 @@ export const visualiseCodeGraph = (
               loading: false,
               analysing: false,
               queries: validQueries,
+              sources: sources,
             },
             id,
           });
@@ -291,6 +305,7 @@ export const visualiseCodeGraph = (
               loading: true,
               analysing: true,
               queries: validQueries,
+              sources: sources,
             },
             id,
           });
@@ -314,6 +329,7 @@ export const visualiseCodeGraph = (
             loading: false,
             analysing: false,
             queries: validQueries,
+            sources: sources,
           },
           id,
         });
@@ -331,6 +347,7 @@ export const visualiseCodeGraph = (
             loading: false,
             analysing: false,
             queries: [],
+            sources: [],
           },
           id,
         });

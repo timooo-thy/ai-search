@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { MyDataPart } from "@/types/ui-message-type";
 import { CustomCodeNode } from "./custom-code-node";
 import { getEdgeColor, getLayoutedElements } from "./graph-utils";
+import { SourcesDialog } from "./sources-dialog";
 
 type CodeGraphProps = {
   graph: MyDataPart["codeGraph"];
@@ -152,6 +153,11 @@ export function CodeGraph({ graph, className }: CodeGraphProps) {
         >
           <Background gap={16} size={1} />
           <Controls />
+          {graph.sources && graph.sources.length > 0 && (
+            <div className="absolute top-4 left-4 z-10">
+              <SourcesDialog sources={graph.sources} />
+            </div>
+          )}
         </ReactFlow>
       )}
     </Card>

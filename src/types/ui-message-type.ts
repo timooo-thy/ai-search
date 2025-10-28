@@ -74,7 +74,13 @@ export const dataPartSchema = z.object({
       ),
       loading: z.boolean().default(true),
       analysing: z.boolean().default(false),
-      queries: z.array(z.string()).max(3).optional(),
+      queries: z.array(z.string()).max(3),
+      sources: z.array(
+        z.object({
+          path: z.string(),
+          url: z.string().url(),
+        })
+      ),
     })
     .refine(
       (data) => {

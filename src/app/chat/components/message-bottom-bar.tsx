@@ -111,7 +111,7 @@ export function MessageBottomBar({
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "h-8 w-8 p-0 text-muted-foreground hover:text-foreground transition-colors",
+                    "h-8 w-8 p-0 hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-colors",
                     isClicked && button.showTick
                   )}
                   onClick={button.onClick}
