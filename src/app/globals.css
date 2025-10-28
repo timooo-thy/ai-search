@@ -191,3 +191,35 @@ body[data-scroll-locked][data-scroll-locked] {
   overflow: auto !important;
   margin-right: 0 !important;
 }
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: oklch(from var(--muted) l c h);
+  border-radius: var(--radius);
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(from var(--muted-foreground) l c h / 0.3);
+  border-radius: var(--radius);
+  border: 2px solid oklch(from var(--muted) l c h);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(from var(--muted-foreground) l c h / 0.5);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: oklch(from var(--muted-foreground) l c h / 0.7);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(from var(--muted-foreground) l c h / 0.3)
+    oklch(from var(--muted) l c h);
+}

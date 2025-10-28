@@ -427,32 +427,39 @@ export const mapDBPartToUIMessagePart = (
         id: part.data_repositories_id ?? undefined,
       };
     case "data_codeGraph":
+      const codeGraphData = part.data_codeGraph as {
+        nodes?: {
+          id: string;
+          label: string;
+          type?: "file" | "function" | "class" | "component";
+          filePath?: string;
+          codeSnippet?: string;
+          description?: string;
+        }[];
+        edges?: {
+          source: string;
+          target: string;
+          label?: string;
+          type?: "imports" | "calls" | "extends" | "uses";
+        }[];
+        loading?: boolean;
+        queries?: string[];
+        analysing?: boolean;
+        sources?: {
+          path: string;
+          url: string;
+        }[];
+      } | null;
+
       return {
         type: "data-codeGraph",
-        data: (part.data_codeGraph as {
-          nodes: {
-            id: string;
-            label: string;
-            type?: "file" | "function" | "class" | "component";
-            filePath?: string;
-            codeSnippet?: string;
-            description?: string;
-          }[];
-          edges: {
-            source: string;
-            target: string;
-            label?: string;
-            type?: "imports" | "calls" | "extends" | "uses";
-          }[];
-          loading: boolean;
-          queries: string[];
-          analysing: boolean;
-        } | null) || {
-          nodes: [],
-          edges: [],
-          loading: false,
-          analysing: false,
-          queries: [],
+        data: {
+          nodes: codeGraphData?.nodes ?? [],
+          edges: codeGraphData?.edges ?? [],
+          loading: codeGraphData?.loading ?? false,
+          analysing: codeGraphData?.analysing ?? false,
+          queries: codeGraphData?.queries ?? [],
+          sources: codeGraphData?.sources ?? [],
         },
         id: part.data_codeGraph_id ?? undefined,
       };

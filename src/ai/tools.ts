@@ -153,6 +153,7 @@ export const visualiseCodeGraph = (
           loading: true,
           analysing: false,
           queries: [],
+          sources: [],
         },
         id,
       });
@@ -185,6 +186,7 @@ export const visualiseCodeGraph = (
               loading: false,
               analysing: false,
               queries: [],
+              sources: [],
             },
             id,
           });
@@ -231,6 +233,7 @@ export const visualiseCodeGraph = (
               loading: false,
               queries: validQueries,
               analysing: false,
+              sources: [],
             },
             id,
           });
@@ -244,6 +247,7 @@ export const visualiseCodeGraph = (
               loading: true,
               queries: validQueries,
               analysing: false,
+              sources: [],
             },
             id,
           });
@@ -268,6 +272,9 @@ export const visualiseCodeGraph = (
         );
 
         const data = [...data1, ...data2, ...data3];
+        const sources = data.map((d) => {
+          return { path: d.path, url: d.url };
+        });
 
         if (!data.length) {
           writer.write({
@@ -278,6 +285,7 @@ export const visualiseCodeGraph = (
               loading: false,
               analysing: false,
               queries: validQueries,
+              sources: sources,
             },
             id,
           });
@@ -291,6 +299,7 @@ export const visualiseCodeGraph = (
               loading: true,
               analysing: true,
               queries: validQueries,
+              sources: sources,
             },
             id,
           });
@@ -314,6 +323,7 @@ export const visualiseCodeGraph = (
             loading: false,
             analysing: false,
             queries: validQueries,
+            sources: sources,
           },
           id,
         });
@@ -331,6 +341,7 @@ export const visualiseCodeGraph = (
             loading: false,
             analysing: false,
             queries: [],
+            sources: [],
           },
           id,
         });
