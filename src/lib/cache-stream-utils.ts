@@ -158,7 +158,7 @@ async function streamMessagePart(
 
     default:
       logger.warn(
-        logger.fmt`Unknown part type in cached message: ${part.type}`
+        logger.fmt`Unknown part type in cached message: ${(part as any).type}`
       );
   }
 }
