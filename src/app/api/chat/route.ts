@@ -16,31 +16,135 @@ import { headers } from "next/headers";
 import { tools } from "@/ai/tools";
 import { chatSystemPrompt } from "@/ai/prompts";
 import * as Sentry from "@sentry/nextjs";
+import { streamCachedMessage } from "@/lib/cache-stream-utils";
+import { redis } from "@/lib/redis";
 
 /**
- * Handle POST requests to stream AI-assisted chat responses, validate and persist UI messages, and return a streaming UI response.
+ * Handles POST requests for AI chat responses with caching and streaming.
  *
- * Validates the incoming message against existing chat state, runs an OpenAI streaming generation (with repository search tooling), merges the generated stream into the UI message stream, and persists the final messages. Returns 401 if the request is unauthenticated and returns a 404 response on unexpected errors.
+ * This endpoint authenticates the user, checks Redis cache for previous responses,
+ * and either streams a cached response or generates a new one using OpenAI with tool support.
+ * All responses are streamed as UI messages and persisted to the database.
  *
- * @param req - The incoming Request whose JSON body must contain `{ message: MyUIMessage, id: string }`.
- * @returns A Response carrying a streaming UI message payload with the assistant's streamed reply and intermediate stream events.
+ * @param req - Request with JSON body `{ message: MyUIMessage, id: string }`
+ * @returns Streaming response with UI messages, or 401/500 on auth/error
  */
+
 export async function POST(req: Request) {
+  const { logger } = Sentry;
   const startTime = Date.now();
 
   const { message, id }: { message: MyUIMessage; id: string } =
     await req.json();
 
-  try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+  // Authenticate the user
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-    if (!session) {
-      return new Response("Unauthorized", { status: 401 });
+  if (!session) {
+    return new Response("Unauthorised", { status: 401 });
+  }
+
+  try {
+    // Create a unique cache key based on user ID, chat ID, and message content.
+    const messageKey = message.parts.map((part) =>
+      part.type === "text" ? part.text.toLowerCase().trim() : ""
+    );
+    const key = `user:${session.user.id}_chat:${id}_message:${messageKey.join(
+      ":"
+    )}`;
+
+    // Check the cache for a previously cached message
+    let cachedMessageJson = null;
+
+    try {
+      cachedMessageJson = await redis.get(key);
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: { context: "redis_get_failure" },
+      });
     }
 
-    const previousMessages = await loadChat(id);
+    if (cachedMessageJson != null) {
+      const cachedResponse = Sentry.startSpan(
+        {
+          op: "cache.hit",
+          name: "Stream Cached Chat Response",
+          attributes: {
+            cache_key: key,
+            user_id: session.user.id,
+          },
+        },
+        () => {
+          logger.debug(logger.fmt`Cache hit for user ${session.user.id}`);
+
+          const cachedMessage = JSON.parse(cachedMessageJson) as MyUIMessage;
+
+          // Stream the cached message
+          const stream = createUIMessageStream({
+            originalMessages: [cachedMessage],
+            execute: async ({ writer }) => {
+              await streamCachedMessage(writer, cachedMessage);
+            },
+            onError: (error) => {
+              Sentry.captureException(error, {
+                tags: { context: "cache_stream_error" },
+                extra: { cache_key: key },
+              });
+              return error instanceof Error ? error.message : String(error);
+            },
+            onFinish: async ({ responseMessage }) => {
+              try {
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+
+                Sentry.captureMessage("Chat request completed", {
+                  level: "info",
+                  tags: {
+                    context: "chat_completion",
+                    messageRole: message.role,
+                  },
+                  extra: {
+                    chatId: id,
+                    duration_ms: duration,
+                    duration_seconds: (duration / 1000).toFixed(2),
+                    hasResponse: !!responseMessage,
+                  },
+                });
+
+                await Sentry.startSpan(
+                  {
+                    op: "db.upsert",
+                    name: "Save Chat Messages",
+                    attributes: { chat_id: id, message_count: 2 },
+                  },
+                  () => upsertMessages([message, responseMessage], id)
+                );
+              } catch (error) {
+                Sentry.captureException(error, {
+                  tags: { context: "save_messages" },
+                });
+              }
+            },
+          });
+
+          return createUIMessageStreamResponse({ stream });
+        }
+      );
+
+      return cachedResponse;
+    }
+
+    // Load previous messages in the chat
+    const previousMessages = await Sentry.startSpan(
+      {
+        op: "db.query",
+        name: "Load Chat Messages",
+        attributes: { chat_id: id },
+      },
+      () => loadChat(id)
+    );
 
     let messagesToValidate: MyUIMessage[];
 
@@ -67,20 +171,19 @@ export async function POST(req: Request) {
       messagesToValidate = [...previousMessages, message];
     }
 
+    // Validate messages
     const validatedMessages: MyUIMessage[] = await validateUIMessages({
       messages: messagesToValidate,
       metadataSchema: metadataSchema,
     });
 
+    // Stream a new AI-generated response
     const stream = createUIMessageStream({
       execute: ({ writer }) => {
         if (message.role === "user") {
           writer.write({
             type: "start",
             messageId: generateId(),
-          });
-          writer.write({
-            type: "start-step",
           });
         }
 
@@ -115,6 +218,9 @@ export async function POST(req: Request) {
         );
       },
       onError: (error) => {
+        Sentry.captureException(error, {
+          tags: { context: "stream_error" },
+        });
         return error instanceof Error ? error.message : String(error);
       },
       originalMessages: validatedMessages,
@@ -137,10 +243,28 @@ export async function POST(req: Request) {
             },
           });
 
-          await upsertMessages(
-            [...validatedMessages.slice(-1), responseMessage],
-            id
+          await Sentry.startSpan(
+            {
+              op: "db.upsert",
+              name: "Save Chat Messages",
+              attributes: { chat_id: id, message_count: 2 },
+            },
+            () =>
+              upsertMessages(
+                [...validatedMessages.slice(-1), responseMessage],
+                id
+              )
           );
+
+          try {
+            await redis.set(key, JSON.stringify(responseMessage), {
+              EX: 60 * 60 * 24,
+            });
+          } catch (error) {
+            Sentry.captureException(error, {
+              tags: { context: "redis_cache_write" },
+            });
+          }
         } catch (error) {
           Sentry.captureException(error, {
             tags: { context: "save_messages" },
