@@ -47,11 +47,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Create a unique cache key based on user ID and text content only
+    // Create a unique cache key based on user ID, chat ID, and message content.
     const messageKey = message.parts.map((part) =>
       part.type === "text" ? part.text.toLowerCase().trim() : ""
     );
-    const key = `user:${session.user.id}_message:${messageKey.join(":")}`;
+    const key = `user:${session.user.id}_chat:${id}_message:${messageKey.join(
+      ":"
+    )}`;
 
     // Check the cache for a previously cached message
     let cachedMessageJson = null;
