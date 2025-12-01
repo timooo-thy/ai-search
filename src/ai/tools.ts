@@ -335,6 +335,7 @@ export const visualiseCodeGraph = (
           string,
           { path: string; url: string; content?: string }
         >();
+        const resultsPerTask: number[] = new Array(tasks.length).fill(0);
 
         for (let i = 0; i < tasks.length; i++) {
           const task = tasks[i];
@@ -351,13 +352,7 @@ export const visualiseCodeGraph = (
                   ? ("in-progress" as const)
                   : ("pending" as const),
               result:
-                idx < i
-                  ? `Found ${
-                      allSearchResults.filter(
-                        (_, searchIdx) => Math.floor(searchIdx / 10) === idx
-                      ).length || "some"
-                    } results`
-                  : undefined,
+                idx < i ? `Found ${resultsPerTask[idx]} results` : undefined,
             })),
             analyseTodo,
           ];
@@ -372,6 +367,8 @@ export const visualiseCodeGraph = (
             },
             async () => await searchUserRepoWithContent(task.searchQuery, repo)
           );
+
+          resultsPerTask[i] = searchResults.length;
 
           // Add results
           allSearchResults.push(...searchResults);
@@ -391,17 +388,13 @@ export const visualiseCodeGraph = (
           allSources.push(...Array.from(seenSources.values()));
         }
 
-        // Mark all search tasks as completed
-        const completedTaskTodos: AgentTodo[] = tasks.map((task, _) => {
-          const taskResults = allSearchResults.length / tasks.length;
-          return {
-            id: task.id,
-            title: task.title,
-            description: task.description,
-            status: "completed" as const,
-            result: `Found ${Math.ceil(taskResults)} code matches`,
-          };
-        });
+        const completedTaskTodos: AgentTodo[] = tasks.map((task, idx) => ({
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          status: "completed" as const,
+          result: `Found ${resultsPerTask[idx]} code matches`,
+        }));
 
         if (allSearchResults.length === 0) {
           const noResultsTodos = [
@@ -493,11 +486,12 @@ export const visualiseCodeGraph = (
       } catch (error) {
         Sentry.captureException(error, {
           tags: { context: "code_graph_generation_failed" },
+          extra: { query, repo },
         });
 
         const errorTodo: AgentTodo = {
           id: "error",
-          title: "Error occurred",
+          title: "Code graph generation failed",
           description: "Failed to complete code graph generation",
           status: "error",
           result: error instanceof Error ? error.message : "Unknown error",

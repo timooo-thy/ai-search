@@ -186,7 +186,7 @@ export async function searchUserRepoWithContent(
                     fileData.download_url &&
                     "size" in fileData &&
                     typeof fileData.size === "number" &&
-                    fileData.size < 500000 // Only fetch files under 500KB via download
+                    fileData.size < 5000000 // Only fetch files under 5MB via download
                   ) {
                     try {
                       const response = await fetch(fileData.download_url, {
@@ -202,6 +202,11 @@ export async function searchUserRepoWithContent(
                           url: item.html_url,
                           content,
                         };
+                      } else {
+                        Sentry.logger.warn(
+                          Sentry.logger
+                            .fmt`Failed to fetch ${item.path}: ${response.status} ${response.statusText}`
+                        );
                       }
                     } catch (fetchError) {
                       Sentry.captureException(fetchError, {

@@ -83,6 +83,9 @@ const getLanguageFromPath = (path: string): BundledLanguage => {
     vue: "vue",
     svelte: "svelte",
     prisma: "prisma",
+    xml: "xml",
+    toml: "toml",
+    makefile: "makefile",
   };
   return languageMap[ext ?? ""] ?? "typescript";
 };
@@ -104,9 +107,15 @@ export function CodeEditorPanel({ sources, children }: CodeEditorPanelProps) {
 
   const handleCopy = async () => {
     if (selectedSource?.content) {
-      await navigator.clipboard.writeText(selectedSource.content);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      try {
+        await navigator.clipboard.writeText(selectedSource.content);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (error) {
+        Sentry.captureException(error, {
+          tags: { context: "clipboard_copy" },
+        });
+      }
     }
   };
 
@@ -290,6 +299,7 @@ export function CodeEditorPanel({ sources, children }: CodeEditorPanelProps) {
                             href={selectedSource?.url}
                             target="_blank"
                             rel="noopener noreferrer"
+                            aria-label="Open file in GitHub"
                             className="inline-flex items-center justify-center h-6 w-6 rounded-md hover:bg-accent transition-colors"
                           >
                             <ExternalLink className="h-3.5 w-3.5" />
