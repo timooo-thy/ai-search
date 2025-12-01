@@ -9,6 +9,17 @@ export const metadataSchema = z.object({
 
 export type MyMetadata = z.infer<typeof metadataSchema>;
 
+// Agent Todo types for agentic workflow
+export const agentTodoSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  status: z.enum(["pending", "in-progress", "completed", "error"]),
+  result: z.string().optional(),
+});
+
+export type AgentTodo = z.infer<typeof agentTodoSchema>;
+
 export type MyUIMessage = UIMessage<MyMetadata, MyDataPart, MyToolSet>;
 
 export const dataPartSchema = z.object({
@@ -49,6 +60,7 @@ export const dataPartSchema = z.object({
   }),
   codeGraph: z
     .object({
+      todos: z.array(agentTodoSchema).optional(),
       nodes: z.array(
         z.object({
           id: z.string(),
@@ -79,6 +91,7 @@ export const dataPartSchema = z.object({
         z.object({
           path: z.string(),
           url: z.string().url(),
+          content: z.string().optional(),
         })
       ),
     })

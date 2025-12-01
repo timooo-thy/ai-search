@@ -428,6 +428,13 @@ export const mapDBPartToUIMessagePart = (
       };
     case "data_codeGraph": {
       const codeGraphData = part.data_codeGraph as {
+        todos?: {
+          id: string;
+          title: string;
+          description: string;
+          status: "pending" | "in-progress" | "completed" | "error";
+          result?: string;
+        }[];
         nodes?: {
           id: string;
           label: string;
@@ -448,12 +455,14 @@ export const mapDBPartToUIMessagePart = (
         sources?: {
           path: string;
           url: string;
+          content?: string;
         }[];
       } | null;
 
       return {
         type: "data-codeGraph",
         data: {
+          todos: codeGraphData?.todos ?? [],
           nodes: codeGraphData?.nodes ?? [],
           edges: codeGraphData?.edges ?? [],
           loading: codeGraphData?.loading ?? false,

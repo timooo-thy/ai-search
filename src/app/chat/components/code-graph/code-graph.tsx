@@ -15,7 +15,8 @@ import { cn } from "@/lib/utils";
 import { MyDataPart } from "@/types/ui-message-type";
 import { CustomCodeNode } from "./custom-code-node";
 import { getEdgeColor, getLayoutedElements } from "./graph-utils";
-import { SourcesDialog } from "./sources-dialog";
+import { CodeEditorPanel } from "./code-editor-panel";
+import { AgentTodos } from "./agent-todos";
 
 type CodeGraphProps = {
   graph: MyDataPart["codeGraph"];
@@ -35,7 +36,7 @@ const nodeTypes = {
  * @param graph - Object containing nodes and edges of the code graph
  */
 export function CodeGraph({ graph, className }: CodeGraphProps) {
-  const { nodes, edges, loading, queries, analysing } = graph;
+  const { nodes, edges, loading, queries, analysing, todos } = graph;
 
   const layoutedNodes: Node[] = useMemo(
     () => getLayoutedElements(nodes, edges, "TB"),
@@ -91,20 +92,33 @@ export function CodeGraph({ graph, className }: CodeGraphProps) {
   }, [formattedEdges, setEdges]);
 
   if (nodes.length === 0 && edges.length === 0 && !loading) {
-    return (
-      <Card className={cn("w-full h-[800px] py-0", className)}>
-        <div className="flex items-center justify-center h-full text-muted-foreground">
-          <p>No graph data available</p>
+    // Show completed todos with error state if available, otherwise minimal message
+    if (todos && todos.length > 0) {
+      return (
+        <div className="w-full py-4">
+          <AgentTodos todos={todos} defaultOpen={false} />
+          <p className="text-sm text-muted-foreground text-center mt-3">
+            No code graph could be generated from the search results.
+          </p>
         </div>
-      </Card>
+      );
+    }
+    return (
+      <div className="w-full py-4 text-center">
+        <p className="text-sm text-muted-foreground">No graph data available</p>
+      </div>
     );
   }
 
   return (
-    <Card className={cn("w-full h-[800px] py-0", className)}>
+    <Card className={cn("w-full h-[800px] py-0 overflow-hidden", className)}>
       {loading ? (
         <div className="flex flex-col items-center justify-center h-full text-muted-foreground px-6">
-          {analysing ? (
+          {todos && todos.length > 0 ? (
+            <div className="w-full max-w-2xl">
+              <AgentTodos todos={todos} />
+            </div>
+          ) : analysing ? (
             <p className="text-lg">Visualising your code...</p>
           ) : queries && queries.length > 0 ? (
             <>
@@ -132,33 +146,41 @@ export function CodeGraph({ graph, className }: CodeGraphProps) {
           )}
         </div>
       ) : (
-        <ReactFlow
-          nodes={reactFlowNodes}
-          edges={reactFlowEdges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          nodeTypes={nodeTypes}
-          fitView
-          fitViewOptions={{
-            padding: 0.3,
-            includeHiddenNodes: false,
-          }}
-          minZoom={0.5}
-          maxZoom={2}
-          nodesDraggable={false}
-          nodesConnectable={false}
-          elementsSelectable={true}
-          className="bg-muted/30"
-          proOptions={{ hideAttribution: true }}
-        >
-          <Background gap={16} size={1} />
-          <Controls />
-          {graph.sources && graph.sources.length > 0 && (
-            <div className="absolute top-4 left-4 z-10">
-              <SourcesDialog sources={graph.sources} />
+        <CodeEditorPanel sources={graph.sources ?? []}>
+          <div className="flex flex-col h-full">
+            {/* Collapsible todos panel at the top */}
+            {todos && todos.length > 0 && (
+              <div className="p-3 border-b">
+                <AgentTodos todos={todos} defaultOpen={false} />
+              </div>
+            )}
+            {/* Graph takes remaining space */}
+            <div className="flex-1 relative">
+              <ReactFlow
+                nodes={reactFlowNodes}
+                edges={reactFlowEdges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                nodeTypes={nodeTypes}
+                fitView
+                fitViewOptions={{
+                  padding: 0.3,
+                  includeHiddenNodes: false,
+                }}
+                minZoom={0.5}
+                maxZoom={2}
+                nodesDraggable={false}
+                nodesConnectable={false}
+                elementsSelectable={true}
+                className="bg-muted/30"
+                proOptions={{ hideAttribution: true }}
+              >
+                <Background gap={16} size={1} />
+                <Controls />
+              </ReactFlow>
             </div>
-          )}
-        </ReactFlow>
+          </div>
+        </CodeEditorPanel>
       )}
     </Card>
   );
