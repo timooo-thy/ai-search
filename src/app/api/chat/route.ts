@@ -83,7 +83,7 @@ export async function POST(req: Request) {
 
           // Stream the cached message
           const stream = createUIMessageStream({
-            originalMessages: [cachedMessage],
+            originalMessages: [],
             execute: async ({ writer }) => {
               await streamCachedMessage(writer, cachedMessage);
             },
@@ -163,6 +163,7 @@ export async function POST(req: Request) {
             time: new Date().toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
+              hour12: true,
             }),
           },
       };
@@ -184,6 +185,13 @@ export async function POST(req: Request) {
           writer.write({
             type: "start",
             messageId: generateId(),
+            messageMetadata: {
+              time: new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              }),
+            },
           });
         }
 
@@ -210,6 +218,7 @@ export async function POST(req: Request) {
                   time: new Date().toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
+                    hour12: true,
                   }),
                 };
               }

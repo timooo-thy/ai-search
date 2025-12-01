@@ -161,7 +161,13 @@ export async function getChatMessagesById(
   return chat?.messages.map((message) => ({
     id: message.id,
     role: message.role,
-    metadata: { time: message.createdAt.toLocaleTimeString() },
+    metadata: {
+      time: message.createdAt.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }),
+    },
     parts: message.parts
       .sort((a, b) => a.order - b.order)
       .map(mapDBPartToUIMessagePart),
@@ -204,6 +210,7 @@ export async function loadChat(chatId: string) {
           time: msg.createdAt.toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
+            hour12: true,
           }),
         },
       };

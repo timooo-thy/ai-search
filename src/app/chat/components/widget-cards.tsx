@@ -25,7 +25,7 @@ export default function WidgetCards({
     return date.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: false,
+      hour12: true,
     });
   };
 
@@ -37,7 +37,7 @@ export default function WidgetCards({
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
       {/* Time Widget */}
-      <Card className="p-4 text-white border-0 cursor-pointer hover:scale-105 transition-transform duration-200 bg-gradient-to-br from-slate-500 to-slate-800">
+      <Card className="p-4 text-white border-0 cursor-pointer hover:scale-105 transition-transform duration-200 bg-linear-to-br from-slate-500 to-slate-800">
         <div className="space-y-2">
           {loading.time ? (
             <div className="flex items-center justify-center h-16">
@@ -58,7 +58,7 @@ export default function WidgetCards({
       </Card>
 
       {/* Stock Widget */}
-      <Card className="p-4 text-white border-0 cursor-pointer hover:scale-105 transition-transform duration-200 bg-gradient-to-br from-emerald-400 to-teal-600">
+      <Card className="p-4 text-white border-0 cursor-pointer hover:scale-105 transition-transform duration-200 bg-linear-to-br from-emerald-400 to-teal-600">
         <div className="space-y-2">
           {loading.stock ? (
             <div className="flex items-center justify-center h-16">
@@ -97,7 +97,7 @@ export default function WidgetCards({
       </Card>
 
       {/* Weather Widget */}
-      <Card className="p-4 text-white border-0 cursor-pointer hover:scale-105 transition-transform duration-200 bg-gradient-to-br from-blue-400 to-indigo-600">
+      <Card className="p-4 text-white border-0 cursor-pointer hover:scale-105 transition-transform duration-200 bg-linear-to-br from-blue-400 to-indigo-600">
         <div className="space-y-2">
           {loading.weather ? (
             <div className="flex items-center justify-center h-16">

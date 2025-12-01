@@ -106,7 +106,7 @@ async function streamMessagePart(
       writer.write({
         type: "data-codeGraph",
         data: part.data,
-        id: part.id,
+        id: partId,
       });
       break;
 
@@ -114,7 +114,7 @@ async function streamMessagePart(
       writer.write({
         type: "data-weather",
         data: part.data,
-        id: part.id,
+        id: partId,
       });
       break;
 
@@ -122,7 +122,7 @@ async function streamMessagePart(
       writer.write({
         type: "data-repositories",
         data: part.data,
-        id: part.id,
+        id: partId,
       });
       break;
 
@@ -184,6 +184,7 @@ export async function streamCachedMessage(
       const currentTime = new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
+        hour12: true,
       });
 
       // Start message
