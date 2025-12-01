@@ -47,7 +47,10 @@ type CodeEditorPanelProps = {
 
 // Map file extensions to Shiki language identifiers
 const getLanguageFromPath = (path: string): BundledLanguage => {
-  const ext = path.split(".").pop()?.toLowerCase();
+  const fileName = path.split("/").pop() ?? "";
+  const ext = fileName.includes(".")
+    ? fileName.split(".").pop()?.toLowerCase()
+    : fileName.toLowerCase();
   const languageMap: Record<string, BundledLanguage> = {
     ts: "ts",
     tsx: "tsx",
@@ -350,7 +353,7 @@ export function CodeEditorPanel({ sources, children }: CodeEditorPanelProps) {
                           defaultValue={language}
                           className="h-auto overflow-visible border-0 rounded-none"
                         >
-                          <CodeBlockBody className="!overflow-visible">
+                          <CodeBlockBody className="overflow-visible">
                             {(item) => (
                               <CodeBlockItem
                                 key={`${selectedSource.path}-${item.language}`}
