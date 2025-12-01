@@ -83,7 +83,7 @@ export async function POST(req: Request) {
 
           // Stream the cached message
           const stream = createUIMessageStream({
-            originalMessages: [cachedMessage],
+            originalMessages: [],
             execute: async ({ writer }) => {
               await streamCachedMessage(writer, cachedMessage);
             },
