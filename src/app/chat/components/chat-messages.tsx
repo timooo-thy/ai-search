@@ -75,7 +75,7 @@ export function ChatMessages({
                 <Card
                   className={cn(
                     "bg-card text-card-foreground px-3 py-2 sm:px-4 sm:py-2 rounded-lg shadow min-h-12 sm:min-h-14",
-                    "break-words overflow-hidden",
+                    "wrap-break-word overflow-hidden",
                     msg.role === "user" && "ml-auto"
                   )}
                 >
