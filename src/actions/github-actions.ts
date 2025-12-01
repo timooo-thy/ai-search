@@ -155,6 +155,17 @@ export async function searchUserRepoWithContent(
                       path: item.path,
                     });
 
+                  // Skip if it's a directory (returns array) or not a file
+                  if (Array.isArray(fileData)) {
+                    return null;
+                  }
+
+                  // Only process files
+                  if (fileData.type !== "file") {
+                    return null;
+                  }
+
+                  // Handle regular files with base64 content
                   if ("content" in fileData && fileData.content) {
                     const decodedContent = Buffer.from(
                       fileData.content,
@@ -168,6 +179,50 @@ export async function searchUserRepoWithContent(
                       content: decodedContent,
                     };
                   }
+
+                  // Handle large files (>1MB)
+                  if (
+                    "download_url" in fileData &&
+                    fileData.download_url &&
+                    "size" in fileData &&
+                    typeof fileData.size === "number" &&
+                    fileData.size < 5000000 // Only fetch files under 5MB via download
+                  ) {
+                    try {
+                      const response = await fetch(fileData.download_url, {
+                        headers: {
+                          Authorization: `token ${githubPAT}`,
+                        },
+                      });
+                      if (response.ok) {
+                        const content = await response.text();
+                        return {
+                          name: item.name,
+                          path: item.path,
+                          url: item.html_url,
+                          content,
+                        };
+                      } else {
+                        Sentry.logger.warn(
+                          Sentry.logger
+                            .fmt`Failed to fetch ${item.path}: ${response.status} ${response.statusText}`
+                        );
+                      }
+                    } catch (fetchError) {
+                      Sentry.captureException(fetchError, {
+                        tags: { context: "github_fetch_large_file" },
+                        extra: {
+                          path: item.path,
+                          download_url: fileData.download_url,
+                        },
+                      });
+                    }
+                  }
+
+                  Sentry.logger.warn(
+                    Sentry.logger
+                      .fmt`File content not available for ${item.path}`
+                  );
 
                   return null;
                 } catch (error) {

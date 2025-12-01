@@ -68,7 +68,7 @@ export function ChatMessages({
               <div
                 className={cn(
                   "flex flex-col w-full",
-                  "max-w-[85%] sm:max-w-[75%] md:max-w-[70%]",
+                  "max-w-[85%]",
                   msg.role === "user" && "mb-6 sm:mb-10"
                 )}
               >

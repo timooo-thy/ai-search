@@ -1,4 +1,4 @@
-import { dataPartSchema, MyDataPart } from "@/types/ui-message-type";
+import { AgentTodo, MyDataPart } from "@/types/ui-message-type";
 import { generateObject, tool, UIMessage, UIMessageStreamWriter } from "ai";
 import z from "zod";
 import {
@@ -12,11 +12,32 @@ import {
   codeGraphUserPrompt,
   getRepositoriesToolPrompt,
   getWeatherToolPrompt,
-  queryCodeGraphSystemPrompt,
-  queryCodeGraphUserPrompt,
+  planningSystemPrompt,
+  planningUserPrompt,
   visualiseCodeGraphPrompt,
 } from "./prompts";
 import * as Sentry from "@sentry/nextjs";
+
+const codeGraphGenerationSchema = z.object({
+  nodes: z.array(
+    z.object({
+      id: z.string(),
+      label: z.string(),
+      type: z.enum(["file", "function", "class", "component"]).optional(),
+      filePath: z.string().optional(),
+      codeSnippet: z.string().optional(),
+      description: z.string().optional(),
+    })
+  ),
+  edges: z.array(
+    z.object({
+      source: z.string(),
+      target: z.string(),
+      label: z.string().optional(),
+      type: z.enum(["imports", "calls", "extends", "uses"]).optional(),
+    })
+  ),
+});
 
 export const getWeatherInformation = (
   writer: UIMessageStreamWriter<UIMessage<never, MyDataPart>>
@@ -145,29 +166,62 @@ export const visualiseCodeGraph = (
       repo: z.string().describe("Repository name in 'owner/repo' format"),
     }),
     execute: async ({ query, repo }, { toolCallId: id }) => {
-      writer.write({
-        type: "data-codeGraph",
-        data: {
-          nodes: [],
-          edges: [],
-          loading: true,
-          analysing: false,
-          queries: [],
-          sources: [],
-        },
-        id,
-      });
+      // Helper function to update todos state
+      const updateTodos = (
+        todos: AgentTodo[],
+        additionalData?: Partial<typeof baseData>
+      ) => {
+        writer.write({
+          type: "data-codeGraph",
+          data: {
+            ...baseData,
+            ...additionalData,
+            todos,
+          },
+          id,
+        });
+      };
+
+      const baseData = {
+        nodes: [] as {
+          id: string;
+          label: string;
+          type?: "file" | "function" | "class" | "component";
+          filePath?: string;
+          codeSnippet?: string;
+          description?: string;
+        }[],
+        edges: [] as {
+          source: string;
+          target: string;
+          label?: string;
+          type?: "imports" | "calls" | "extends" | "uses";
+        }[],
+        loading: true,
+        analysing: false,
+        queries: [] as string[],
+        sources: [] as { path: string; url: string; content?: string }[],
+      };
+
+      // Initialise with planning todo
+      const planningTodo: AgentTodo = {
+        id: "planning",
+        title: "Planning code exploration",
+        description:
+          "Analysing repository structure and creating search tasks...",
+        status: "in-progress",
+      };
+
+      updateTodos([planningTodo]);
 
       Sentry.captureMessage("Visualising code graph for query:", {
         level: "info",
         tags: { context: "code_graph_visualisation" },
-        extra: {
-          query,
-          repo,
-        },
+        extra: { query, repo },
       });
 
       try {
+        // Step 1: Get repository structure
         const repoStructure = await Sentry.startSpan(
           {
             name: "get_repo_structure",
@@ -178,24 +232,23 @@ export const visualiseCodeGraph = (
         );
 
         if (!repoStructure || repoStructure.length === 0) {
-          writer.write({
-            type: "data-codeGraph",
-            data: {
-              nodes: [],
-              edges: [],
-              loading: false,
-              analysing: false,
-              queries: [],
-              sources: [],
-            },
-            id,
-          });
+          updateTodos(
+            [
+              {
+                ...planningTodo,
+                status: "error",
+                result: "Repository is empty or inaccessible",
+              },
+            ],
+            { loading: false }
+          );
           return { error: "empty_repository" };
         }
 
-        const queries = await Sentry.startSpan(
+        // Step 2: Generate the plan with todos
+        const planResult = await Sentry.startSpan(
           {
-            name: "generate_search_queries",
+            name: "generate_plan",
             op: "ai.inference",
             attributes: {
               model: process.env.OPENAI_CHAT_MODEL || "gpt-4.1",
@@ -205,131 +258,226 @@ export const visualiseCodeGraph = (
           async () =>
             await generateObject({
               model: openai(process.env.OPENAI_CHAT_MODEL || "gpt-4.1"),
-              system: queryCodeGraphSystemPrompt,
+              system: planningSystemPrompt,
               schema: z.object({
-                query_1: z.string(),
-                query_2: z.string(),
-                query_3: z.string(),
+                tasks: z.array(
+                  z.object({
+                    id: z.string(),
+                    title: z.string(),
+                    description: z.string(),
+                    searchQuery: z.string(),
+                  })
+                ),
               }),
-              prompt: queryCodeGraphUserPrompt(
+              prompt: planningUserPrompt(
                 query,
                 JSON.stringify(repoStructure, null, 2)
               ),
             })
         );
 
-        const { query_1, query_2, query_3 } = queries.object;
+        const { tasks } = planResult.object;
 
-        const validQueries = [query_1, query_2, query_3].filter(
-          (q) => q && q.trim()
-        );
-
-        if (validQueries.length === 0) {
-          writer.write({
-            type: "data-codeGraph",
-            data: {
-              nodes: [],
-              edges: [],
-              loading: false,
-              queries: validQueries,
-              analysing: false,
-              sources: [],
-            },
-            id,
-          });
-          return { error: "no_queries_generated" };
-        } else {
-          writer.write({
-            type: "data-codeGraph",
-            data: {
-              nodes: [],
-              edges: [],
-              loading: true,
-              queries: validQueries,
-              analysing: false,
-              sources: [],
-            },
-            id,
-          });
+        if (!tasks || tasks.length === 0) {
+          updateTodos(
+            [
+              {
+                ...planningTodo,
+                status: "error",
+                result: "Failed to generate search tasks",
+              },
+            ],
+            { loading: false }
+          );
+          return { error: "no_tasks_generated" };
         }
-        Sentry.logger.info(
-          `Generated queries: ${query_1}, ${query_2}, ${query_3}`
-        );
-        Sentry.logger.info(`Searching repository: ${repo}`);
 
-        const [data1, data2, data3] = await Sentry.startSpan(
+        // Mark planning as complete and create task todos
+        const completedPlanningTodo: AgentTodo = {
+          ...planningTodo,
+          status: "completed",
+          result: `Created ${tasks.length} search tasks`,
+        };
+
+        const taskTodos: AgentTodo[] = tasks.map((task) => ({
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          status: "pending" as const,
+        }));
+
+        const analyseTodo: AgentTodo = {
+          id: "analyse",
+          title: "Generating code graph",
+          description:
+            "Analysing search results and building the code relationship graph...",
+          status: "pending",
+        };
+
+        updateTodos([completedPlanningTodo, ...taskTodos, analyseTodo], {
+          queries: tasks.map((t) => t.searchQuery),
+        });
+
+        Sentry.logger.info(
+          `Generated ${tasks.length} search tasks for query: ${query}`
+        );
+
+        // Step 3: Execute each search task sequentially
+        const allSearchResults: {
+          name: string;
+          path: string;
+          url: string;
+          content: string;
+        }[] = [];
+        const allSources: { path: string; url: string; content?: string }[] =
+          [];
+        const seenSources = new Map<
+          string,
+          { path: string; url: string; content?: string }
+        >();
+        const resultsPerTask: number[] = new Array(tasks.length).fill(0);
+
+        for (let i = 0; i < tasks.length; i++) {
+          const task = tasks[i];
+
+          // Update current task to in-progress
+          const currentTodos = [
+            completedPlanningTodo,
+            ...taskTodos.map((t, idx) => ({
+              ...t,
+              status:
+                idx < i
+                  ? ("completed" as const)
+                  : idx === i
+                  ? ("in-progress" as const)
+                  : ("pending" as const),
+              result:
+                idx < i ? `Found ${resultsPerTask[idx]} results` : undefined,
+            })),
+            analyseTodo,
+          ];
+          updateTodos(currentTodos);
+
+          // Execute the search
+          const searchResults = await Sentry.startSpan(
+            {
+              name: `search_task_${i + 1}`,
+              op: "github.search",
+              attributes: { repo, query: task.searchQuery, taskId: task.id },
+            },
+            async () => await searchUserRepoWithContent(task.searchQuery, repo)
+          );
+
+          resultsPerTask[i] = searchResults.length;
+
+          // Add results
+          allSearchResults.push(...searchResults);
+          searchResults.forEach((item) => {
+            const key = `${item.path}::${item.url}`;
+            if (!seenSources.has(key)) {
+              seenSources.set(key, {
+                path: item.path,
+                url: item.url,
+                content: item.content,
+              });
+            }
+          });
+
+          // Update sources
+          allSources.length = 0;
+          allSources.push(...Array.from(seenSources.values()));
+        }
+
+        const completedTaskTodos: AgentTodo[] = tasks.map((task, idx) => ({
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          status: "completed" as const,
+          result: `Found ${resultsPerTask[idx]} code matches`,
+        }));
+
+        if (allSearchResults.length === 0) {
+          const noResultsTodos = [
+            completedPlanningTodo,
+            ...completedTaskTodos.map((t) => ({
+              ...t,
+              result: "No results found",
+            })),
+            {
+              ...analyseTodo,
+              status: "error" as const,
+              result: "No code to analyse",
+            },
+          ];
+          updateTodos(noResultsTodos, { loading: false, sources: allSources });
+          return { error: "no_results" };
+        }
+
+        // Step 4: Start analysis phase
+        const analysingTodos = [
+          completedPlanningTodo,
+          ...completedTaskTodos,
+          { ...analyseTodo, status: "in-progress" as const },
+        ];
+        updateTodos(analysingTodos, { analysing: true, sources: allSources });
+
+        // Generate the code graph
+        const result = await Sentry.startSpan(
           {
-            name: "search_repository",
-            op: "github.search",
-            attributes: { repo, queries: 3 },
+            name: "generate_code_graph",
+            op: "ai.inference",
+            attributes: {
+              model: process.env.OPENAI_CHAT_MODEL || "gpt-4.1",
+              resultCount: allSearchResults.length,
+            },
           },
           async () =>
-            await Promise.all([
-              searchUserRepoWithContent(query_1, repo),
-              searchUserRepoWithContent(query_2, repo),
-              searchUserRepoWithContent(query_3, repo),
-            ])
+            await generateObject({
+              model: openai(process.env.OPENAI_CHAT_MODEL || "gpt-4.1"),
+              maxOutputTokens: 32768,
+              system: codeGraphSystemPrompt,
+              schema: codeGraphGenerationSchema,
+              prompt: codeGraphUserPrompt(allSearchResults, query, repo),
+            })
         );
 
-        const data = [...data1, ...data2, ...data3];
-
-        const seenSources = new Map<string, { path: string; url: string }>();
-        data.forEach((item) => {
-          const key = `${item.path}::${item.url}`;
-          if (!seenSources.has(key)) {
-            seenSources.set(key, { path: item.path, url: item.url });
-          }
-        });
-        const sources = Array.from(seenSources.values());
-
-        if (!data.length) {
-          writer.write({
-            type: "data-codeGraph",
-            data: {
-              nodes: [],
-              edges: [],
-              loading: false,
-              analysing: false,
-              queries: validQueries,
-              sources: sources,
-            },
-            id,
-          });
-          return { error: "no_results" };
-        } else {
-          writer.write({
-            type: "data-codeGraph",
-            data: {
-              nodes: [],
-              edges: [],
-              loading: true,
-              analysing: true,
-              queries: validQueries,
-              sources: sources,
-            },
-            id,
-          });
-        }
-
-        const result = await generateObject({
-          model: openai(process.env.OPENAI_CHAT_MODEL || "gpt-4.1"),
-          maxOutputTokens: 32768,
-          system: codeGraphSystemPrompt,
-          schema: dataPartSchema.shape.codeGraph,
-          prompt: codeGraphUserPrompt(data, query, repo),
-        });
-
         const { nodes, edges } = result.object;
+
+        // Validate and filter edges to only include those with valid node references
+        const nodeIds = new Set(nodes.map((n) => n.id));
+        const validEdges = edges.filter(
+          (e) => nodeIds.has(e.source) && nodeIds.has(e.target)
+        );
+
+        Sentry.logger.info(
+          `Generated ${nodes.length} nodes and ${
+            validEdges.length
+          } valid edges (${
+            edges.length - validEdges.length
+          } invalid edges filtered)`
+        );
+
+        // Final state - all complete
+        const finalTodos = [
+          completedPlanningTodo,
+          ...completedTaskTodos,
+          {
+            ...analyseTodo,
+            status: "completed" as const,
+            result: `Generated graph with ${nodes.length} nodes and ${validEdges.length} relationships`,
+          },
+        ];
 
         writer.write({
           type: "data-codeGraph",
           data: {
+            todos: finalTodos,
             nodes,
-            edges,
+            edges: validEdges,
             loading: false,
             analysing: false,
-            queries: validQueries,
-            sources: sources,
+            queries: tasks.map((t) => t.searchQuery),
+            sources: allSources,
           },
           id,
         });
@@ -338,19 +486,18 @@ export const visualiseCodeGraph = (
       } catch (error) {
         Sentry.captureException(error, {
           tags: { context: "code_graph_generation_failed" },
+          extra: { query, repo },
         });
-        writer.write({
-          type: "data-codeGraph",
-          data: {
-            nodes: [],
-            edges: [],
-            loading: false,
-            analysing: false,
-            queries: [],
-            sources: [],
-          },
-          id,
-        });
+
+        const errorTodo: AgentTodo = {
+          id: "error",
+          title: "Code graph generation failed",
+          description: "Failed to complete code graph generation",
+          status: "error",
+          result: error instanceof Error ? error.message : "Unknown error",
+        };
+
+        updateTodos([errorTodo], { loading: false, analysing: false });
         return { error: "code_graph_generation_failed" };
       }
     },
