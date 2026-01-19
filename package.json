@@ -47,7 +47,7 @@
     "dagre": "^0.8.5",
     "lucide-react": "^0.544.0",
     "marked": "^16.3.0",
-    "next": "^16.0.6",
+    "next": "16.0.10",
     "next-themes": "^0.4.6",
     "octokit": "^5.0.3",
     "react": "^19.2.0",
