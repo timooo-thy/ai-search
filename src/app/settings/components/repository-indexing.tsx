@@ -47,7 +47,13 @@ type IndexedRepository = {
   repoFullName: string;
   repoUrl: string;
   branch: string;
-  status: "PENDING" | "CLONING" | "PARSING" | "INDEXING" | "COMPLETED" | "FAILED";
+  status:
+    | "PENDING"
+    | "CLONING"
+    | "PARSING"
+    | "INDEXING"
+    | "COMPLETED"
+    | "FAILED";
   progress: number;
   totalFiles: number;
   indexedFiles: number;
@@ -106,7 +112,7 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
         repo.status === "PENDING" ||
         repo.status === "CLONING" ||
         repo.status === "PARSING" ||
-        repo.status === "INDEXING"
+        repo.status === "INDEXING",
     );
 
     if (hasActiveJobs) {
@@ -161,7 +167,7 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
     try {
       const response = await fetch(
         `/api/indexing?repo=${encodeURIComponent(repoFullName)}`,
-        { method: "DELETE" }
+        { method: "DELETE" },
       );
 
       if (!response.ok) {
@@ -200,14 +206,13 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
   };
 
   // Get repos that aren't already indexed
-  const availableRepos = repositories.filter(
-    (repo) =>
-      !indexedRepos.some(
-        (indexed) =>
-          indexed.repoFullName.split("/")[1] === repo.name &&
-          indexed.status !== "FAILED"
-      )
-  );
+  const availableRepos = repositories.filter((repo) => {
+    const repoFullName = repo.url.replace("https://github.com/", "");
+    return !indexedRepos.some(
+      (indexed) =>
+        indexed.repoFullName === repoFullName && indexed.status !== "FAILED",
+    );
+  });
 
   return (
     <Card>
@@ -266,11 +271,7 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
             onClick={handleStartIndexing}
             disabled={!selectedRepo || isLoading}
           >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Index"
-            )}
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Index"}
           </Button>
         </div>
 
@@ -320,8 +321,8 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
                       <div className="space-y-1">
                         <Progress value={repo.progress} className="h-1.5" />
                         <p className="text-xs text-muted-foreground">
-                          {repo.indexedFiles} / {repo.totalFiles || "?"} files
-                          ({repo.progress}%)
+                          {repo.indexedFiles} / {repo.totalFiles || "?"} files (
+                          {repo.progress}%)
                         </p>
                       </div>
                     )}
@@ -348,7 +349,8 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
                   </div>
 
                   <div className="flex items-center gap-1 ml-2">
-                    {(repo.status === "COMPLETED" || repo.status === "FAILED") && (
+                    {(repo.status === "COMPLETED" ||
+                      repo.status === "FAILED") && (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -372,10 +374,13 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Repository Index</AlertDialogTitle>
+                          <AlertDialogTitle>
+                            Delete Repository Index
+                          </AlertDialogTitle>
                           <AlertDialogDescription>
                             This will remove the index for {repo.repoFullName}.
-                            You&apos;ll need to reindex it to use semantic search again.
+                            You&apos;ll need to reindex it to use semantic
+                            search again.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

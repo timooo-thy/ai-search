@@ -1,5 +1,18 @@
 import { Index } from "@upstash/vector";
 
+/**
+ * Sanitise a string value for use in Upstash Vector filter queries.
+ * Prevents injection attacks by escaping special characters.
+ */
+function sanitiseFilterValue(value: string): string {
+  // Remove or escape characters that could break the filter syntax
+  // Upstash uses SQL-like filter syntax with single quotes
+  return value
+    .replace(/\\/g, "\\\\") // Escape backslashes first
+    .replace(/'/g, "\\'") // Escape single quotes
+    .replace(/[\x00-\x1f\x7f]/g, ""); // Remove control characters
+}
+
 // Initialize Upstash Vector client
 export const vectorIndex = new Index({
   url: process.env.UPSTASH_VECTOR_REST_URL!,
@@ -70,7 +83,7 @@ export async function searchCodeChunks(
     topK,
     includeData: true,
     includeMetadata: true,
-    filter: `repoFullName = '${repoFullName}' AND userId = '${userId}'`,
+    filter: `repoFullName = '${sanitiseFilterValue(repoFullName)}' AND userId = '${sanitiseFilterValue(userId)}'`,
   });
 
   return results.map((result) => ({
@@ -178,7 +191,7 @@ export async function deleteRepoChunks(
         data: "code",
         topK: 10000,
         includeMetadata: true,
-        filter: `repoFullName = '${repoFullName}' AND userId = '${userId}'`,
+        filter: `repoFullName = '${sanitiseFilterValue(repoFullName)}' AND userId = '${sanitiseFilterValue(userId)}'`,
       });
 
       if (results.length > 0) {
@@ -216,7 +229,7 @@ export async function getIndexedFiles(
     data: "code file",
     topK: 1000, // Reduced from 10000 to save reads
     includeMetadata: true,
-    filter: `repoFullName = '${repoFullName}' AND userId = '${userId}'`,
+    filter: `repoFullName = '${sanitiseFilterValue(repoFullName)}' AND userId = '${sanitiseFilterValue(userId)}'`,
   });
 
   const filePaths = new Set<string>();
@@ -241,7 +254,7 @@ export async function isRepoIndexed(
   const results = await vectorIndex.query({
     data: "code",
     topK: 1,
-    filter: `repoFullName = '${repoFullName}' AND userId = '${userId}'`,
+    filter: `repoFullName = '${sanitiseFilterValue(repoFullName)}' AND userId = '${sanitiseFilterValue(userId)}'`,
   });
 
   return results.length > 0;

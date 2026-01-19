@@ -853,7 +853,12 @@ export async function indexRepository(
   });
 
   try {
-    const githubPAT = await getUserGithubPAT();
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { githubPAT: true },
+    });
+
+    const githubPAT = user?.githubPAT;
     if (!githubPAT) {
       throw new Error("GitHub PAT not found");
     }
