@@ -102,7 +102,7 @@ export function AgentTodos({
           )}
         />
       </CollapsibleTrigger>
-      <CollapsibleContent className="mt-2 space-y-1.5">
+      <CollapsibleContent className="mt-2 max-h-64 overflow-y-auto space-y-1.5">
         {todos.map((todo) => {
           const Icon = statusIcons[todo.status];
 
@@ -120,7 +120,7 @@ export function AgentTodos({
                 todo.status === "pending" && "bg-muted/20"
               )}
             >
-              <div className="flex-shrink-0 mt-0.5">
+              <div className="shrink-0 mt-0.5">
                 <Icon className={cn("w-4 h-4", statusStyles[todo.status])} />
               </div>
               <div className="flex-1 min-w-0">
@@ -139,13 +139,17 @@ export function AgentTodos({
                 {todo.result && (
                   <span
                     className={cn(
-                      "text-xs ml-2",
+                      "text-xs ml-2 truncate",
                       todo.status === "completed" &&
                         "text-green-600/80 dark:text-green-400/80",
                       todo.status === "error" && "text-destructive/80"
                     )}
+                    title={todo.result}
                   >
-                    • {todo.result}
+                    •{" "}
+                    {todo.result.length > 40
+                      ? todo.result.slice(0, 40) + "..."
+                      : todo.result}
                   </span>
                 )}
               </div>
