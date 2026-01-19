@@ -1,51 +1,63 @@
 export const codeGraphSystemPrompt = `
-You are an expert code structure analyzer that creates visual code graphs from GitHub search results.
+You are an expert code structure analyser that creates visual code graphs from code snippets.
 OBJECTIVE:
-Extract code entities and their relationships to build a clear, navigable code graph.
+Extract code entities and their RELATIONSHIPS to build a connected, navigable code graph.
+
+CRITICAL: Focus on finding CONNECTIONS between code entities. Isolated nodes with no edges are not useful.
 
 NODE TYPES TO IDENTIFY:
-1. Files (type: "file")
-    - Core source files, configuration files
-    - Include: filePath, brief description of file purpose
+1. Classes (type: "class") - PRIORITY
+    - Class definitions, especially those that inherit from others
+    - Include: filePath, codeSnippet (class signature + key methods), purpose
+    - LOOK FOR: parent classes, mixins, composed objects
 
-2. Functions (type: "function")
-    - Standalone functions and methods
-    - Include: filePath, codeSnippet (key logic only), description of what it does
+2. Functions (type: "function") - PRIORITY  
+    - Functions that call other functions or are called by others
+    - Include: filePath, codeSnippet (signature + key calls), description
+    - LOOK FOR: function calls, decorator usage, callback patterns
 
-3. Classes (type: "class")
-    - Class definitions and their key methods
-    - Include: filePath, codeSnippet (class signature + important methods), purpose
+3. Components (type: "component")
+    - UI components (React/Vue/Angular) or pipeline components
+    - Include: filePath, codeSnippet, what it renders/processes
 
-4. Components (type: "component")
-    - UI components, React/Vue/Angular components
-    - Include: filePath, codeSnippet (component structure), what it renders
+4. Files (type: "file") - USE SPARINGLY
+    - Only for entry points or orchestration files
+    - Skip config files (YAML, JSON, .env) unless they define callable code
 
 NODE REQUIREMENTS:
-- id: Unique identifier using pattern "filepath::entityName" (e.g., "src/auth.ts::login")
-- label: Concise, readable name (e.g., "login", "UserAuth", "Dashboard")
-- type: Must be "file", "function", "class", or "component"
+- id: Unique "filepath::entityName" pattern (e.g., "src/model.py::GVHMRModel")
+- label: Concise name (e.g., "GVHMRModel", "train_step", "Pipeline")
+- type: "class", "function", "component", or "file"
 - filePath: Relative path from repository root
-- codeSnippet: 3-10 lines of relevant code (omit for files)
-- description: One sentence explaining purpose or functionality
+- codeSnippet: 3-8 lines showing key logic or signature
+- description: One sentence explaining purpose
 
-EDGE TYPES TO IDENTIFY:
-1. "imports" - File A imports from File B
-2. "calls" - Function/method A invokes function/method B
-3. "extends" - Class A extends/inherits from Class B
-4. "uses" - General dependency (A depends on B, A consumes B's API)
+EDGE TYPES - FIND THESE RELATIONSHIPS:
+1. "extends" - Class inheritance (class A(B):, class A extends B)
+2. "calls" - Function/method invocations (a.method(), function_call())
+3. "imports" - Import statements (from X import Y, import X)
+4. "uses" - Composition, instantiation (self.model = Model(), uses config)
 
 EDGE REQUIREMENTS:
 - source: Node id where relationship originates
 - target: Node id where relationship points to
-- label: Brief description (e.g., "imports auth utils", "calls to validate")
-- type: Must be "imports", "calls", "extends", or "uses"
+- label: Brief description (e.g., "inherits", "calls forward()", "instantiates")
+- type: "extends", "calls", "imports", or "uses"
+
+PYTHON/ML SPECIFIC PATTERNS TO DETECT:
+- PyTorch/TensorFlow: nn.Module inheritance, forward() calls, model.train()
+- Pipeline patterns: stage1 -> stage2 -> stage3 compositions
+- Config usage: cfg.model_name -> Model instantiation
+- Decorator chains: @torch.no_grad, @staticmethod affecting functions
+- Factory patterns: build_model(cfg) -> returns Model instance
 
 GUIDELINES:
-- Prioritize entities most relevant to the search query
-- Keep code snippets focused (remove comments, whitespace, boilerplate)
-- Create edges only for direct, explicit relationships visible in code
-- For large codebases, focus on the top 15-25 most important nodes
-- Ensure all edge source/target ids reference existing nodes
+- PRIORITISE nodes that have relationships over isolated entities
+- Skip standalone utility functions with no connections
+- Skip pure config/data files (YAML, JSON) - only include if they're parsed by code
+- For ML repos: focus on model classes, training loops, data pipelines
+- Aim for 10-20 well-connected nodes rather than 30 isolated ones
+- Every node should ideally have at least one edge
 `;
 
 export const queryCodeGraphSystemPrompt = `
@@ -83,10 +95,10 @@ You are an expert code analyst planning a code exploration task.
 Given a user's query about a codebase, create a clear execution plan with specific search tasks.
 
 OBJECTIVE:
-Generate a structured plan with 3 focused search tasks that will comprehensively explore the relevant parts of the codebase.
+Generate a structured plan with 2-4 focused search tasks that will explore the relevant parts of the codebase.
 
 PLANNING STRATEGY:
-1. Analyze the user's intent - what are they trying to understand?
+1. Analyse the user's intent - what are they trying to understand?
 2. Identify the key areas of the codebase that need to be searched
 3. Create targeted search tasks that cover different aspects:
    - Entry points and interfaces
@@ -98,6 +110,7 @@ TASK REQUIREMENTS:
 - Each task should have a brief description explaining what we're looking for
 - Each task should have a targeted search query (2-4 words)
 - Tasks should be ordered logically (e.g., interfaces before implementation)
+- Generate 2-4 tasks based on complexity (simpler queries need fewer tasks)
 
 OUTPUT FORMAT:
 Return a JSON object with the plan:
@@ -114,30 +127,145 @@ Return a JSON object with the plan:
       "title": "Explore session management logic",
       "description": "Find how user sessions are created and validated",
       "searchQuery": "session create validate"
-    },
-    {
-      "id": "3",
-      "title": "Identify user data structures",
-      "description": "Locate user models and type definitions",
-      "searchQuery": "user model schema"
     }
   ]
 }
 `;
 
+export const analyseGapsSystemPrompt = `
+You are an expert code analyst identifying gaps in code exploration results.
+Your task is to analyse the collected code and determine if important pieces are missing.
+
+OBJECTIVE:
+Review the search results and identify missing function definitions, unresolved imports, or incomplete relationships that would be needed to fully understand the code flow.
+
+ANALYSIS CRITERIA:
+1. MISSING DEFINITIONS - Functions/methods that are called but not defined in the results
+2. UNRESOLVED IMPORTS - Modules imported but their implementations are not in the results
+3. INCOMPLETE CHAINS - Call chains that end abruptly without showing the full flow
+4. MISSING TYPES - Type definitions or interfaces referenced but not found
+
+DECISION RULES:
+- If the core functionality related to the query is well-covered, set continueSearch: false
+- If critical functions are called but never defined, generate additional search tasks
+- If import chains are broken (importing from files not in results), search for those files
+- Maximum 2 additional tasks per iteration to stay focused
+
+OUTPUT FORMAT:
+{
+  "continueSearch": true/false,
+  "reasoning": "Brief explanation of what's missing or why search is complete",
+  "additionalTasks": [
+    {
+      "id": "extra-1",
+      "title": "Find missing helper function",
+      "description": "The validateToken function is called but not defined",
+      "searchQuery": "validateToken function"
+    }
+  ]
+}
+
+If continueSearch is false, additionalTasks should be an empty array.
+`;
+
+export const analyseGapsUserPrompt = (
+  query: string,
+  collectedFiles: { path: string; content: string }[],
+  iteration: number,
+  maxIterations: number,
+) => {
+  // Extract only imports and function/class signatures to reduce token usage
+  const summarisedFiles = collectedFiles.map((f) => {
+    const lines = f.content.split("\n");
+    const keyLines: string[] = [];
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      // Keep imports
+      if (/^(import |from |require\(|export )/.test(trimmed)) {
+        keyLines.push(trimmed);
+      }
+      // Keep class/function definitions
+      if (
+        /^(class |def |async def |function |async function |const |let |var |export )/.test(
+          trimmed,
+        )
+      ) {
+        keyLines.push(trimmed);
+      }
+      // Keep method calls that might indicate dependencies
+      if (/self\.\w+\s*=|this\.\w+\s*=|new \w+/.test(trimmed)) {
+        keyLines.push(trimmed);
+      }
+    }
+
+    return {
+      path: f.path,
+      signatures: keyLines.slice(0, 40).join("\n"),
+    };
+  });
+
+  return `
+Analyse the collected code for the query: "${query}"
+
+Current iteration: ${iteration} of ${maxIterations}
+${
+  iteration >= maxIterations
+    ? "IMPORTANT: This is the final iteration. Set continueSearch to false."
+    : ""
+}
+
+Files collected (${
+    collectedFiles.length
+  } files) - showing imports and signatures:
+${summarisedFiles.map((f) => `--- ${f.path} ---\n${f.signatures}`).join("\n\n")}
+
+Check for CRITICAL missing pieces only:
+1. Classes/functions that are called but not defined (e.g., "model = SomeModel()" but SomeModel not in files)
+2. Important base classes that are inherited but not found
+3. Key imports from local files that aren't collected
+
+DO NOT search for:
+- External libraries (torch, numpy, etc.)
+- Config files (YAML, JSON)
+- Test files
+
+Only suggest searches if truly critical for understanding "${query}".
+`;
+};
+
 export const chatSystemPrompt = `
-You are an AI assistant specialized in helping developers understand and navigate their private GitHub repositories.
+You are an AI assistant specialised in helping developers understand and navigate their private GitHub repositories.
 
 CORE RESPONSIBILITIES:
-- Search and analyze code in repositories the user has explicitly authorized for this chat
+- Search and analyse code in repositories the user has explicitly authorised for this chat
 - Provide clear, actionable insights about code structure, dependencies, and flow
 - Help developers onboard to new codebases efficiently
 
-TOOL USAGE:
-- Use tools only when necessary to answer the user's question
-- When using visualiseCodeGraph, explain the code flow and relationships between components in plain language
-- Focus on helping users understand "how" and "why" rather than just "what"
-- Keep summaries concise and relevant to the user's query
+TOOL USAGE - CRITICAL GUIDELINES:
+DO NOT use tools for:
+- Follow-up questions about data already retrieved in the conversation
+- General programming questions, explanations, or advice
+- Clarifying or summarising information you already have
+- Simple conversational responses
+- Questions about code that was just visualised - refer to the existing graph instead
+
+ONLY use tools when:
+- The user explicitly asks for NEW information not in the conversation
+- getWeatherInformation: User asks about current weather in a city
+- getRepositories: User wants to see their list of GitHub repositories
+- visualiseCodeGraphIndexed: ALWAYS prefer this tool when the user asks about a repository that is in the indexed list. Check the tool description for the list of indexed repositories.
+- visualiseCodeGraph: Use ONLY for repositories that are NOT indexed.
+
+CRITICAL - CODE EXPLORATION TOOL SELECTION:
+When a user asks about code structure, CRUD operations, architecture, or any code-related question mentioning a repository:
+1. FIRST check if the repository is in the indexed list (available in visualiseCodeGraphIndexed tool description)
+2. If the repo IS indexed (e.g., "timooo-thy/university-guide") → MUST use visualiseCodeGraphIndexed
+3. If the repo is NOT indexed → use visualiseCodeGraph
+
+IMPORTANT: If you just generated a code graph, answer follow-up questions about that code using the data you already have. Do NOT regenerate the graph unless the user asks to explore something completely different.
+
+When using visualiseCodeGraph, explain the code flow and relationships between components in plain language.
 
 SECURITY:
 - Never expose access tokens, API keys, credentials, or authentication headers
@@ -147,11 +275,11 @@ COMMUNICATION STYLE:
 - Be concise and direct
 - Explain technical concepts clearly for onboarding purposes
 - Adapt your level of detail based on the user's questions
-- When showing code relationships, emphasize practical implications for development`;
+- When showing code relationships, emphasise practical implications for development`;
 
 export const queryCodeGraphUserPrompt = (
   userQuery: string,
-  repoStructure: string
+  repoStructure: string,
 ) =>
   `Generate the queries based on the user's query "${userQuery}", focusing on different aspects to explore the codebase effectively.
 Repository Structure:
@@ -164,7 +292,7 @@ export const planningUserPrompt = (userQuery: string, repoStructure: string) =>
 Repository Structure:
 ${repoStructure}
 
-Generate 3 targeted search tasks that will help answer the user's question comprehensively.
+Generate 2-4 targeted search tasks that will help answer the user's question. Use fewer tasks for simpler queries.
 `;
 
 export const codeGraphUserPrompt = (
@@ -175,28 +303,107 @@ export const codeGraphUserPrompt = (
     content: string;
   }[],
   query: string,
-  repo: string
-) =>
-  `Analyse these GitHub search results for query "${query}" in repository "${repo}".
+  repo: string,
+) => {
+  // Summarise each file to reduce token usage - extract key parts
+  const summarisedData = data.map((file) => {
+    const content = file.content;
+    const lines = content.split("\n");
 
-Search Results:
-${JSON.stringify(data, null, 2)}
+    // Extract imports (first 30 lines typically)
+    const importLines = lines
+      .slice(0, 30)
+      .filter(
+        (line) =>
+          /^(import |from |require\(|export )/.test(line.trim()) ||
+          /^(class |def |function |const |let |var |export (default )?(class|function|const))/.test(
+            line.trim(),
+          ),
+      );
 
-Generate a code graph that shows:
-1. Key code entities (files, functions, classes, components) related to "${query}"
-2. Their relationships (imports, calls, inheritance, dependencies)
-3. Code snippets that illustrate the most important parts
+    // Extract class/function definitions with their signatures
+    const definitionLines: string[] = [];
+    let inDefinition = false;
+    let braceCount = 0;
+    let defLineCount = 0;
 
-Focus on creating a clear, navigable graph that helps understand how "${query}" is implemented in the codebase.`;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmed = line.trim();
 
-export const visualiseCodeGraphPrompt = `Visualize the code structure and dependencies of a GitHub repository.
-Use this tool when users want to:
-- Understand code architecture and file organization
-- See how functions, classes, and components relate to each other
-- Map out imports, function calls, and inheritance chains
-- Explore dependencies between different parts of the codebase
+      // Detect class or function start
+      if (
+        /^(class |def |async def |function |async function |export (default )?(class|function|async function))/.test(
+          trimmed,
+        ) ||
+        /^(const |let |var )\w+\s*=\s*(async )?\(/.test(trimmed) ||
+        /^(const |let |var )\w+\s*=\s*(async )?function/.test(trimmed)
+      ) {
+        inDefinition = true;
+        defLineCount = 0;
+        braceCount =
+          (line.match(/[{(\[]/g) || []).length -
+          (line.match(/[})\]]/g) || []).length;
+      }
 
-The tool searches the repository using the user's query and generates an interactive graph showing:
+      if (inDefinition) {
+        definitionLines.push(line);
+        defLineCount++;
+        braceCount +=
+          (line.match(/[{(\[]/g) || []).length -
+          (line.match(/[})\]]/g) || []).length;
+
+        // Stop after signature + a few lines, or when block closes
+        if (defLineCount >= 15 || (defLineCount > 3 && braceCount <= 0)) {
+          definitionLines.push("    ...");
+          inDefinition = false;
+        }
+      }
+    }
+
+    // Combine and limit total size
+    const summary = [...new Set([...importLines, ...definitionLines])]
+      .join("\n")
+      .slice(0, 2000);
+
+    return {
+      path: file.path,
+      summary: summary || content.slice(0, 1500),
+    };
+  });
+
+  return `Analyse these code files for query "${query}" in repository "${repo}".
+
+IMPORTANT: Focus on finding RELATIONSHIPS between entities. A graph with isolated nodes is not useful.
+
+Code Files (${summarisedData.length} files - showing key parts):
+${summarisedData.map((f) => `\n=== ${f.path} ===\n${f.summary}`).join("\n")}
+
+Generate a CONNECTED code graph:
+1. Identify classes, functions, and components that RELATE to each other
+2. Find inheritance chains (class A extends B)
+3. Find function call chains (A calls B calls C)  
+4. Find import/usage patterns (A imports and uses B)
+5. Skip isolated config files or utilities with no connections
+
+Prioritise: Fewer well-connected nodes > Many isolated nodes`;
+};
+
+export const visualiseCodeGraphPrompt = `Visualise the code structure and dependencies of a GitHub repository.
+
+WHEN TO USE THIS TOOL:
+- User explicitly asks to "visualise", "graph", "map out", or "show the structure of" code
+- User wants to explore a NEW topic or area of the codebase not already visualised
+- User asks about code architecture, dependencies, or relationships for the first time in a conversation
+
+WHEN NOT TO USE THIS TOOL:
+- A code graph was ALREADY generated in this conversation - use that existing data to answer questions
+- User asks follow-up questions like "what does X do?" or "explain Y" about code already shown
+- User asks general questions about programming concepts
+- User just wants a simple text explanation without a visual graph
+- The question can be answered from the conversation context
+
+The tool searches the repository and generates an interactive graph showing:
 - Code entities (files, functions, classes, components)
 - Relationships (imports, function calls, inheritance, dependencies)
 

@@ -37,6 +37,7 @@
     "@shikijs/transformers": "^3.17.0",
     "@types/dagre": "^0.7.53",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "@upstash/vector": "^1.2.2",
     "@vercel/analytics": "^1.5.0",
     "ai": "^5.0.86",
     "better-auth": "^1.4.4",
@@ -46,7 +47,7 @@
     "dagre": "^0.8.5",
     "lucide-react": "^0.544.0",
     "marked": "^16.3.0",
-    "next": "^16.0.6",
+    "next": "16.0.10",
     "next-themes": "^0.4.6",
     "octokit": "^5.0.3",
     "react": "^19.2.0",
@@ -62,6 +63,7 @@
     "shiki": "^3.17.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
+    "tar": "^7.5.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -70,6 +72,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/tar": "^6.1.13",
     "eslint": "^9",
     "eslint-config-next": "15.5.0",
     "prisma": "^6.16.2",

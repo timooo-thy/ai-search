@@ -53,6 +53,7 @@ import {
 import { toast } from "sonner";
 import { GitHubPATHelp } from "./github-pat-help";
 import { validateGitHubPAT } from "@/actions/github-actions";
+import { RepositoryIndexing } from "./repository-indexing";
 import * as Sentry from "@sentry/nextjs";
 
 type SettingsState = {
@@ -84,9 +85,10 @@ type SettingsFormProps = {
     githubPAT: string | null;
   };
   validGithubPAT: boolean;
+  repositories?: { name: string; description: string | null; url: string }[];
 };
 
-export function SettingsForm({ user, validGithubPAT }: SettingsFormProps) {
+export function SettingsForm({ user, validGithubPAT, repositories = [] }: SettingsFormProps) {
   const [showPAT, setShowPAT] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -354,6 +356,11 @@ export function SettingsForm({ user, validGithubPAT }: SettingsFormProps) {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Repository Indexing - only show when GitHub PAT is connected */}
+            {settings.hasGithubPAT && (
+              <RepositoryIndexing repositories={repositories} />
+            )}
           </TabsContent>
 
           {/* Preferences Tab */}

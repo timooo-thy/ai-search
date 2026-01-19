@@ -3,7 +3,7 @@ import { MessagePartType, Prisma, Weather } from "../../generated/prisma";
 import type { ProviderMetadata } from "ai";
 
 export const mapUIMessagePartsToDBParts = (
-  messageParts: MyUIMessagePart[]
+  messageParts: MyUIMessagePart[],
 ): MyDBUIMessagePart[] => {
   return messageParts.map((part, index) => {
     const basePart: Omit<MyDBUIMessagePart, "type"> = {
@@ -133,6 +133,7 @@ export const mapUIMessagePartsToDBParts = (
           tool_errorText: part.state === "output-error" ? part.errorText : null,
         };
       case "tool-visualiseCodeGraph":
+      case "tool-visualiseCodeGraphIndexed":
         return {
           ...basePart,
           order: index,
@@ -185,7 +186,7 @@ export const mapUIMessagePartsToDBParts = (
 };
 
 export const mapDBPartToUIMessagePart = (
-  part: MyDBUIMessagePart
+  part: MyDBUIMessagePart,
 ): MyUIMessagePart => {
   const providerMetadata = part.providerMetadata
     ? (part.providerMetadata as ProviderMetadata)
@@ -283,7 +284,7 @@ export const mapDBPartToUIMessagePart = (
           };
         default:
           throw new Error(
-            `Unsupported getWeatherInformation state: ${part.tool_state}`
+            `Unsupported getWeatherInformation state: ${part.tool_state}`,
           );
       }
     case "tool_getRepositories":
@@ -339,7 +340,7 @@ export const mapDBPartToUIMessagePart = (
           };
         default:
           throw new Error(
-            `Unsupported getRepositories state: ${part.tool_state}`
+            `Unsupported getRepositories state: ${part.tool_state}`,
           );
       }
     case "tool_visualiseCodeGraph":
@@ -396,7 +397,7 @@ export const mapDBPartToUIMessagePart = (
           };
         default:
           throw new Error(
-            `Unsupported visualiseCodeGraph state: ${part.tool_state}`
+            `Unsupported visualiseCodeGraph state: ${part.tool_state}`,
           );
       }
     case "data_weather":

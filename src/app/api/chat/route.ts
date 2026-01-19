@@ -18,6 +18,7 @@ import { chatSystemPrompt } from "@/ai/prompts";
 import * as Sentry from "@sentry/nextjs";
 import { streamCachedMessage } from "@/lib/cache-stream-utils";
 import { redis } from "@/lib/redis";
+import { getIndexedRepositories } from "@/services/repo-indexer";
 
 /**
  * Handles POST requests for AI chat responses with caching and streaming.
@@ -49,10 +50,10 @@ export async function POST(req: Request) {
   try {
     // Create a unique cache key based on user ID, chat ID, and message content.
     const messageKey = message.parts.map((part) =>
-      part.type === "text" ? part.text.toLowerCase().trim() : ""
+      part.type === "text" ? part.text.toLowerCase().trim() : "",
     );
     const key = `user:${session.user.id}_chat:${id}_message:${messageKey.join(
-      ":"
+      ":",
     )}`;
 
     // Check the cache for a previously cached message
@@ -119,7 +120,7 @@ export async function POST(req: Request) {
                     name: "Save Chat Messages",
                     attributes: { chat_id: id, message_count: 2 },
                   },
-                  () => upsertMessages([message, responseMessage], id)
+                  () => upsertMessages([message, responseMessage], id),
                 );
               } catch (error) {
                 Sentry.captureException(error, {
@@ -130,7 +131,7 @@ export async function POST(req: Request) {
           });
 
           return createUIMessageStreamResponse({ stream });
-        }
+        },
       );
 
       return cachedResponse;
@@ -143,13 +144,13 @@ export async function POST(req: Request) {
         name: "Load Chat Messages",
         attributes: { chat_id: id },
       },
-      () => loadChat(id)
+      () => loadChat(id),
     );
 
     let messagesToValidate: MyUIMessage[];
 
     const existingMessageIndex = previousMessages.findIndex(
-      (msg) => msg.id === message.id
+      (msg) => msg.id === message.id,
     );
 
     if (existingMessageIndex !== -1) {
@@ -178,6 +179,12 @@ export async function POST(req: Request) {
       metadataSchema: metadataSchema,
     });
 
+    // Fetch indexed repositories to determine which code graph tool to use
+    const indexedRepos = await getIndexedRepositories(session.user.id);
+    const indexedRepoNames = indexedRepos
+      .filter((repo) => repo.status === "COMPLETED")
+      .map((repo) => repo.repoFullName);
+
     // Stream a new AI-generated response
     const stream = createUIMessageStream({
       execute: ({ writer }) => {
@@ -200,7 +207,7 @@ export async function POST(req: Request) {
           system: chatSystemPrompt,
           messages: convertToModelMessages(validatedMessages),
           stopWhen: stepCountIs(2),
-          tools: tools(writer),
+          tools: tools(writer, session.user.id, indexedRepoNames),
         });
 
         result.consumeStream();
@@ -223,7 +230,7 @@ export async function POST(req: Request) {
                 };
               }
             },
-          })
+          }),
         );
       },
       onError: (error) => {
@@ -261,8 +268,8 @@ export async function POST(req: Request) {
             () =>
               upsertMessages(
                 [...validatedMessages.slice(-1), responseMessage],
-                id
-              )
+                id,
+              ),
           );
 
           try {

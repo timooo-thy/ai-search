@@ -112,50 +112,48 @@ export function CodeGraph({ graph, className }: CodeGraphProps) {
 
   return (
     <Card className={cn("w-full h-[800px] py-0 overflow-hidden", className)}>
-      {loading ? (
-        <div className="flex flex-col items-center justify-center h-full text-muted-foreground px-6">
-          {todos && todos.length > 0 ? (
-            <div className="w-full max-w-2xl">
-              <AgentTodos todos={todos} />
-            </div>
-          ) : analysing ? (
-            <p className="text-lg">Visualising your code...</p>
-          ) : queries && queries.length > 0 ? (
-            <>
-              <p className="text-lg font-medium mb-6">Searching codebase...</p>
-              <div className="space-y-3 w-full max-w-2xl">
-                {queries.map((query, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg animate-pulse"
-                    style={{
-                      animationDelay: `${index * 150}ms`,
-                      animationDuration: "1.5s",
-                    }}
-                  >
-                    <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full animate-ping" />
-                    <span className="text-sm font-mono text-foreground/80">
-                      {query}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <p className="text-lg">Generating search queries...</p>
-          )}
-        </div>
-      ) : (
-        <CodeEditorPanel sources={graph.sources ?? []}>
-          <div className="flex flex-col h-full">
-            {/* Collapsible todos panel at the top */}
-            {todos && todos.length > 0 && (
-              <div className="p-3 border-b">
-                <AgentTodos todos={todos} defaultOpen={false} />
-              </div>
+      <div className="flex flex-col h-full">
+        {/* Todos panel always at the top when available */}
+        {todos && todos.length > 0 && (
+          <div className="p-3 border-b shrink-0">
+            <AgentTodos todos={todos} defaultOpen={loading} />
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex flex-col items-center justify-center flex-1 text-muted-foreground px-6">
+            {analysing ? (
+              <p className="text-lg">Visualising your code...</p>
+            ) : queries && queries.length > 0 ? (
+              <>
+                <p className="text-lg font-medium mb-6">
+                  Searching codebase...
+                </p>
+                <div className="space-y-3 w-full max-w-2xl">
+                  {queries.map((query, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg animate-pulse"
+                      style={{
+                        animationDelay: `${index * 150}ms`,
+                        animationDuration: "1.5s",
+                      }}
+                    >
+                      <div className="shrink-0 w-2 h-2 bg-primary rounded-full animate-ping" />
+                      <span className="text-sm font-mono text-foreground/80">
+                        {query}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="text-lg">Generating search queries...</p>
             )}
-            {/* Graph takes remaining space */}
-            <div className="flex-1 relative">
+          </div>
+        ) : (
+          <CodeEditorPanel sources={graph.sources ?? []}>
+            <div className="flex-1 relative h-full">
               <ReactFlow
                 nodes={reactFlowNodes}
                 edges={reactFlowEdges}
@@ -179,9 +177,9 @@ export function CodeGraph({ graph, className }: CodeGraphProps) {
                 <Controls />
               </ReactFlow>
             </div>
-          </div>
-        </CodeEditorPanel>
-      )}
+          </CodeEditorPanel>
+        )}
+      </div>
     </Card>
   );
 }
