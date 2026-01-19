@@ -255,7 +255,7 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
               ) : (
                 availableRepos.map((repo) => (
                   <SelectItem
-                    key={repo.name}
+                    key={repo.url.replace("https://github.com/", "")}
                     value={repo.url.replace("https://github.com/", "")}
                   >
                     <div className="flex items-center gap-2">
