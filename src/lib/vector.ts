@@ -56,14 +56,16 @@ export type CodeChunk = {
 
 /**
  * Generate a unique ID for a code chunk
+ * Includes userId to namespace chunks per user and prevent cross-user data access
  */
 export function generateChunkId(
+  userId: string,
   repoFullName: string,
   filePath: string,
   entityName: string,
   entityType: string,
 ): string {
-  return `${repoFullName}::${filePath}::${entityType}::${entityName}`.replace(
+  return `${userId}::${repoFullName}::${filePath}::${entityType}::${entityName}`.replace(
     /[^a-zA-Z0-9:_\-./]/g,
     "_",
   );
@@ -135,7 +137,8 @@ export async function deleteRepoChunks(
 
   // Otherwise, we need to query to get IDs
   // Use range query with prefix if possible
-  const prefix = `${repoFullName}::`;
+  // Prefix includes userId to ensure we only delete this user's chunks
+  const prefix = `${userId}::${repoFullName}::`;
   try {
     // Try using range with prefix - paginate to avoid read limits
     let cursor = 0;

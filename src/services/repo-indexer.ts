@@ -990,6 +990,7 @@ export async function indexRepository(
 
           allChunks.push({
             id: generateChunkId(
+              userId,
               repoFullName,
               filePath,
               entity.name,
