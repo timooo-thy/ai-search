@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import {
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
     Sentry.captureException(error);
     return NextResponse.json(
       { error: "Failed to get indexing status" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -65,27 +66,34 @@ export async function POST(request: NextRequest) {
     if (!repoFullName || !repoFullName.includes("/")) {
       return NextResponse.json(
         { error: "Invalid repository name. Use format: owner/repo" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Check if already indexing
     const existing = await getIndexingStatus(repoFullName, session.user.id);
-    if (existing?.status === "CLONING" || existing?.status === "PARSING" || existing?.status === "INDEXING") {
+    if (
+      existing?.status === "CLONING" ||
+      existing?.status === "PARSING" ||
+      existing?.status === "INDEXING"
+    ) {
       return NextResponse.json(
         { error: "Repository is already being indexed", status: existing },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
-    // Start indexing in background
-    // Note: On Vercel, this will run until the function times out (5 min)
-    // For very large repos, consider using a queue service
-    indexRepository(repoFullName, session.user.id).catch((error) => {
-      Sentry.captureException(error, {
-        tags: { context: "background_indexing" },
-        extra: { repoFullName, userId: session.user.id },
-      });
+    // Start indexing in background using after()
+    // This keeps the function alive after response is sent (Vercel supported)
+    after(async () => {
+      try {
+        await indexRepository(repoFullName, session.user.id);
+      } catch (error) {
+        Sentry.captureException(error, {
+          tags: { context: "background_indexing" },
+          extra: { repoFullName, userId: session.user.id },
+        });
+      }
     });
 
     // Return immediately with status
@@ -98,7 +106,7 @@ export async function POST(request: NextRequest) {
     Sentry.captureException(error);
     return NextResponse.json(
       { error: "Failed to start indexing" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -121,7 +129,7 @@ export async function DELETE(request: NextRequest) {
     if (!repoFullName) {
       return NextResponse.json(
         { error: "Repository name is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -132,7 +140,7 @@ export async function DELETE(request: NextRequest) {
     Sentry.captureException(error);
     return NextResponse.json(
       { error: "Failed to delete repository" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
