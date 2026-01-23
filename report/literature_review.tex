@@ -1,0 +1,95 @@
+\chapter{Literature Review}
+
+Understanding unfamiliar and large codebases poses significant challenges for software developers, especially those new to a project or organisation. Different organisations have various ways to onboard new developers, yet these approaches to codebase exploration remain inefficient. As AI adoption increases, the problem of accurate code comprehension becomes paramount. Often, AI-assisted tools hallucinate information that is not grounded in actual source code. Furthermore, large codebases makes it harder for AI to comprehend due its limited context window.
+
+This literature review examines five interrelated research domains critical to the proposed AI Search Tool - CodeOrient:
+
+\begin{enumerate}
+    \item Software Complexity Metrics and Code Quality Measurements
+    \item Semantic Code Search and Natural Language Query Processing
+    \item AI Hallucination and Grounded Code Comprehension
+    \item Code Visualisation and Dependency Analysis
+    \item Generative User Interfaces
+\end{enumerate}
+The combination of these areas provides the theoretical foundation for building an AI application that reduces developer onboarding time while maintaining citation accuracy and reliability. 
+
+\section{Software Complexity Metrics and Code Quality Measurements}
+
+\subsection{Cyclomatic Complexity as Foundation}
+Thomas J.McCabe introduced cyclomatic complexity, a quantitative measure of program complexity based on control graph flow analysis \cite{mccabe1976}. His work established that cyclomatic complexity directly correlates with code maintainability and testing.  The formula $M=E-N+2P$ where $E$ represents edges, $N$ represents nodes, and $P$ represents the number of connected components in a control flow graph, represents the complexity as the number of linearly independent paths through a program’s source code. As shown in Fig.1, a simple control flow graph of a function below yields a complexity of 2, where $P=1$.
+
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=3in]{fig/fig1.png}
+    \caption{\textit{Control flow graph of a simple if-else statement.}}
+    \label{fig:control_flow_graph}
+    }
+\end{figure}
+
+McCabe's complexity measure allows developers to identify highly complex functions and recognise problematic code sections that require refactoring. When implementing the code graph visualisation feature in a code search application, cyclomatic complexity serves as one signal among many to highlight high-risk or critical code sections. 
+
+\subsection{Modern Complexity in Distributed Systems}
+Kafura's recent reflection on McCabe's work in 2025 acknowledges that cyclomatic complexity has proven durable for the last 50 years. However, modern software architectures such as distributed systems and microservices, require additional metrics beyond control flow analysis \cite{kafura2025}. This observation directly motivates the integration of code graph visualisation in modern development tools, as visual representation of information flow across procedures becomes just as important as understanding control flow within individual functions.
+
+\section{Code Search and Natural Language Query Processing}
+
+\subsection{Semantic Code Search Through Embeddings}
+With the recent advancements in neural networks and embedding models, the field of semantic code search has evolved significantly from traditional keyword-based search. Cambronero et al. demonstrated that the use of neural embeddings could bridge the semantic gap between natural language queries and code snippets \cite{cambronero2019}. By transforming both code and queries into a shared vector space, code snippets relevant to the query can be retrieved by calculating the cosine similarity between their embedding vectors, given by the formula:
+\[
+\text{cosine\_similarity}(\vec{a}, \vec{b}) = \frac{\vec{a} \cdot \vec{b}}{\|\vec{a}\| \|\vec{b}\|}
+\]
+where $\vec{a}$ and $\vec{b}$ are the embedding vectors of the query and code snippet, respectively.
+
+In the figure below, developers can express their intent through natural language, which is then mapped into the same embedding space as code snippets. This technique supplements existing search such as fuzzy search or keyword-based approaches that often miss semantically relevant results. This motivates the use of natural language search in modern code repositionaries like GitHub.
+
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=5.5in]{fig/fig2.png}
+    \caption{\textit{Semantic code search in a shared embedding space for retrieval \cite{cambronero2019}.}}
+    \label{fig:semantic_code_search}
+    }
+\end{figure}
+
+\subsection{Structural Code Search with Domain-Specific Languages}
+Recent research by Limpanukorn et al. (2025) introduces structural code search by translating natural language queries in Doman-Specific Language (DSL) queries for more precise code retrieval \cite{limpanukorn2025}. This approach leverages the architectural information embedded in a codebase rather than just its textual meaning. This method achieved a precision score of 55-70\% and outperformed semantic search baselines by up to 57\% on F1 scores \cite{limpanukorn2025}.
+
+This research presents a critical missing link in developer tools, such as tracing an "authentication flow", where the relationships between modules are more informative than the functions' names themselves. The findings provide a strong validation for the code graph visualisation tool, providing syntactic and architectural information for developers to understand complex problem spaces.
+
+\subsection{Code Embedding Models for Retrieval}
+In 2025, Qodo introduced specialised code embedding models (Qodo Embed-1) that achieved state-of-the-art performance in Codebase Understanding Gartner{\textregistered} 2025, with a product score of 3.72/5. Their approach directly encodes code semantics without an intermediate language description step \cite{tai2025}. By avoiding the overhead of the intermediate step, Qodo Embed-1 has proved to be computationally efficient while maintaining high retrieval accuracy.
+
+\section{AI Hallucination and Grounded Code Comprehension}
+
+\subsection{The Hallucination Problem in Code-Generating LLMs}
+With the rise in AI-assisted code generation tools such as GitHub Copilot and ChatGPT, the problem of hallucination becomes increasingly critical. Hallucination in refers to the generation of information that appears plausible but is factually incorrect or fabricated. Spracklen et al.'s (2025) research revealed that package hallucinations are a systemic issue across state-of-the-art code-generating models \cite{spracklen2025}. They analysed over 576,000 generated code samples across 16 Large Language Models (LLMs) and found that the LLMs consistently hallucinate package names. More critically, they regenerate the same false package name across 43\% of repeated prompts \cite{spracklen2025}.
+
+This poses a critical issue in agentic workflow as the hallucination is exploitable via "slopsquatting", creating risks in the software supply chain \cite{spracklen2025}. The figure below showcases how an attacker can exploit hallucinations from LLMs. This research highlights the urgent need for citation-grounded code comprehension systems that can verify all claims against actual source code.
+
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=2.5in]{fig/fig3.png}
+    \caption{\textit{Exploiting LLM hallucinations through slopsquatting.}}
+    \label{fig:hallucination_exploit}
+    }
+\end{figure}
+
+\subsection{Citation-Grounded Code Comprehension}
+Arafat et al.'s recent work on citation-grounded code comprehension directly addresses the hallucination problem \cite{arafat2025}. They conclude that code comprehension systems must ground all claims in verifiable source code citations. Their proposed hybrid retrieval system with Neo4j graph database to provide import relationships, achieved a 92\% citation accuracy with zero hallucinations. Moreover, the graph component discovered richer cross-file relationships that purely text-based retrieval missed, 62\% of architectural queries \cite{arafat2025}.
+
+\subsection{Retrieval-Augmented Generation}
+The broader principle emerging from hallucination research is Retrieval-Augmented Generation (RAG). As it is not possible to train new information into LLMs at scale, RAG provides a mechanism to ground LLM outputs with real-time data via a retriever \cite{ayala2024}. The use of a retriever reduced hallucination rates across all categories from a baseline high of 21\% to below 7.5\% \cite{ayala2024}. In the context of code comprehension, RAG refers to a retriever that fetches relevant code snippets, which are then passed to an LLM as context to generate grounded explanations with source citations.
+
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=5in]{fig/fig4.png}
+    \caption{\textit{Retrieval-Augmented Generation to reduce hallucinations \cite{arafat2025}.}}
+    \label{fig:rag_model}
+    }
+\end{figure}
+
+\section{Code Visualisation and Dependency Analysis}
+
