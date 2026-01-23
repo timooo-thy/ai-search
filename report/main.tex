@@ -1,0 +1,141 @@
+% The FYP template is designed according to NTU SCSE FYP guidelines on https://www3.ntu.edu.sg/scse/fyp/UsefulInfo/Report%20Guide.pdf.
+
+% Credit
+% Original version by Vincent Ribli
+% https://www.overleaf.com/latex/templates/ntu-scse-fyp-template/kwdtcbqmjctk
+
+% Revised by Prof Loy Chen Change
+% 23 Aug 2024 - Replace SCSE with CCDS
+
+\documentclass[pdftex, 12pt, a4paper]{report}
+\usepackage{newtxtext, newtxmath}
+\usepackage[top=3cm, bottom=3cm, left=3.5cm, right=3cm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage[pdftex]{graphicx}
+\usepackage{booktabs}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{parskip}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage[sorting=none]{biblatex}
+\usepackage{float}
+
+\addbibresource{bib.bib}
+\setstretch{1.5}
+\setlength{\cftfigindent}{0pt}
+\setlength{\cfttabindent}{0pt}
+\renewcommand{\cftdotsep}{1}
+
+% change the following
+\title{\uppercase{Next-Gen Generative Search Engine for Code Base}}
+\newcommand\fypcode{SC4079}
+\author{Timothy Lee Hongyi}
+\date{2026}
+\newcommand\degree{Bachelor of Computing in Data Science and Artificial Intelligence}
+
+\begin{document}
+\input{cover.tex}
+\input{title.tex}
+
+\setcounter{page}{1}
+\pagenumbering{roman}
+
+\input{abstract.tex}
+\input{acknowledgements.tex}
+
+\pagebreak
+\addcontentsline{toc}{chapter}{Contents}
+\tableofcontents
+
+\pagebreak
+\addcontentsline{toc}{chapter}{List of Tables}
+\listoftables
+
+\pagebreak
+\addcontentsline{toc}{chapter}{List of Figures}
+\listoffigures
+
+\cleardoublepage
+\pagenumbering{arabic}
+
+% ============================================================================
+% INTRODUCTION
+% ============================================================================
+\input{introduction}
+% ============================================================================
+% LITERATURE REVIEW
+% ============================================================================
+\input{literature_review}
+% ============================================================================
+% SYSTEM DESIGN AND ARCHITECTURE
+% ============================================================================
+\input{architecture}
+% ============================================================================
+% IMPLEMENTATION DETAILS
+% ============================================================================
+\input{implementation}
+% ============================================================================
+% Evaluation Methodology
+% ============================================================================
+\input{evaluation}
+% ============================================================================
+% RESULTS AND ANALYSIS
+% ============================================================================
+\input{results}
+% ============================================================================
+% DISCUSSION
+% ============================================================================
+\input{discussion}
+% ============================================================================
+% CONCLUSION
+% ============================================================================
+\input{conclusion}
+% ============================================================================
+% BACK MATTER
+% ============================================================================
+
+\pagebreak
+\appendix
+
+\chapter{User Study Materials}
+\section{Participant Consent Form}
+\section{Study Instructions}
+\section{Task Descriptions}
+\section{Survey Questionnaire}
+\section{Interview Questions}
+
+\chapter{Detailed Results Tables}
+\section{Quantitative Results Tables}
+\section{User Feedback Summary}
+\section{Performance Metrics by Repository}
+
+\chapter{Code Snippets and Implementation Details}
+\section{Key Algorithm Implementations}
+\section{API Endpoint Specifications}
+\section{Database Schema SQL}
+\section{Frontend Component Code}
+\section{RAG Pipeline Code}
+
+\chapter{System Architecture Diagrams}
+\section{High-Level System Architecture}
+\section{Data Flow Diagrams}
+\section{Component Interaction Diagram}
+\section{Deployment Architecture}
+
+\chapter{Additional Evaluation Data}
+\section{Raw User Study Data}
+\section{Search Performance Analysis}
+\section{Citation Accuracy Detailed Results}
+\section{Latency Distributions}
+
+\chapter{Related Work Comparison Table}
+\section{Feature Comparison Matrix}
+\section{Performance Comparison}
+
+% ============================================================================
+
+\printbibliography
+
+\end{document}
