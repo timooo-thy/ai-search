@@ -93,3 +93,41 @@ The broader principle emerging from hallucination research is Retrieval-Augmente
 
 \section{Code Visualisation and Dependency Analysis}
 
+\subsection{Static Analysis and Dependency Graphs}
+To understand the real structure of a codebase, dependency graphs are essential. Using entities as nodes and relationships as edges, code graphs provide a visual representation of how different components interact with each another \cite{jit2025}. Without this visualisation, it is inherently difficult for developers to grasp the complex relationships, preent in modern software architectures like microservices. In particular for CodeOrient, visualising dependencies helps developers trace data flows and control flows across modules which helps them understand unfamiliar codebases faster.
+
+\subsection{Interactive Visualisation Tools}
+React Flow is a popular open source library for building interactive node-based User Interfaces (UIs) in React applications \cite{jovanov2025}. This interactivity is crucial for developers to understand the linkage between nodes and edges and how they interact. Rather than traditional static diagrams, developers can explore relationships dynamically by hovering over nodes and its related code snippets.
+
+\section{Generative User Interface (UI)}
+
+\subsection{Generative UI as a Paradigm}
+Google's recent research on Generative UI introduces a paradigm shift in interface design \cite{leviathan2025}. Traditionally, LLMs can only generate text-based outputs, but Generative UI extends this capability by generating dynamic user interfaces at runtime based on user prompts. This strengthens the capability of LLMs by giving them the tools to generate dynamic code graphs for visualisation, with their structure and content optimised for each specific query.
+
+\subsection{Task-Driven Data Models for Adaptive Interfaces}
+Recent research by Cao et al. showcase the use of task-driven data models as the foundation for Generative UI \cite{cao2025}. By allowing LLMs to generate a data model representing the core task, then mapping it to UI specifications, the resulting interfaces were more adaptive and aligned with user intent, compared to direct UI code generation. This also ensures that the generated UI is grounded in actual data structures rather than arbitrary code snippets.
+
+\section{Related Systems and Tools}
+Based on current semantic search tools like RAG \cite{ayala2024} and interactive graph visualisation tools \cite{jovanov2025}, there is a clear gap in integrating these capabilities into a unified developer onboarding experience. This addresses the onboarding challenges faced by developers when exploring unfamiliar codebases. The integration of LLMs, semantic search, code graph visualisation, and generative UI into a single application allows developers to search for relevant code snippets, understand their relationships via dynamically generated graphs, while ensuring trust through citation grounding \cite{arafat2025}.
+
+\section{Research Gaps and Motivation}
+
+While the individual domains of semantic search, graph analysis, and Generative UI have matured significantly, their integration into a developer tool reveals two critical research gaps that CodeOrient aims to address:
+
+\subsection{Bridging Semantic and Structural Code Search}
+Current tools typically favour either semantic search (finding code that looks right) or structural analysis (finding code that is connected). As noted by Limpanukorn et al. (2025), structural search outperforms semantic baselines, yet most AI tools like GitHub Copilot still rely primarily on text-based RAG. There is a lack of research into how Generative UI can bridge this gap by dynamically synthesising a visual graph that represents both the user's natural language intent and the codebase's physical architecture.
+
+\subsection{The "Black Box" of Generative UI in Software Engineering}
+Research by Leviathan et al. \cite{leviathan2025} and Cao et al. \cite{cao2025} establish the framework for task-driven UIs. However, these studies focus on general tasks such as education or shopping as shown below. In the high-stakes domain of software engineering, it is unknown how a constantly changing, generative interface affects a developer's productivity. CodeOrient provides an experimental platform to observe whether generative graphs reduce cognitive load during onboarding or if the lack of visual consistency hinders comprehension.
+
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=5.5in]{fig/fig5.jpeg}
+    \caption{\textit{Generative UI for a Room Rug Visualiser \cite{leviathan2025}.}}
+    \label{fig:generative_ui}
+    }
+\end{figure}
+
+\section{Conclusion}
+Improving developer onboarding requires addressing code comprehension at multiple levels. Recent research in cyclomatic complexity \cite{mccabe1976}, semantic code search \cite{cambronero2019}, citation-grounded AI \cite{arafat2025}, and Generative UI \cite{cao2025} provides a comprehensive foundation. By integrating these approaches together, CodeOrient has the potential to accelerate developer onboarding while being reliabile and accurate.
