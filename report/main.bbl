@@ -67,8 +67,8 @@
       \strng{authornamehash}{9d390526f755d74dc0232c0a116cdc5d}
       \strng{authorfullhash}{9d390526f755d74dc0232c0a116cdc5d}
       \strng{authorfullhashraw}{9d390526f755d74dc0232c0a116cdc5d}
-      \field{sortinit}{5}
-      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{IEEE Transactions on Software Engineering}
@@ -119,8 +119,8 @@
       \strng{authornamehash}{a26868c240db164a9298372b7d74701c}
       \strng{authorfullhash}{31eed9593801b2a2bc6ab78fe48dd216}
       \strng{authorfullhashraw}{31eed9593801b2a2bc6ab78fe48dd216}
-      \field{sortinit}{6}
-      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{eprinttype}{arXiv}
@@ -189,8 +189,8 @@
       \strng{authornamehash}{cd1343e7a52416a781fb47d849f8774c}
       \strng{authorfullhash}{6db8c42eb2b70649a0fd7f7ac6d4b271}
       \strng{authorfullhashraw}{6db8c42eb2b70649a0fd7f7ac6d4b271}
-      \field{sortinit}{8}
-      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{eprintclass}{cs.SE}
@@ -386,8 +386,8 @@
       \strng{authornamehash}{a7e69db16e156d79a47a4b40df4d194c}
       \strng{authorfullhash}{a7e69db16e156d79a47a4b40df4d194c}
       \strng{authorfullhashraw}{a7e69db16e156d79a47a4b40df4d194c}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{title}{How to Use a Dependency Graph to Analyze Dependencies}
