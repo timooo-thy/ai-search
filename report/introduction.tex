@@ -4,41 +4,38 @@ Software Engineering is undergoing a fundamental shift with the rise in Large La
 The rapid advancement of AI-assisted coding tools, such as GitHub Copilot and Cursor, has prioritised code generation over code comprehension. However, for a developer joining a new organisation, the primary hurdle is not writing new code, but understanding the existing codebases tied within complex architectures. Current onboarding processes face three critical issues:
 
 \begin{enumerate}
-    \item {The Hallucination Problem:} LLMs often generate plausible-sounding but incorrect explanations of code structure, leading to confusion and mistrust.
-    \item {The Context Window Constraint:} Large codebases exceed the input limits of LLMs, resulting in fragmented or incomplete answers.
-    \item {Cognitive Overload in Navigation:} Static documentation fails to capture the dynamic relationships within code, forcing developers to mentally map text-based
+    \item \textbf{The Hallucination Problem:} LLMs often generate plausible-sounding but incorrect explanations of code structure, leading to confusion and mistrust.
+    \item \textbf{The Context Window Constraint:} Large codebases exceed the input limits of LLMs, resulting in fragmented or incomplete answers.
+    \item \textbf{Cognitive Overload in Navigation:} Static documentation fails to capture the dynamic relationships within code, forcing developers to mentally map text-based
 \end{enumerate}
 
 \section{Research Objectives and Goals}
 The primary goal of this research is to create a citation-grounded, visually adaptive system that reduces the time required for a new developer to familiarise with the codebases. The specific objectives are:
 
 \begin{enumerate}
-    \item Develop a Retrieval-Augmented Generation (RAG) Framework: Moving beyond keyword/fuzzy search to a hybrid system that queries semantic embeddings to capture user intent.
-    \item Implement a Generative UI for Code Visualisation: Leveraging libraries like React Flow to dynamically render interactive graphs that adapt to the user's specific natural language intent.
-    \item Minimise AI Hallucinations through Citation Grounding: Ensuring every architectural claim made by the LLM is backed by code snippets or graph nodes from the actual repository.
-    \item Evaluate the Impact of Visual Context on Onboarding: To explore how dynamic graph visualisations affect developer comprehension and cognitive load compared to traditional text-based documentation.
+    \item \textbf{Develop a Retrieval-Augmented Generation (RAG) Framework:} Moving beyond keyword/fuzzy search to a hybrid system that queries semantic embeddings to capture user intent.
+    \item \textbf{Implement a Generative UI for Code Visualisation:} Leveraging libraries like React Flow to dynamically render interactive graphs that adapt to the user's specific natural language intent.
+    \item \textbf{Minimise AI Hallucinations through Citation Grounding:} Ensuring every architectural claim made by the LLM is backed by code snippets or graph nodes from the actual repository.
+    \item \textbf{Evaluate the Impact of Visual Context on Onboarding:} To explore how dynamic graph visualisations affect developer comprehension and cognitive load compared to traditional text-based documentation.
 \end{enumerate}
 
 \section{Key Contributions}
 CodeOrient introduces several innovations that distinguish it from conventional AI coding assistants:
 
 \begin{itemize}
-    \item {Dynamic Graph Synthesis:} Instead of text-based answers, Generative UI is used to create custom visualisations for each query. If a developer asks about "authentication flow," the UI creates a graph focused strictly on those related modules, rather than a cluttered, static diagram.
-    \item {Citation-Grounded RAG Pipeline:} By integrating citation mechanisms into the RAG framework, CodeOrient ensures that all LLM outputs are verifiable against actual code segments, significantly reducing misinformation.
-    \item {Agentic LLM Integration:} CodeOrient utilises agentic LLMs capable of autonomously deciding when to query the vector database, generate visualisations, or seek clarifications. This autonomy allows for a more fluid interaction between the developer and the system.
+    \item \textbf{Dynamic Graph Synthesis:} Instead of text-based answers, Generative UI is used to create custom visualisations for each query. If a developer asks about "authentication flow," the UI creates a graph focused strictly on those related modules, rather than a cluttered, static diagram.
+    \item \textbf{Citation-Grounded RAG Pipeline:} By integrating citation mechanisms into the RAG framework, CodeOrient ensures that all LLM outputs are verifiable against actual code segments, significantly reducing misinformation.
+    \item \textbf{Agentic LLM Integration:} CodeOrient utilises agentic LLMs capable of autonomously deciding when to query the vector database, generate visualisations, or seek clarifications. This autonomy allows for a more fluid interaction between the developer and the system.
 \end{itemize}
 
 \section{Report Structure}
 This report is organised to guide the reader through the theoretical foundations and technical implementation of CodeOrient:
 
-Chapter 2: Literature Review explores the intersection of software complexity metrics, semantic code search, and the emerging technologies of Generative UI.
-
-Chapter 3: System Design and Architecture details the technical stack, including the integration of Agentic LLMs with vector databases and React Flow-based frontend.
-
-Chapter 4: Implementation Details discusses the challenges of grounding AI outputs in the source code and the development of the RAG pipeline.
-
-Chapter 5 \& 6: Evaluation and Results will analyse the tool’s effectiveness in reducing cognitive load and improving search precision.
-
-Chapter 7: Discussion discusses the implications of the findings, limitations of the current approach, and potential avenues for future research.
-
-Chapter 8: Conclusion summarises the contributions of this research and reflects on the broader impact of AI-driven developer onboarding tools.
+\begin{itemize}
+    \item \textbf{Chapter 2:} Literature Review explores the intersection of software complexity metrics, semantic code search, and the emerging technologies of Generative UI.
+    \item \textbf{Chapter 3:} System Design and Architecture details the technical stack, including the integration of Agentic LLMs with vector databases and React Flow-based frontend.
+    \item \textbf{Chapter 4:} Implementation Details discusses the challenges of grounding AI outputs in the source code and the development of the RAG pipeline.
+    \item \textbf{Chapter 5 \& 6:} Evaluation and Results will analyse the tool’s effectiveness in reducing cognitive load and improving search precision.
+    \item \textbf{Chapter 7:} Discussion discusses the implications of the findings, limitations of the current approach, and potential avenues for future research.
+    \item \textbf{Chapter 8:} Conclusion summarises the contributions of this research and reflects on the broader impact of AI-driven developer onboarding tools.
+\end{itemize}

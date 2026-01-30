@@ -6,14 +6,5 @@
 \contentsline {figure}{\numberline {2.4}{\ignorespaces \textit {Retrieval-Augmented Generation to reduce hallucinations \blx@tocontentsinit {0}\cite {arafat2025}.}}}{9}{figure.2.4}%
 \contentsline {figure}{\numberline {2.5}{\ignorespaces \textit {Generative UI for a Room Rug Visualiser \blx@tocontentsinit {0}\cite {leviathan2025}.}}}{12}{figure.2.5}%
 \addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces \textit {Data Flow Architecture of CodeOrient}}}{14}{figure.3.1}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces \textit {CodeOrient Chat Page Layout}}}{18}{figure.3.2}%
