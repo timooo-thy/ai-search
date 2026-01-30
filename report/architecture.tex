@@ -1,46 +1,222 @@
 \chapter{System Design and Architecture}
 
 \section{System Overview}
+This section provides a high-level overview of CodeOrient's system architecture on how it transforms a user's query into a citation-backed technical response with relevant code snippets and visualisations. 
 \subsection{Core Components}
+The main components of CodeOrient include:
+\begin{itemize}
+    \item \textbf{User Interface:} Built with Next.js and React Flow. It provides an end to end experience to input queries, visualise code dependencies, and view generated responses.
+    \item \textbf{LLM Integration:} Utilises Vercel AI SDK and OpenAI for natural language processing, autonomous tool calling, and response generation.
+    \item \textbf{Code Discovery Engine:} Leverages GitHub Search API to find relevant code snippets and index them for semantic retrieval.
+    \item \textbf{Storage Solutions:} PostgreSQL for structured data, Upstash Redis for caching and Upstash Vector for embedding storage.
+\end{itemize}
+
 \subsection{Data Flow Architecture}
-\subsection{Microservices Structure}
+CodeOrient handles user interaction througha multi-stage pipeline that is optimised for speed and quality of responses. The lifecycle is split into two phases: \textit{Code Indexing Cycle} and \textit{Query-Response Cycle}.
+
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=6in]{fig/fig6.png}
+    \caption{\textit{Data Flow Architecture of CodeOrient}}
+    \label{fig:data_flow_architecture}
+    }
+\end{figure}
+
+\subsection{Code Indexing Cycle}
+This phase is responsible for ingesting code repositories via GitHub API. This is a prerequisite step which parses the source code files, chunks them, generates semantic embeddings, before storing them into a vector database for efficient retrieval.
+
+\subsection{Query-Response Cycle}
+When a user asks a question, the system goes through the following steps:
+\begin{enumerate}
+    \item \textbf{Input with Persistence} The user submits query via the frontend built with Next.js. The message is saved to PostgereSQL for chat history persistence.
+    \item \textbf{Cache Layer} The backend will first check Upstash Redis for an identical query in the same session:
+    \begin{itemize}
+        \item \textbf{Cache Hit:} If a cached response exists, the stored JSON response is retrieved and streamed back to the UI, which cuts down latency over 90\%.
+        \item \textbf{Cache Miss:} If no cached response is found, the system initiates the Retrieval-Augmented Generation (RAG) pipeline.
+    \end{itemize}
+    All user-system interactions are persisted in a relational database, while the Redis layer acts as a high-speed "buffer" for repeated technical queries, significantly reducing LLM token costs and latency.
+    \item \textbf{Autonomous RAG Pipeline} This pipeline serves as the core reasoning engine:
+    \begin{itemize}
+        \item \textbf{Query Understanding \& Planning:} The LLM first understands and rephrases the user's natural language query. This step is crucial to fix potential errors such as typos, ambiguous terms, or lack of context. Next, the LLM generates a plan to decompose the query into sub-tasks, generating up to 3 sub-queries for retrieval.
+        \item \textbf{Semantic Retrieval:} Each sub-query is converted into embeddings and the system retrieves the top-K relevant code chunks from the vector database.
+        \item \textbf{LLM Evaluation Loop:} The LLM evaluates the retrieved content. If the context is deemed insufficient, it automonously triggers further searches in a loop until it gathers sufficient context to confidently answer the original query.
+    \end{itemize}
+    \item \textbf{Citation-Grounded Response:} Once sufficient context is gathered, the LLM generates a structured JSON object that contains the required nodes, edges, code snippets (citations) and explanation required for visualisation and response generation.
+    \item \textbf{Message Persistence \& Caching:} The final result is stored in PostgreSQL for chat history and also cached in Upstash Redis for future identical queries. Simultaneously, the response is streamed via Server-Sent-Events (SSE) back to the frontend for real-time rendering.
+    \item \textbf{Interactive Rendering:} Next.js parses the streamed JSON response to render as a Generative UI card that contains an interactive graph visualisation built with React Flow, along with citation-backed explanations and code snippets.
+\end{enumerate}
+\subsection{Serverless Service Architecture}
+CodeOrient utilises Next.js API Route Handlers to create a modular, serverless backend. This separates logical concerns whle maintaining the codebase as a monorepo for quicker development cycles. Additionally, when it is deployed in a serverless environment (Vercel), each Route Handler (e.g., \texttt{/api/search} vs \texttt{/api/index}) scales independently based on traffic.
+Even as a monorepo, the backend logic is divided into specialised services that operate independently:
+\begin{itemize}
+    \item \textbf{Ingestion Service:} Handles the ingesting of code repositories from GitHub API asynchronously through background jobs, allowing the frontend to remain responsive.
+    \item \textbf{Vector Orchestration Service:} Manages the communication with the vector database which handles embedding generation and semantic search.
+    \item \textbf{RAG Agent:} Specialised agent that has access to various tools such as Code Search, Graph Generation, etc. It maintains the state of the search by deciding if the retrieved content is sufficient to answer the query or if more code snippets are required.
+    \item \textbf{Code Search Service:} Interfaces with GitHub Search API to discover relevant code snippets based on user queries.
+    \item \textbf{Persistence \& Cache Service:} Prisma, a dedicated Object Relational Mapping (ORM) service is used to interact with PostgreSQL for persistence chat history and Redis client to interact with Upstash Redis for caching frequent queries.
+\end{itemize}
+
 
 \section{Frontend Architecture}
 \subsection{Technology Stack}
+\begin{itemize}
+    \item \textbf{Framework:} The framework of choice is Next.js App Router with Typescript. This framework allows to mix Server Components (RSC) and Client Components seamlessly, optimising for performance and developer experience.
+    \begin{itemize}
+        \item \textbf{Server Components:} Used for static content that does not require interactivity, such as the landing page and documentation pages. This reduces the amount of JavaScript sent to the client, improving load times.
+        \item \textbf{Client Components:} Used for interactive elements such as the chat interface and graph visualisation. These components can leverage React hooks and state management libraries. To create a Client Component in Next.js, the file must include the directive \texttt{"use client"} at the top.
+    \end{itemize}
+    \item \textbf{Styling:} Tailwind CSS \& Shadcn UI are used for the application's design system, providing a consistent and responsive user interface.
+\end{itemize}
+
 \subsection{User Interface Design}
-\subsection{Interactive Graph Visualization with React Flow}
+This section discusses the key design principles and layout of the chat page of CodeOrient application. The page features a split-pane design that prioritise the chat interface with the AI assistant and the source code.
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=6in]{fig/fig7.png}
+    \caption{\textit{CodeOrient Chat Page Layout}}
+    \label{fig:chat_page_layout}
+    }
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Persistent Sidebar:} Contains a collapsible left sidebar that manages user context, providing quick access to their conversation history in chronological order. It also includes a user profile section at the bottom for account settings and logout.
+    \item \textbf{Navigation Bar:} The top navigation bar includes sharing options, bookmarking and toggling of light/dark mode for user convenience.
+    \item \textbf{Main Chat Area:} The central area occupies the main viewport, where the AI assistant interacts with the user via Generative UI or text-based responses.
+    \item \textbf{Responsive Design:} The layout adapts to different screen sizes, ensuring usability across laptops, tablets, and mobile devices.
+\end{itemize}    
+
+\subsection{Interactive Graph Visualisation with React Flow}
+Static architecture diagrams often disconnect users from the actual source code. This makes it hard to navigate and update dynamically as a user explores various parts of the repository. To combat this pain point, CodeOrient integrates React Flow to create a dynamic canvas that visualises a subset of the code repository. Hence, this allows for a real-time and interactive exploration of the codebase.
+
+\begin{enumerate}
+    \item \textbf{Nodes as Entities:} High-level code entities such as files, functions, classes, and components are represented by individual nodes. Each node carries metadata including the entity type, file path, code snippet and description.
+    \item \textbf{Edges as Relationships:} Dependencies are presented as directed edges between nodes. These illustrate how data and logic flow between different parts of the codebase. Common relationship types include imports, calls, extends, and uses. For example, Component A imports Function B would be represented as an edge from Node A to Node B.
+    \item \textbf{Interactive Features:} Users can pan, zoom, and click or hover over nodes to reveal additional information such as code snippets, code language, file path and description. This interactivity enhances understanding and navigation within the codebase.
+\end{enumerate}
+
 \subsection{Generative UI Card Components}
+Standard LLM responses are limited to text or markdown formats. Often, this is insufficient to convey complex code structures or relationships. To address this, CodeOrient adopted a Generative UI architecture where the LLM is able to generate structured JSON objects that renders as functional React components. This allows for richer and more interactive responses.
+
+With the structured JSON object, the frontend acts as an orchestrator, parsing the JSON and mapping it to a React component. For example, a JSON block describing a graph visualisation would be rendered as a "Graph Card" component rather than a bulleted list.
+
+To achieve this, CodeOrient leverages Vercel AI SDK and its \texttt{streamObject} function. Based on the user's query, the LLM automonously decides which component to generate. For example, if the user asks about their list of repositories, the LLM would generate a "Repository Card" component. The component data is streamed into the UI, which the card to populate incrementally. This creates a smooth user experience by reducing perceived latency.
 
 \section{Backend Architecture}
+
 \subsection{API Design}
+The backend of CodeOrient is built on a RESTful Serverless architecture using Next.js API Route Handlers.
+\begin{enumerate}
+    \item \textbf{Stateless Functions:} Each API endpoint is implemented as a stateless function. This allows the system to scale horizontally, as each function can be invoked independently based on demand. 
+    \item \textbf{Endpoint Categories:} The API is divided into four primary domains:
+    \begin{itemize}
+        \item \textbf{Authentication API:} Manages user login, registration, and session management.
+        \item \textbf{Ingestion API:} Manages the lifecycle of ingesting and indexing code repositories from GitHub API.
+        \item \textbf{Search \& Retrieval API:} Interfaces with the vector and structured databases to perform semantic search, retrieval of code snippets and chat persistence.
+        \item \textbf{Streaming Chat API:} Orchestrates the Vercel AI SDK to handle LLM generation via SSE to the client.
+    \end{itemize}
+\end{enumerate}
+
 \subsection{Code Search Engine}
-\subsection{Dependency Graph Generation}
+Traditional keyword-based or fuzzy search methods fail to capture the intent behind a user's query, especially in a large and complex code repository. To overcome this problem, CodeOrient utilises a semantic Code Search Engine for vector-based retrieval of relevant code snippets.
+\begin{enumerate}
+    \item \textbf{GitHub Octokit:} The engine uses GitHub's Octokit library to fetch private repository contents from the user's account. This allows the system to access up-to-date codebases for indexing.
+    \item \textbf{Hybrid Retrieval Strategy:} The engine utilises \texttt{bge-large-en-v1.5}, an embedding model to perform semantic search in Upstash Vector. Furthermore, it conducts a sparse search to find documents based on keyword frequency and term importance. This hybrid approach allows the engine to find relevant code even if the user's query does not explicitly match the code's keywords or function names. Apart from the code itself, the engine leverages the docstrings and comments extracted during the indexing phase to improve context matching.
+    \item \textbf{Scoping and Filtering:} The engine partitions searches by repository and user ID to prevent cross-project contamination. Additionally, the engine supports metadata filtering, such as file type or entity type, to refine search results.
+    \item \textbf{Ranking Mechanism:} Retrieved code snippets are ranked using Distributed-Based Score Fusion (DBSF), which combines results from dense and sparse indexes. The normalised score is computed as:
+    \[
+    Score = \frac{s - (\mu - 3\sigma)}{(\mu + 3\sigma) - (\mu - 3\sigma)}
+    \]
+    where:
+    \begin{itemize}
+        \item $s$ is the score.
+        \item $\mu$ is the mean of the scores.
+        \item $\sigma$ is the standard deviation.
+        \item $(\mu - 3\sigma)$ represents the minimum value (lower tail of the distribution).
+        \item $(\mu + 3\sigma)$ represents the maximum value (upper tail of the distribution).
+    \end{itemize}
+    For CodeOrient, DBSF was chosen because it balances semantic meaning with exact keyword match effectively. This ranking ensures that the most contextually relevant code snippets are prioritised for retrieval. 
+\end{enumerate}
 \subsection{LLM Integration and RAG Pipeline}
+Creating an autonomous RAG pipeline allows the LLM to move beyond simple search and retrieval patterns. Instead, the LLM follows a more complex reasoning process:
+\begin{enumerate}
+    \item \textbf{Query Rephrasing:} The LLM first rephrases the user's query into multiple optimised sub-queries to improve recall during retrieval.
+    \item \textbf{Autonomous Reasoning Loop:} The pipeline implements a loop where the LLM will evaluate the initial search results. If a certain context is missing, the LLM will autonomously generate secondary searches before finalising the response. For example, if the LLM finds a function call but is missing the definition, the agent identifies the missing piece and triggers another search specifically for that function definition.
+    \item \textbf{Hallucination Mitigation:} To eliminate hallucinations, the LLM is prompted to only cite the relevant code snippets that are used to formulate the response. Each citation includes the file path, URL and code snippet for user verification. This ensures higher precision and trustworthiness of the generated content.
+\end{enumerate}
 
 \section{Data Pipeline}
+This pipeline transforms a raw GitHub code repository into a structured and searchable knowledge base through a four-stage process:
 \subsection{Repository Ingestion}
-\subsection{Code Parsing and AST Analysis}
-\subsection{Embedding Generation}
-\subsection{Dependency Graph Construction}
+To bypass GitHub API rate limits and ensure efficient ingestion, the system uses a streaming ingestion strategy.
+\begin{enumerate}
+    \item \textbf{Tarball Archive:} The system fetches the entire repository as a compressed \texttt{.tar.gz} archive in a single request using Octokit.
+    \item \textbf{In-memory Extraction:} Using the \texttt{tar} and \texttt{zlib} libraries, the system decompressed and parses files in-memory without writing to disk. This reduces I/O overhead and speeds up processing.
+    \item \textbf{Indexing with Filtering:} The pipeline whitelists indexable file types (e.g., \texttt{.ts}, \texttt{.py}, \texttt{.go}) and ignores binary or large files (e.g., \texttt{node\_modules}) to optimise storage and retrieval efficiency.
+\end{enumerate}
+\subsection{Chunking Strategy}
+Instead of indexing entire files, the engine breaks code files into smaller "logical" chunks to ensure the LLM receives the most relevant context.
+\begin{enumerate}
+    \item \textbf{Entity-Based Parsing}: The parser isolates code blocks such as standalone functions, classes, or React components as an individual entity type. Each type is assigned a chunk size limit to optimise retrieval:
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{@{}lc>{\raggedright\arraybackslash}p{5.5cm}@{}}
+            \toprule
+            \textbf{Entity Type} & \textbf{Max Character Limit} & \textbf{Rationale} \\
+            \midrule
+            File Header & 2,000 chars & Captures imports and high-level file intent. \\
+            Classes & 2,500 chars & Provides structural context of data and methods. \\
+            Functions/Components & 1,500 chars & Focuses on a single unit of execution logic. \\
+            Methods & 1,500 chars & Enables pinpoint retrieval of class behaviors. \\
+            Notebook Cells & 2,000 chars & Balances code logic with markdown context. \\
+            \bottomrule
+        \end{tabular}
+        \caption{Entity-Based Chunk Size Limits and Rationale}
+        \label{tab:chunk_size_limits}
+    \end{table}
+    \item \textbf{Truncation Strategy:} If an entity exceeds its designated length limit, the engine uses a \texttt{truncateAtBoundary} function to prevent a hard character cut. Instead, it searches for the last complete statement by looking for delimiters. This ensures that code chunks remain syntactically valid and semantically coherent.
+\end{enumerate}
+
+\subsection{Metadata Extraction}
+To assist LLM with context understanding, each code chunk is enriched with relational metadata:
+\begin{enumerate}
+    \item \textbf{Docstring Extraction:} The parser scans for docstrings or comments immediately preceding code entities. These high-level summaries provide a natural language description of what the code does.
+    \item \textbf{Dependency Mapping:} The system extracts \texttt{imports} and \texttt{calledFunctions}. This enables the LLM to understand the relationships between different code entities during reasoning, which increases the accuracy of generated responses.
+    \item \textbf{Source Attribution:} Each chunk is tagged with its \texttt{filePath}, \texttt{repoFullName}, and specific \texttt{startLine}/\texttt{endLine}. This creates the ground truth for the citation mechanism during response generation.
+\end{enumerate}
+
 \subsection{Indexing and Storage}
+The final stage involves storing the processed code chunks for low-latency retrieval.
+\begin{enumerate}
+    \item \textbf{State Persistence:} The system uses Prisma ORM and PostgereSQL to track the indexing lifecycle of each repository (e.g., \texttt{CLONING}~$\rightarrow$~\texttt{PARSING}~$\rightarrow$~\texttt{INDEXING}~$\rightarrow$~\texttt{`CO'MPLETED}). This allows for resumable indexing in case of interruptions. Additionally, it allows the UI to show real-time progress updates to the user.
+    \item \textbf{Batch Vector Upsert:} Code chunks are converted into embeddings using \texttt{bge-large-en-v1.5} model and upserted into Upstash Vector in batches of 100. This strategy optimises throughput and ensures the indexing process is resilient to transient API issues.
+\end{enumerate}
 
-\section{Natural Language Processing Pipeline}
-\subsection{Query Understanding}
-\subsection{Semantic Search using Embeddings}
-\subsection{Structural Search using DSL Translation}
-\subsection{Hybrid Retrieval Strategy}
-
-\section{Citation-Grounded Generation}
-\subsection{RAG Architecture}
-\subsection{Source Code Grounding}
-\subsection{Citation Mechanism}
-
-\section{Technical Stack Justification}
-\subsection{Frontend: Next.js}
-\subsection{Backend: Next.js API Routes}
-\subsection{LLM Integration: Vercel AI SDK and OpenAI}
-\subsection{Code Search: GitHub Search API}
-\subsection{Graph Visualization: React Flow}
-\subsection{Database: PostgreSQL}
-\subsection{Caching: Upstash Redis}
-\subsection{Deployment: Vercel}
+\section{Technical Stack Summary}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{@{}lc>{\raggedright\arraybackslash}p{8.5cm}@{}}
+        \toprule
+        \textbf{Category} & \textbf{Technology} & \textbf{Engineering Justification} \\
+        \midrule
+        \textbf{Framework} & Next.js 16 & Enables a unified architecture of Server Components for data safety and Client Components for complex React Flow interactivity. \\
+        \addlinespace
+        \textbf{AI Framework} & Vercel AI SDK & Provides native primitives for \texttt{streamObject}, enabling real-time Generative UI rendering and SSE-based communication. \\
+        \addlinespace
+        \textbf{LLM Provider} & OpenAI & Offers state-of-the-art models with robust capabilities in code understanding and multi-turn reasoning. \\
+        \addlinespace
+        \textbf{Database \& ORM} & PostgreSQL \& Prisma & Ensures robust relational integrity for managing complex user, repository, and chat-session hierarchies via Prisma ORM. \\
+        \addlinespace
+        \textbf{Vector Store} & Upstash Vector & A serverless vector database that allows for high-dimensional semantic indexing with native metadata filtering for multi-repo isolation. \\
+        \addlinespace
+        \textbf{Caching} & Upstash Redis & Acts as a high-speed buffer to intercept repeated semantic queries, reducing LLM token consumption and decreasing latency by over 90\%. \\
+        \addlinespace
+        \textbf{Visualisation} & React Flow & Offers the capabability of rendering dynamic nodes and edges derived from code analysis. \\
+        \addlinespace
+        \textbf{Ingestion} & Octokit (GitHub) & Facilitates secure fetching of code repositories from GitHub. \\
+        \bottomrule
+    \end{tabular}
+    \caption{Summary of Technical Stack and Rationale}
+    \label{tab:tech_stack_rationale}
+\end{table}
