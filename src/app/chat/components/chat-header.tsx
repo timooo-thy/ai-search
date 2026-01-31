@@ -160,6 +160,7 @@ export function ChatHeader({
               size="sm"
               onClick={handleBookmarkToggle}
               className="hover:bg-accent/50"
+              aria-label={isBookmarked ? "Remove bookmark" : "Bookmark chat"}
             >
               <BookmarkIcon
                 className={cn(
@@ -177,6 +178,7 @@ export function ChatHeader({
                   variant="ghost"
                   size="sm"
                   className="hover:bg-accent/50"
+                  aria-label="Share chat"
                 >
                   <ShareIcon
                     className={cn(
@@ -213,6 +215,7 @@ export function ChatHeader({
                       size="sm"
                       className="px-3"
                       onClick={handleCopyLink}
+                      aria-label="Copy shareable link"
                     >
                       {copied ? (
                         <Check className="h-4 w-4" />

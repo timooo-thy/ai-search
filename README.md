@@ -195,7 +195,7 @@ CodeOrient is an AI-powered code navigation tool that helps developers understan
 
 ## Architecture
 
-```
+```text
 src/
 ├── actions/         # Server actions (GitHub, messages)
 ├── ai/              # AI tools, prompts, and agents

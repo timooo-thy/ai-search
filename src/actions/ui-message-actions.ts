@@ -10,6 +10,7 @@ import {
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import * as Sentry from "@sentry/nextjs";
+import { randomBytes } from "crypto";
 
 // Create a new chat
 export async function createChat(title: string) {
@@ -491,13 +492,7 @@ export async function getBookmarkedChats() {
 
 // Generate a unique share token
 function generateShareToken(): string {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let token = "";
-  for (let i = 0; i < 16; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return token;
+  return randomBytes(16).toString("base64url");
 }
 
 // Toggle share status for a chat
