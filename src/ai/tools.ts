@@ -593,7 +593,10 @@ export const visualiseCodeGraph = (
           id,
         });
 
-        return { data: { nodes, edges } };
+        return {
+          data: { nodes, edges: validEdges },
+          sources: allSources.map((s) => ({ path: s.path, url: s.url })),
+        };
       } catch (error) {
         Sentry.captureException(error, {
           tags: { context: "code_graph_generation_failed" },
@@ -1053,6 +1056,8 @@ Queries should be natural language descriptions that match how code documentatio
           },
         ];
 
+        const finalSources = Array.from(sources.values());
+
         writer.write({
           type: "data-codeGraph",
           data: {
@@ -1062,12 +1067,15 @@ Queries should be natural language descriptions that match how code documentatio
             loading: false,
             analysing: false,
             queries: allQueries,
-            sources: Array.from(sources.values()),
+            sources: finalSources,
           },
           id,
         });
 
-        return { data: { nodes, edges: validEdges } };
+        return {
+          data: { nodes, edges: validEdges },
+          sources: finalSources.map((s) => ({ path: s.path, url: s.url })),
+        };
       } catch (error) {
         Sentry.captureException(error, {
           tags: { context: "indexed_code_graph_failed" },
