@@ -10,6 +10,7 @@ import {
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import * as Sentry from "@sentry/nextjs";
+import { randomBytes } from "crypto";
 
 // Create a new chat
 export async function createChat(title: string) {
@@ -40,7 +41,7 @@ export async function createChat(title: string) {
  */
 export async function upsertMessages(
   uiMessages: MyUIMessage[],
-  chatId: string
+  chatId: string,
 ) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -70,7 +71,7 @@ export async function upsertMessages(
         (existing.chatId !== chatId || existing.chat.userId !== session.user.id)
       ) {
         throw new Error(
-          "Forbidden: message does not belong to this chat or user"
+          "Forbidden: message does not belong to this chat or user",
         );
       }
 
@@ -79,28 +80,28 @@ export async function upsertMessages(
           ...part,
           providerMetadata: jsonOrDbNull(part.providerMetadata),
           tool_getWeatherInformation_input: jsonOrDbNull(
-            part.tool_getWeatherInformation_input
+            part.tool_getWeatherInformation_input,
           ),
           tool_getWeatherInformation_output: jsonOrDbNull(
-            part.tool_getWeatherInformation_output
+            part.tool_getWeatherInformation_output,
           ),
           tool_getRepositories_input: jsonOrDbNull(
-            part.tool_getRepositories_input
+            part.tool_getRepositories_input,
           ),
           tool_getRepositories_output: jsonOrDbNull(
-            part.tool_getRepositories_output
+            part.tool_getRepositories_output,
           ),
           tool_visualiseCodeGraph_input: jsonOrDbNull(
-            part.tool_visualiseCodeGraph_input
+            part.tool_visualiseCodeGraph_input,
           ),
           tool_visualiseCodeGraph_output: jsonOrDbNull(
-            part.tool_visualiseCodeGraph_output
+            part.tool_visualiseCodeGraph_output,
           ),
           data_repositories_details: jsonOrDbNull(
-            part.data_repositories_details
+            part.data_repositories_details,
           ),
           data_codeGraph: jsonOrDbNull(part.data_codeGraph),
-        })
+        }),
       );
 
       await tx.message.upsert({
@@ -141,7 +142,7 @@ export async function upsertMessages(
 
 // Get all messages from a chat as UIMessages
 export async function getChatMessagesById(
-  chatId: string
+  chatId: string,
 ): Promise<MyUIMessage[] | undefined> {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -394,7 +395,7 @@ export async function getUserProfile() {
 export async function saveUserSettings(
   githubPAT?: string,
   name?: string,
-  bio?: string
+  bio?: string,
 ) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -424,4 +425,173 @@ export async function deleteUserGithubPAT() {
     where: { id: session.user.id },
     data: { githubPAT: null },
   });
+}
+
+// Toggle bookmark status for a chat
+export async function toggleBookmark(chatId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to bookmark a chat.");
+  }
+
+  const chat = await prisma.chat.findFirst({
+    where: { id: chatId, userId: session.user.id },
+    select: { isBookmarked: true },
+  });
+
+  if (!chat) {
+    throw new Error("Chat not found.");
+  }
+
+  const updatedChat = await prisma.chat.update({
+    where: { id: chatId, userId: session.user.id },
+    data: { isBookmarked: !chat.isBookmarked },
+    select: { isBookmarked: true },
+  });
+
+  return updatedChat.isBookmarked;
+}
+
+// Get bookmark status for a chat
+export async function getChatBookmarkStatus(chatId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in.");
+  }
+
+  const chat = await prisma.chat.findFirst({
+    where: { id: chatId, userId: session.user.id },
+    select: { isBookmarked: true },
+  });
+
+  return chat?.isBookmarked ?? false;
+}
+
+// Get all bookmarked chats for a user
+export async function getBookmarkedChats() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to view bookmarked chats.");
+  }
+
+  return await prisma.chat.findMany({
+    where: { userId: session.user.id, isBookmarked: true },
+    select: { id: true, title: true },
+    orderBy: { updatedAt: "desc" },
+  });
+}
+
+// Generate a unique share token
+function generateShareToken(): string {
+  return randomBytes(16).toString("base64url");
+}
+
+// Toggle share status for a chat
+export async function toggleShare(chatId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to share a chat.");
+  }
+
+  const chat = await prisma.chat.findFirst({
+    where: { id: chatId, userId: session.user.id },
+    select: { isShared: true, shareToken: true },
+  });
+
+  if (!chat) {
+    throw new Error("Chat not found.");
+  }
+
+  const newIsShared = !chat.isShared;
+  const shareToken = newIsShared
+    ? chat.shareToken || generateShareToken()
+    : null;
+
+  const updatedChat = await prisma.chat.update({
+    where: { id: chatId, userId: session.user.id },
+    data: {
+      isShared: newIsShared,
+      shareToken: shareToken,
+    },
+    select: { isShared: true, shareToken: true },
+  });
+
+  return { isShared: updatedChat.isShared, shareToken: updatedChat.shareToken };
+}
+
+// Get share status for a chat
+export async function getChatShareStatus(chatId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in.");
+  }
+
+  const chat = await prisma.chat.findFirst({
+    where: { id: chatId, userId: session.user.id },
+    select: { isShared: true, shareToken: true },
+  });
+
+  return {
+    isShared: chat?.isShared ?? false,
+    shareToken: chat?.shareToken ?? null,
+  };
+}
+
+// Load a shared chat by share token (public - no auth required)
+export async function loadSharedChat(shareToken: string) {
+  const chat = await prisma.chat.findFirst({
+    where: { shareToken, isShared: true },
+    include: {
+      messages: {
+        include: {
+          parts: true,
+        },
+        orderBy: { createdAt: "asc" },
+      },
+      User: {
+        select: { name: true },
+      },
+    },
+  });
+
+  if (!chat) {
+    throw new Error("Shared chat not found or has been unshared.");
+  }
+
+  const messages: MyUIMessage[] =
+    chat.messages.map((msg) => {
+      return {
+        id: msg.id,
+        role: msg.role,
+        parts: msg.parts.map((part) => mapDBPartToUIMessagePart(part)),
+        metadata: {
+          time: msg.createdAt.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }),
+        },
+      };
+    }) || [];
+
+  return {
+    chatTitle: chat.title,
+    ownerName: chat.User?.name ?? "Anonymous",
+    messages,
+  };
 }

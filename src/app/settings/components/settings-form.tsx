@@ -88,7 +88,11 @@ type SettingsFormProps = {
   repositories?: { name: string; description: string | null; url: string }[];
 };
 
-export function SettingsForm({ user, validGithubPAT, repositories = [] }: SettingsFormProps) {
+export function SettingsForm({
+  user,
+  validGithubPAT,
+  repositories = [],
+}: SettingsFormProps) {
   const [showPAT, setShowPAT] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -123,7 +127,7 @@ export function SettingsForm({ user, validGithubPAT, repositories = [] }: Settin
         const isValid = await validateGitHubPAT(patToSave);
         if (!isValid) {
           toast.error(
-            "GitHub token appears invalid or expired. Please check scopes or rotate."
+            "GitHub token appears invalid or expired. Please check scopes or rotate.",
           );
           return;
         }
@@ -132,7 +136,7 @@ export function SettingsForm({ user, validGithubPAT, repositories = [] }: Settin
       await saveUserSettings(
         patToSave,
         settings.profile.name,
-        settings.profile.bio
+        settings.profile.bio,
       );
 
       setSettings((prev) => ({ ...prev, hasGithubPAT: !!patToSave }));
@@ -172,7 +176,7 @@ export function SettingsForm({ user, validGithubPAT, repositories = [] }: Settin
   const handleInputChange = (
     section: keyof SettingsState,
     field: string,
-    value: string | boolean
+    value: string | boolean,
   ) => {
     setSettings((prev) => {
       if (section === "githubPAT") {
@@ -369,7 +373,7 @@ export function SettingsForm({ user, validGithubPAT, repositories = [] }: Settin
               <CardHeader>
                 <CardTitle>Search Preferences</CardTitle>
                 <CardDescription>
-                  Customize how search results are displayed and processed
+                  Customise how search results are displayed and processed
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -382,7 +386,7 @@ export function SettingsForm({ user, validGithubPAT, repositories = [] }: Settin
                         handleInputChange(
                           "preferences",
                           "searchResultsPerPage",
-                          value
+                          value,
                         )
                       }
                     >
@@ -407,7 +411,7 @@ export function SettingsForm({ user, validGithubPAT, repositories = [] }: Settin
                         handleInputChange(
                           "preferences",
                           "defaultSearchMode",
-                          value
+                          value,
                         )
                       }
                     >
@@ -504,7 +508,7 @@ export function SettingsForm({ user, validGithubPAT, repositories = [] }: Settin
                         handleInputChange(
                           "notifications",
                           "searchResults",
-                          checked
+                          checked,
                         )
                       }
                     />
