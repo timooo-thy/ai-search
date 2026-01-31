@@ -6,7 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "CodeOrient",
-  description: "A better way to search your codebase using AI.",
+  description: "An intelligent way to search your codebase using Agentic AI.",
 };
 
 export default function RootLayout({
