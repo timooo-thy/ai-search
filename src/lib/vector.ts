@@ -1,4 +1,4 @@
-import { Index } from "@upstash/vector";
+import { FusionAlgorithm, Index, WeightingStrategy } from "@upstash/vector";
 
 /**
  * Sanitise a string value for use in Upstash Vector filter queries.
@@ -13,13 +13,15 @@ function sanitiseFilterValue(value: string): string {
     .replace(/[\x00-\x1f\x7f]/g, ""); // Remove control characters
 }
 
-// Initialize Upstash Vector client
+/**
+ * Initialise Upstash Vector client for hybrid search (sparse + dense)
+ */
 export const vectorIndex = new Index({
   url: process.env.UPSTASH_VECTOR_REST_URL!,
   token: process.env.UPSTASH_VECTOR_REST_TOKEN!,
 });
 
-// Types for code chunks stored in vector DB
+// Simplified metadata type for LangChain-based chunking
 export type CodeChunkMetadata = {
   // Repository info
   repoFullName: string; // "owner/repo"
@@ -30,27 +32,18 @@ export type CodeChunkMetadata = {
   fileName: string;
   fileUrl: string;
 
-  // Code entity info
-  entityType: "file" | "class" | "function" | "component" | "method";
-  entityName: string;
+  // Chunk info
+  chunkIndex: number;
+  totalChunks: number;
   startLine: number;
   endLine: number;
 
-  // Content
-  content: string; // The actual code snippet
-  summary?: string; // Brief description
-  docstring?: string; // JSDoc/docstring for better semantic search
-
-  // Relationships (for graph building)
-  imports?: string[]; // Files/modules this imports
-  exportedSymbols?: string[]; // Symbols exported from this file
-  parentClass?: string; // For inheritance or method parent
-  calledFunctions?: string[]; // Functions this code calls
+  // Content - the actual code chunk
+  content: string;
 };
 
 export type CodeChunk = {
   id: string;
-  vector?: number[];
   metadata: CodeChunkMetadata;
 };
 
@@ -62,17 +55,21 @@ export function generateChunkId(
   userId: string,
   repoFullName: string,
   filePath: string,
-  entityName: string,
-  entityType: string,
+  chunkName: string,
 ): string {
-  return `${userId}::${repoFullName}::${filePath}::${entityType}::${entityName}`.replace(
+  return `${userId}::${repoFullName}::${filePath}::${chunkName}`.replace(
     /[^a-zA-Z0-9:_\-./]/g,
     "_",
   );
 }
 
 /**
- * Search for code chunks in a repository
+ * Search for code chunks using hybrid search (dense + sparse with DBSF fusion)
+ *
+ * This uses Upstash's hybrid index capabilities:
+ * - Dense search (semantic): Captures meaning and context
+ * - Sparse search (keyword): Captures exact function names, variables, etc.
+ * - DBSF fusion: Distribution-Based Score Fusion for optimal ranking
  */
 export async function searchCodeChunks(
   query: string,
@@ -81,10 +78,13 @@ export async function searchCodeChunks(
   topK: number = 10,
 ): Promise<CodeChunk[]> {
   const results = await vectorIndex.query({
-    data: query, // Upstash will embed this automatically
+    data: query,
     topK,
     includeData: true,
     includeMetadata: true,
+    // Hybrid search configuration
+    fusionAlgorithm: FusionAlgorithm.DBSF, // Distribution-Based Score Fusion
+    weightingStrategy: WeightingStrategy.IDF, // Inverse Document Frequency for sparse
     filter: `repoFullName = '${sanitiseFilterValue(repoFullName)}' AND userId = '${sanitiseFilterValue(userId)}'`,
   });
 
@@ -96,6 +96,9 @@ export async function searchCodeChunks(
 
 /**
  * Upsert code chunks into the vector index
+ *
+ * Uses the `data` field for automatic embedding by Upstash.
+ * The hybrid index will generate both dense and sparse vectors automatically.
  */
 export async function upsertCodeChunks(chunks: CodeChunk[]): Promise<void> {
   if (chunks.length === 0) return;
@@ -109,7 +112,7 @@ export async function upsertCodeChunks(chunks: CodeChunk[]): Promise<void> {
     await vectorIndex.upsert(
       batch.map((chunk) => ({
         id: chunk.id,
-        data: chunk.metadata.content, // Upstash will embed this
+        data: chunk.metadata.content,
         metadata: chunk.metadata,
       })),
     );
@@ -188,12 +191,13 @@ export async function deleteRepoChunks(
       return; // No vectors to delete, that's fine
     }
 
-    // Fallback to query-based deletion
+    // Fallback to query-based deletion with hybrid search
     try {
       const results = await vectorIndex.query({
-        data: "code",
+        data: "code function class",
         topK: 10000,
         includeMetadata: true,
+        fusionAlgorithm: FusionAlgorithm.DBSF,
         filter: `repoFullName = '${sanitiseFilterValue(repoFullName)}' AND userId = '${sanitiseFilterValue(userId)}'`,
       });
 
@@ -232,6 +236,7 @@ export async function getIndexedFiles(
     data: "code file",
     topK: 1000, // Reduced from 10000 to save reads
     includeMetadata: true,
+    fusionAlgorithm: FusionAlgorithm.DBSF,
     filter: `repoFullName = '${sanitiseFilterValue(repoFullName)}' AND userId = '${sanitiseFilterValue(userId)}'`,
   });
 
@@ -257,6 +262,7 @@ export async function isRepoIndexed(
   const results = await vectorIndex.query({
     data: "code",
     topK: 1,
+    fusionAlgorithm: FusionAlgorithm.DBSF,
     filter: `repoFullName = '${sanitiseFilterValue(repoFullName)}' AND userId = '${sanitiseFilterValue(userId)}'`,
   });
 

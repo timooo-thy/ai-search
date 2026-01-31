@@ -1,7 +1,10 @@
 "use server";
 
 import { Octokit } from "octokit";
-import { getUserGithubPAT } from "@/actions/ui-message-actions";
+import {
+  RecursiveCharacterTextSplitter,
+  type SupportedTextSplitterLanguage,
+} from "@langchain/textsplitters";
 import {
   CodeChunk,
   CodeChunkMetadata,
@@ -16,7 +19,44 @@ import { Readable } from "stream";
 import { pipeline } from "stream/promises";
 import { createGunzip } from "zlib";
 
-// File extensions to index
+// Chunk configuration optimised for code discovery
+// 1500 chars with 200 chars overlap
+const CODE_CHUNK_SIZE = 1500;
+const CODE_CHUNK_OVERLAP = 200;
+
+// Map file extensions to LangChain supported languages
+const EXTENSION_TO_LANGUAGE: Record<string, SupportedTextSplitterLanguage> = {
+  // JavaScript/TypeScript
+  ".js": "js",
+  ".jsx": "js",
+  ".ts": "js",
+  ".tsx": "js",
+  ".mjs": "js",
+  ".cjs": "js",
+  // Python
+  ".py": "python",
+  ".pyw": "python",
+  // Other languages
+  ".java": "java",
+  ".go": "go",
+  ".rs": "rust",
+  ".rb": "ruby",
+  ".php": "php",
+  ".swift": "swift",
+  ".scala": "scala",
+  ".cpp": "cpp",
+  ".c": "cpp",
+  ".h": "cpp",
+  ".hpp": "cpp",
+  // Markup
+  ".md": "markdown",
+  ".html": "html",
+  ".htm": "html",
+  ".vue": "html",
+  ".svelte": "html",
+};
+
+// File extensions to index (including those without specific language support)
 const INDEXABLE_EXTENSIONS = new Set([
   // JavaScript/TypeScript
   ".js",
@@ -47,6 +87,8 @@ const INDEXABLE_EXTENSIONS = new Set([
   // Config/markup that might have code
   ".vue",
   ".svelte",
+  ".md",
+  ".html",
 ]);
 
 // Files/directories to skip
@@ -70,122 +112,52 @@ const SKIP_PATTERNS = [
   /pnpm-lock\.yaml/,
 ];
 
-type ParsedEntity = {
-  type: "file" | "class" | "function" | "component" | "method";
-  name: string;
-  startLine: number;
-  endLine: number;
-  content: string;
-  imports: string[];
-  exportedSymbols: string[];
-  parentClass?: string;
-  calledFunctions: string[];
-  docstring?: string; // Added for better semantic search
-};
-
 /**
- * Extract docstring/JSDoc comment before a code block
+ * Get the appropriate text splitter for a file based on its extension
  */
-function extractDocstring(
-  lines: string[],
-  startLine: number,
-  ext: string,
-): string | undefined {
-  // Look backwards from startLine to find doc comments
-  let docLines: string[] = [];
+function getSplitterForFile(filePath: string): RecursiveCharacterTextSplitter {
+  const ext = filePath.substring(filePath.lastIndexOf(".")).toLowerCase();
+  const language = EXTENSION_TO_LANGUAGE[ext];
 
-  for (let i = startLine - 2; i >= Math.max(0, startLine - 15); i--) {
-    const line = lines[i].trim();
-
-    if ([".ts", ".tsx", ".js", ".jsx"].includes(ext)) {
-      // JSDoc style: /** ... */
-      if (line.endsWith("*/")) {
-        // Start of JSDoc block, collect upwards
-        for (let j = i; j >= Math.max(0, i - 20); j--) {
-          docLines.unshift(lines[j]);
-          if (lines[j].trim().startsWith("/**")) break;
-        }
-        break;
-      }
-      // Single line comment
-      if (line.startsWith("//")) {
-        docLines.unshift(line.slice(2).trim());
-        continue;
-      }
-    } else if ([".py", ".pyw"].includes(ext)) {
-      // Python docstrings: """...""" or '''...'''
-      if (line.startsWith('"""') || line.startsWith("'''")) {
-        docLines.push(line.slice(3, -3));
-        break;
-      }
-      // Comment
-      if (line.startsWith("#")) {
-        docLines.unshift(line.slice(1).trim());
-        continue;
-      }
-    }
-
-    // Stop if we hit non-comment code
-    if (
-      line &&
-      !line.startsWith("//") &&
-      !line.startsWith("#") &&
-      !line.startsWith("*")
-    ) {
-      break;
-    }
+  if (language) {
+    return RecursiveCharacterTextSplitter.fromLanguage(language, {
+      chunkSize: CODE_CHUNK_SIZE,
+      chunkOverlap: CODE_CHUNK_OVERLAP,
+    });
   }
 
-  const doc = docLines.join(" ").trim();
-  return doc.length > 10 ? doc.slice(0, 500) : undefined;
+  // Fallback: generic splitter for unsupported languages
+  return new RecursiveCharacterTextSplitter({
+    chunkSize: CODE_CHUNK_SIZE,
+    chunkOverlap: CODE_CHUNK_OVERLAP,
+    separators: [
+      "\nclass ",
+      "\ndef ",
+      "\nfunction ",
+      "\nconst ",
+      "\nlet ",
+      "\nvar ",
+      "\n\n",
+      "\n",
+      " ",
+      "",
+    ],
+  });
 }
 
 /**
- * Smart content truncation at logical boundaries
+ * Parse Jupyter notebook and extract code content
  */
-function truncateAtBoundary(content: string, maxLength: number): string {
-  if (content.length <= maxLength) return content;
-
-  // Try to find a good break point
-  const truncated = content.slice(0, maxLength);
-
-  // Look for last complete statement (ending with }, ;, or newline after closing brace)
-  const lastBrace = truncated.lastIndexOf("\n}");
-  const lastSemicolon = truncated.lastIndexOf(";\n");
-  const lastNewline = truncated.lastIndexOf("\n");
-
-  const breakPoint = Math.max(lastBrace + 2, lastSemicolon + 2, lastNewline);
-
-  if (breakPoint > maxLength * 0.5) {
-    return content.slice(0, breakPoint) + "\n// ... truncated";
-  }
-
-  return truncated + "\n// ... truncated";
-}
-
-/**
- * Parse Jupyter notebook and extract code cells
- */
-function parseNotebookContent(
-  content: string,
-  filePath: string,
-): ParsedEntity[] {
-  const entities: ParsedEntity[] = [];
-
+function parseNotebookContent(content: string): string {
   try {
     const notebook = JSON.parse(content);
 
     if (!notebook.cells || !Array.isArray(notebook.cells)) {
-      return entities;
+      return "";
     }
 
-    const fileName = filePath.split("/").pop() || filePath;
-    let cellIndex = 0;
-    let currentLine = 1;
-
-    // Collect all code from code cells for file-level chunk
-    const allCode: string[] = [];
-    const allMarkdown: string[] = [];
+    const codeBlocks: string[] = [];
+    const markdownBlocks: string[] = [];
 
     for (const cell of notebook.cells) {
       const source = Array.isArray(cell.source)
@@ -193,615 +165,63 @@ function parseNotebookContent(
         : cell.source || "";
 
       if (cell.cell_type === "code" && source.trim()) {
-        allCode.push(source);
+        codeBlocks.push(source);
       } else if (cell.cell_type === "markdown" && source.trim()) {
-        allMarkdown.push(source);
+        markdownBlocks.push(source);
       }
     }
 
-    // Add file-level chunk with notebook overview
-    const notebookOverview = [
-      `# Jupyter Notebook: ${fileName}`,
-      "",
-      "## Summary from Markdown cells:",
-      ...allMarkdown.slice(0, 3).map((md) => md.slice(0, 300)),
-      "",
-      "## Code preview:",
-      ...allCode.slice(0, 2).map((code) => code.slice(0, 500)),
-    ].join("\n");
-
-    entities.push({
-      type: "file",
-      name: fileName,
-      startLine: 1,
-      endLine: 1,
-      content: truncateAtBoundary(notebookOverview, 3000),
-      imports: extractImports(allCode.join("\n"), ".py"),
-      exportedSymbols: [],
-      calledFunctions: extractFunctionCalls(allCode.join("\n"), ".py"),
-      docstring: allMarkdown[0]?.slice(0, 500),
-    });
-
-    // Process each code cell
-    for (const cell of notebook.cells) {
-      if (cell.cell_type !== "code") {
-        cellIndex++;
-        continue;
-      }
-
-      const source = Array.isArray(cell.source)
-        ? cell.source.join("")
-        : cell.source || "";
-
-      if (!source.trim()) {
-        cellIndex++;
-        continue;
-      }
-
-      const lines = source.split("\n");
-      const cellName = `cell_${cellIndex}`;
-
-      // Add cell as a chunk
-      entities.push({
-        type: "function", // Treat cells as functions for graph purposes
-        name: cellName,
-        startLine: currentLine,
-        endLine: currentLine + lines.length - 1,
-        content: truncateAtBoundary(source, 2000),
-        imports: extractImports(source, ".py"),
-        exportedSymbols: extractExports(source, ".py"),
-        calledFunctions: extractFunctionCalls(source, ".py"),
-      });
-
-      // Also extract functions/classes defined in the cell
-      const cellEntities = extractFunctions(source, filePath, ".py", lines);
-      cellEntities.forEach((entity) => {
-        entity.startLine += currentLine - 1;
-        entity.endLine += currentLine - 1;
-        entity.name = `${cellName}::${entity.name}`;
-      });
-      entities.push(...cellEntities);
-
-      const classEntities = extractClasses(source, filePath, ".py", lines);
-      classEntities.forEach((entity) => {
-        entity.startLine += currentLine - 1;
-        entity.endLine += currentLine - 1;
-        entity.name = `${cellName}::${entity.name}`;
-      });
-      entities.push(...classEntities);
-
-      currentLine += lines.length;
-      cellIndex++;
+    // Combine markdown context with code
+    const combined: string[] = [];
+    if (markdownBlocks.length > 0) {
+      combined.push("# Notebook Documentation\n");
+      combined.push(markdownBlocks.slice(0, 3).join("\n\n"));
+      combined.push("\n\n# Code Cells\n");
     }
+    combined.push(codeBlocks.join("\n\n# ---\n\n"));
+
+    return combined.join("\n");
   } catch (error) {
-    // If JSON parsing fails, skip this notebook
     Sentry.captureException(error, {
       tags: { context: "notebook_parsing" },
-      extra: { filePath },
     });
+    return "";
   }
-
-  return entities;
 }
 
 /**
- * Parse a file and extract code entities
+ * Split file content into chunks using LangChain's RecursiveCharacterTextSplitter
  */
-function parseFileContent(content: string, filePath: string): ParsedEntity[] {
-  const ext = filePath.substring(filePath.lastIndexOf("."));
+async function splitFileContent(
+  content: string,
+  filePath: string,
+): Promise<{ content: string; startLine: number; endLine: number }[]> {
+  const ext = filePath.substring(filePath.lastIndexOf(".")).toLowerCase();
 
   // Handle Jupyter notebooks specially
+  let textToSplit = content;
   if (ext === ".ipynb") {
-    return parseNotebookContent(content, filePath);
+    textToSplit = parseNotebookContent(content);
+    if (!textToSplit) return [];
   }
 
-  const entities: ParsedEntity[] = [];
-  const lines = content.split("\n");
+  const splitter = getSplitterForFile(filePath);
 
-  // Extract imports
-  const imports = extractImports(content, ext);
-  const exportedSymbols = extractExports(content, ext);
+  try {
+    const docs = await splitter.createDocuments([textToSplit], [{}], {});
 
-  // ALWAYS add a file-level chunk for imports/overview context
-  // This ensures every file is discoverable
-  const fileHeaderContent = lines
-    .slice(0, Math.min(50, lines.length))
-    .join("\n");
-  entities.push({
-    type: "file",
-    name: filePath.split("/").pop() || filePath,
-    startLine: 1,
-    endLine: Math.min(50, lines.length),
-    content: truncateAtBoundary(fileHeaderContent, 2000),
-    imports,
-    exportedSymbols,
-    calledFunctions: extractFunctionCalls(fileHeaderContent, ext),
-    docstring: extractDocstring(lines, 1, ext),
-  });
-
-  // For small files, also add the full content if different from header
-  if (lines.length > 50 && lines.length <= 150) {
-    entities.push({
-      type: "file",
-      name: `${filePath.split("/").pop() || filePath}:full`,
-      startLine: 1,
-      endLine: lines.length,
-      content: truncateAtBoundary(content, 4000),
-      imports,
-      exportedSymbols,
-      calledFunctions: extractFunctionCalls(content, ext),
+    return docs.map((doc) => ({
+      content: doc.pageContent,
+      startLine: doc.metadata.loc?.lines?.from ?? 1,
+      endLine: doc.metadata.loc?.lines?.to ?? 1,
+    }));
+  } catch (error) {
+    Sentry.captureException(error, {
+      tags: { context: "code_splitting" },
+      extra: { filePath },
     });
+    return [];
   }
-
-  // Extract classes (with methods)
-  const classEntities = extractClasses(content, filePath, ext, lines);
-  entities.push(...classEntities);
-
-  // Extract standalone functions (not in classes)
-  const functionEntities = extractFunctions(content, filePath, ext, lines);
-  entities.push(...functionEntities);
-
-  // For React/Vue files, extract components
-  if ([".tsx", ".jsx", ".vue", ".svelte"].includes(ext)) {
-    const componentEntities = extractComponents(content, filePath, ext, lines);
-    entities.push(...componentEntities);
-  }
-
-  return entities;
-}
-
-/**
- * Extract import statements
- */
-function extractImports(content: string, ext: string): string[] {
-  const imports: string[] = [];
-
-  if ([".ts", ".tsx", ".js", ".jsx", ".mjs"].includes(ext)) {
-    // ES6 imports
-    const importRegex = /import\s+.*?\s+from\s+['"]([^'"]+)['"]/g;
-    let match;
-    while ((match = importRegex.exec(content)) !== null) {
-      imports.push(match[1]);
-    }
-    // require statements
-    const requireRegex = /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
-    while ((match = requireRegex.exec(content)) !== null) {
-      imports.push(match[1]);
-    }
-  } else if ([".py", ".pyw"].includes(ext)) {
-    // Python imports
-    const importRegex = /(?:from\s+(\S+)\s+import|import\s+(\S+))/g;
-    let match;
-    while ((match = importRegex.exec(content)) !== null) {
-      imports.push(match[1] || match[2]);
-    }
-  }
-
-  return [...new Set(imports)];
-}
-
-/**
- * Extract exported symbols
- */
-function extractExports(content: string, ext: string): string[] {
-  const exports: string[] = [];
-
-  if ([".ts", ".tsx", ".js", ".jsx", ".mjs"].includes(ext)) {
-    // Named exports
-    const namedExportRegex =
-      /export\s+(?:const|let|var|function|class|async function)\s+(\w+)/g;
-    let match;
-    while ((match = namedExportRegex.exec(content)) !== null) {
-      exports.push(match[1]);
-    }
-    // Default exports
-    if (/export\s+default/.test(content)) {
-      exports.push("default");
-    }
-  }
-
-  return exports;
-}
-
-/**
- * Extract function calls
- */
-function extractFunctionCalls(content: string, ext: string): string[] {
-  const calls: string[] = [];
-  // Simple regex to find function calls - can be improved with AST
-  const callRegex = /(\w+)\s*\(/g;
-  let match;
-  while ((match = callRegex.exec(content)) !== null) {
-    // Skip common keywords
-    if (
-      !["if", "for", "while", "switch", "catch", "function", "class"].includes(
-        match[1],
-      )
-    ) {
-      calls.push(match[1]);
-    }
-  }
-  return [...new Set(calls)].slice(0, 50); // Limit to avoid noise
-}
-
-/**
- * Extract class definitions and their methods
- */
-function extractClasses(
-  content: string,
-  filePath: string,
-  ext: string,
-  lines: string[],
-): ParsedEntity[] {
-  const entities: ParsedEntity[] = [];
-
-  if ([".ts", ".tsx", ".js", ".jsx"].includes(ext)) {
-    // JavaScript/TypeScript classes
-    const classRegex =
-      /^(\s*)(?:export\s+)?class\s+(\w+)(?:\s+extends\s+(\w+))?/gm;
-    let match;
-    while ((match = classRegex.exec(content)) !== null) {
-      const startLine = content.slice(0, match.index).split("\n").length;
-      let endLine = startLine;
-
-      // Find the end of the class by tracking braces
-      let braceCount = 0;
-      let foundOpen = false;
-      for (let i = startLine - 1; i < lines.length; i++) {
-        const line = lines[i];
-        for (const char of line) {
-          if (char === "{") {
-            braceCount++;
-            foundOpen = true;
-          } else if (char === "}") {
-            braceCount--;
-          }
-        }
-        if (foundOpen && braceCount === 0) {
-          endLine = i + 1;
-          break;
-        }
-      }
-
-      const classContent = lines.slice(startLine - 1, endLine).join("\n");
-      const className = match[2];
-
-      // Add the class itself
-      entities.push({
-        type: "class",
-        name: className,
-        startLine,
-        endLine,
-        content: truncateAtBoundary(classContent, 2500),
-        imports: extractImports(content, ext),
-        exportedSymbols: [className],
-        parentClass: match[3],
-        calledFunctions: extractFunctionCalls(classContent, ext),
-        docstring: extractDocstring(lines, startLine, ext),
-      });
-
-      // Extract methods within the class
-      const methodEntities = extractMethods(
-        classContent,
-        className,
-        startLine,
-        ext,
-      );
-      entities.push(...methodEntities);
-    }
-  } else if ([".py", ".pyw"].includes(ext)) {
-    // Python classes
-    const classRegex = /^class\s+(\w+)(?:\(([^)]*)\))?:/gm;
-    let match;
-    while ((match = classRegex.exec(content)) !== null) {
-      const startLine = content.slice(0, match.index).split("\n").length;
-      let endLine = startLine;
-
-      // Find end by indentation
-      const baseIndent = lines[startLine - 1].search(/\S/);
-      for (let i = startLine; i < lines.length; i++) {
-        const line = lines[i];
-        if (line.trim() && line.search(/\S/) <= baseIndent) {
-          endLine = i;
-          break;
-        }
-        endLine = i + 1;
-      }
-
-      const classContent = lines.slice(startLine - 1, endLine).join("\n");
-      const parentClasses = match[2]?.split(",").map((s) => s.trim()) || [];
-      const className = match[1];
-
-      entities.push({
-        type: "class",
-        name: className,
-        startLine,
-        endLine,
-        content: truncateAtBoundary(classContent, 2500),
-        imports: extractImports(content, ext),
-        exportedSymbols: [className],
-        parentClass: parentClasses[0],
-        calledFunctions: extractFunctionCalls(classContent, ext),
-        docstring: extractDocstring(lines, startLine, ext),
-      });
-
-      // Extract Python methods
-      const methodEntities = extractPythonMethods(
-        classContent,
-        className,
-        startLine,
-      );
-      entities.push(...methodEntities);
-    }
-  }
-
-  return entities;
-}
-
-/**
- * Extract methods from a JavaScript/TypeScript class
- */
-function extractMethods(
-  classContent: string,
-  className: string,
-  classStartLine: number,
-  ext: string,
-): ParsedEntity[] {
-  const methods: ParsedEntity[] = [];
-  const lines = classContent.split("\n");
-
-  // Match class methods: methodName(...) { or async methodName(...) {
-  const methodRegex =
-    /^\s+(?:async\s+)?(\w+)\s*\([^)]*\)\s*(?::\s*\w+(?:<[^>]+>)?)?\s*{/gm;
-  let match;
-
-  while ((match = methodRegex.exec(classContent)) !== null) {
-    const methodName = match[1];
-    // Skip constructor and common lifecycle methods as they're part of class chunk
-    if (["constructor"].includes(methodName)) continue;
-
-    const methodStartLine = classContent
-      .slice(0, match.index)
-      .split("\n").length;
-    let methodEndLine = methodStartLine;
-
-    // Find end by tracking braces
-    let braceCount = 0;
-    let foundOpen = false;
-    for (
-      let i = methodStartLine - 1;
-      i < lines.length && i < methodStartLine + 80;
-      i++
-    ) {
-      const line = lines[i];
-      for (const char of line) {
-        if (char === "{") {
-          braceCount++;
-          foundOpen = true;
-        } else if (char === "}") {
-          braceCount--;
-        }
-      }
-      if (foundOpen && braceCount === 0) {
-        methodEndLine = i + 1;
-        break;
-      }
-      methodEndLine = i + 1;
-    }
-
-    const methodContent = lines
-      .slice(methodStartLine - 1, methodEndLine)
-      .join("\n");
-
-    methods.push({
-      type: "method",
-      name: `${className}.${methodName}`,
-      startLine: classStartLine + methodStartLine - 1,
-      endLine: classStartLine + methodEndLine - 1,
-      content: truncateAtBoundary(methodContent, 1500),
-      imports: [],
-      exportedSymbols: [],
-      parentClass: className,
-      calledFunctions: extractFunctionCalls(methodContent, ext),
-    });
-  }
-
-  return methods;
-}
-
-/**
- * Extract methods from a Python class
- */
-function extractPythonMethods(
-  classContent: string,
-  className: string,
-  classStartLine: number,
-): ParsedEntity[] {
-  const methods: ParsedEntity[] = [];
-  const lines = classContent.split("\n");
-
-  // Match Python methods: def method_name(self, ...):
-  const methodRegex = /^(\s+)def\s+(\w+)\s*\([^)]*\)\s*(?:->\s*[^:]+)?:/gm;
-  let match;
-
-  while ((match = methodRegex.exec(classContent)) !== null) {
-    const methodName = match[2];
-    const methodIndent = match[1].length;
-    const methodStartLine = classContent
-      .slice(0, match.index)
-      .split("\n").length;
-    let methodEndLine = methodStartLine;
-
-    // Find end by indentation
-    for (let i = methodStartLine; i < lines.length; i++) {
-      const line = lines[i];
-      if (line.trim() && line.search(/\S/) <= methodIndent) {
-        methodEndLine = i;
-        break;
-      }
-      methodEndLine = i + 1;
-    }
-
-    const methodContent = lines
-      .slice(methodStartLine - 1, methodEndLine)
-      .join("\n");
-
-    methods.push({
-      type: "method",
-      name: `${className}.${methodName}`,
-      startLine: classStartLine + methodStartLine - 1,
-      endLine: classStartLine + methodEndLine - 1,
-      content: truncateAtBoundary(methodContent, 1500),
-      imports: [],
-      exportedSymbols: [],
-      parentClass: className,
-      calledFunctions: extractFunctionCalls(methodContent, ".py"),
-    });
-  }
-
-  return methods;
-}
-
-/**
- * Extract function definitions
- */
-function extractFunctions(
-  content: string,
-  filePath: string,
-  ext: string,
-  lines: string[],
-): ParsedEntity[] {
-  const functions: ParsedEntity[] = [];
-
-  if ([".ts", ".tsx", ".js", ".jsx"].includes(ext)) {
-    // JavaScript/TypeScript functions
-    const funcRegex =
-      /^(\s*)(?:export\s+)?(?:async\s+)?function\s+(\w+)|^(\s*)(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?\(/gm;
-    let match;
-    while ((match = funcRegex.exec(content)) !== null) {
-      const name = match[2] || match[4];
-      if (!name) continue;
-
-      const startLine = content.slice(0, match.index).split("\n").length;
-      let endLine = startLine;
-
-      // Find end by tracking braces/parens
-      let braceCount = 0;
-      let foundOpen = false;
-      for (
-        let i = startLine - 1;
-        i < lines.length && i < startLine + 100;
-        i++
-      ) {
-        const line = lines[i];
-        for (const char of line) {
-          if (char === "{") {
-            braceCount++;
-            foundOpen = true;
-          } else if (char === "}") {
-            braceCount--;
-          }
-        }
-        if (foundOpen && braceCount === 0) {
-          endLine = i + 1;
-          break;
-        }
-        endLine = i + 1;
-      }
-
-      const funcContent = lines.slice(startLine - 1, endLine).join("\n");
-
-      // Skip if this is inside a class (check indentation)
-      const indent = (match[1] || match[3] || "").length;
-      if (indent > 0) continue;
-
-      functions.push({
-        type: "function",
-        name,
-        startLine,
-        endLine,
-        content: truncateAtBoundary(funcContent, 1500),
-        imports: [],
-        exportedSymbols: [name],
-        calledFunctions: extractFunctionCalls(funcContent, ext),
-        docstring: extractDocstring(lines, startLine, ext),
-      });
-    }
-  } else if ([".py", ".pyw"].includes(ext)) {
-    // Python functions (top-level only)
-    const funcRegex = /^def\s+(\w+)\s*\(/gm;
-    let match;
-    while ((match = funcRegex.exec(content)) !== null) {
-      const startLine = content.slice(0, match.index).split("\n").length;
-
-      // Check if top-level (no indentation)
-      if (lines[startLine - 1].search(/\S/) > 0) continue;
-
-      let endLine = startLine;
-      for (let i = startLine; i < lines.length; i++) {
-        const line = lines[i];
-        if (line.trim() && line.search(/\S/) === 0) {
-          endLine = i;
-          break;
-        }
-        endLine = i + 1;
-      }
-
-      const funcContent = lines.slice(startLine - 1, endLine).join("\n");
-
-      functions.push({
-        type: "function",
-        name: match[1],
-        startLine,
-        endLine,
-        content: truncateAtBoundary(funcContent, 1500),
-        imports: [],
-        exportedSymbols: [match[1]],
-        calledFunctions: extractFunctionCalls(funcContent, ext),
-        docstring: extractDocstring(lines, startLine, ext),
-      });
-    }
-  }
-
-  return functions;
-}
-
-/**
- * Extract React/Vue components
- */
-function extractComponents(
-  content: string,
-  filePath: string,
-  ext: string,
-  lines: string[],
-): ParsedEntity[] {
-  const components: ParsedEntity[] = [];
-
-  // Look for React functional components
-  const componentRegex =
-    /(?:export\s+)?(?:const|function)\s+(\w+).*?(?:=>|{)[\s\S]*?return\s*\(/g;
-  let match;
-  while ((match = componentRegex.exec(content)) !== null) {
-    const name = match[1];
-    // Check if name starts with uppercase (React convention)
-    if (name[0] === name[0].toUpperCase()) {
-      const startLine = content.slice(0, match.index).split("\n").length;
-
-      components.push({
-        type: "component",
-        name,
-        startLine,
-        endLine: startLine + 50, // Approximate
-        content: truncateAtBoundary(match[0], 1500),
-        imports: extractImports(content, ext),
-        exportedSymbols: [name],
-        calledFunctions: [],
-        docstring: extractDocstring(lines, startLine, ext),
-      });
-    }
-  }
-
-  return components;
 }
 
 /**
@@ -816,13 +236,14 @@ function shouldIndexFile(filePath: string): boolean {
   }
 
   // Check extension
-  const ext = filePath.substring(filePath.lastIndexOf("."));
+  const ext = filePath.substring(filePath.lastIndexOf(".")).toLowerCase();
   return INDEXABLE_EXTENSIONS.has(ext);
 }
 
 /**
  * Main indexing function for a repository
  * Uses tarball download for efficiency (single API call instead of one per file)
+ * Uses LangChain RecursiveCharacterTextSplitter for language-aware code chunking
  */
 export async function indexRepository(
   repoFullName: string,
@@ -959,43 +380,35 @@ export async function indexRepository(
     // Delete existing chunks for this repo
     await deleteRepoChunks(repoFullName, userId);
 
-    // Process all files locally
+    // Process all files using LangChain code splitter
     const allChunks: CodeChunk[] = [];
     let processedFiles = 0;
 
     for (const [filePath, content] of filesToIndex) {
       try {
-        // Parse the file
-        const entities = parseFileContent(content, filePath);
+        // Split the file content using LangChain
+        const splitChunks = await splitFileContent(content, filePath);
 
-        // Convert to chunks
-        for (const entity of entities) {
+        // Convert to our chunk format
+        for (let i = 0; i < splitChunks.length; i++) {
+          const chunk = splitChunks[i];
+          const chunkName = `${filePath}:chunk_${i}`;
+
           const metadata: CodeChunkMetadata = {
             repoFullName,
             userId,
             filePath,
             fileName: filePath.split("/").pop() || "",
             fileUrl: `https://github.com/${repoFullName}/blob/${repoData.default_branch}/${filePath}`,
-            entityType: entity.type,
-            entityName: entity.name,
-            startLine: entity.startLine,
-            endLine: entity.endLine,
-            content: entity.content,
-            docstring: entity.docstring,
-            imports: entity.imports,
-            exportedSymbols: entity.exportedSymbols,
-            parentClass: entity.parentClass,
-            calledFunctions: entity.calledFunctions,
+            chunkIndex: i,
+            totalChunks: splitChunks.length,
+            startLine: chunk.startLine,
+            endLine: chunk.endLine,
+            content: chunk.content,
           };
 
           allChunks.push({
-            id: generateChunkId(
-              userId,
-              repoFullName,
-              filePath,
-              entity.name,
-              entity.type,
-            ),
+            id: generateChunkId(userId, repoFullName, filePath, chunkName),
             metadata,
           });
         }

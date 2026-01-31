@@ -8,6 +8,7 @@ import {
   Settings,
   Plus,
   Trash2,
+  Bookmark,
 } from "lucide-react";
 
 import {
@@ -46,6 +47,7 @@ import {
   createChat,
   getUserChatTitles,
   deleteChat,
+  getBookmarkedChats,
 } from "@/actions/ui-message-actions";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -84,7 +86,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
             chats.map((c) => ({
               id: c.id,
               title: c.title,
-            }))
+            })),
           );
         }
       },
@@ -98,6 +100,13 @@ export function AppSidebar({ user }: AppSidebarProps) {
     }[]
   >([]);
 
+  const [bookmarkedChats, setBookmarkedChats] = useState<
+    {
+      id: string;
+      title: string;
+    }[]
+  >([]);
+
   const [conversationToDelete, setConversationToDelete] = useState<
     string | null
   >(null);
@@ -105,8 +114,10 @@ export function AppSidebar({ user }: AppSidebarProps) {
   const handleDeleteChat = async (chatId: string) => {
     try {
       setRecentConversationTitles((prev) =>
-        prev.filter((chat) => chat.id !== chatId)
+        prev.filter((chat) => chat.id !== chatId),
       );
+      // Also remove from bookmarked chats if present
+      setBookmarkedChats((prev) => prev.filter((chat) => chat.id !== chatId));
       await deleteChat(chatId);
 
       // Redirect to chat page without ID if the current chat was deleted
@@ -124,25 +135,59 @@ export function AppSidebar({ user }: AppSidebarProps) {
         chats.map((c) => ({
           id: c.id,
           title: c.title,
-        }))
+        })),
       );
+      // Refresh bookmarks on error
+      refreshBookmarks();
     }
     setConversationToDelete(null);
   };
 
+  // Function to refresh bookmarked chats
+  const refreshBookmarks = async () => {
+    const bookmarked = await getBookmarkedChats();
+    setBookmarkedChats(
+      bookmarked.map((c) => ({
+        id: c.id,
+        title: c.title,
+      })),
+    );
+  };
+
   useEffect(() => {
     async function fetchChats() {
-      const chats = await getUserChatTitles();
+      const [chats, bookmarked] = await Promise.all([
+        getUserChatTitles(),
+        getBookmarkedChats(),
+      ]);
       setRecentConversationTitles(
         chats.map((c) => ({
           id: c.id,
           title: c.title,
-        }))
+        })),
+      );
+      setBookmarkedChats(
+        bookmarked.map((c) => ({
+          id: c.id,
+          title: c.title,
+        })),
       );
     }
 
     fetchChats();
   }, [user.id]);
+
+  // Listen for bookmark changes from ChatHeader
+  useEffect(() => {
+    const handleBookmarkChange = () => {
+      refreshBookmarks();
+    };
+
+    window.addEventListener("bookmark-changed", handleBookmarkChange);
+    return () => {
+      window.removeEventListener("bookmark-changed", handleBookmarkChange);
+    };
+  }, []);
 
   return (
     <Sidebar variant="sidebar">
@@ -176,6 +221,41 @@ export function AppSidebar({ user }: AppSidebarProps) {
                       <span>{item.title}</span>
                     </Button>
                   </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            <Bookmark className="size-3 mr-1" />
+            Bookmarked
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {bookmarkedChats.map((chat) => (
+                <SidebarMenuItem key={chat.id}>
+                  <div className="flex items-center gap-1 w-full">
+                    <SidebarMenuButton asChild className="flex-1">
+                      <Button
+                        variant={
+                          chat.id === currentConversationId
+                            ? "outline"
+                            : "ghost"
+                        }
+                        className="bg-secondary-foreground justify-start"
+                        onClick={() => {
+                          router.push(`/chat/${chat.id}`);
+                        }}
+                      >
+                        <Bookmark className="h-3 w-3 mr-1 fill-primary text-primary" />
+                        <span className="truncate text-sm text-left">
+                          {chat.title}
+                        </span>
+                      </Button>
+                    </SidebarMenuButton>
+                  </div>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

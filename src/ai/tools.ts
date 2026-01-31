@@ -857,7 +857,7 @@ Queries should be natural language descriptions that match how code documentatio
                 attributes: { repo, query: task.searchQuery },
               },
               async () =>
-                await searchCodeChunks(task.searchQuery, repo, userId, 5),
+                await searchCodeChunks(task.searchQuery, repo, userId, 10),
             );
 
             resultsPerTask[i] = searchResults.length;
@@ -1009,7 +1009,7 @@ Queries should be natural language descriptions that match how code documentatio
 
         // Convert to format for graph generation
         const codeData = allSearchResults.map((chunk) => ({
-          name: chunk.metadata.entityName,
+          name: chunk.metadata.fileName,
           path: chunk.metadata.filePath,
           url: chunk.metadata.fileUrl,
           content: chunk.metadata.content,
@@ -1044,29 +1044,12 @@ Queries should be natural language descriptions that match how code documentatio
           (e) => nodeIds.has(e.source) && nodeIds.has(e.target),
         );
 
-        // Build additional edges from indexed metadata
-        const metadataEdges = buildEdgesFromMetadata(allSearchResults, nodeIds);
-        const allEdges = [...validEdges, ...metadataEdges];
-
-        // Deduplicate edges
-        const edgeSet = new Set<string>();
-        const uniqueEdges = allEdges.filter((e) => {
-          const key = `${e.source}->${e.target}`;
-          if (edgeSet.has(key)) return false;
-          edgeSet.add(key);
-          return true;
-        });
-
-        Sentry.logger.info(
-          `Generated ${nodes.length} nodes and ${uniqueEdges.length} edges from indexed data (${iteration} iterations)`,
-        );
-
         const finalTodos = [
           ...completedTodos,
           {
             ...graphTodo,
             status: "completed" as const,
-            result: `${nodes.length} nodes, ${uniqueEdges.length} relationships`,
+            result: `${nodes.length} nodes, ${validEdges.length} relationships`,
           },
         ];
 
@@ -1075,7 +1058,7 @@ Queries should be natural language descriptions that match how code documentatio
           data: {
             todos: finalTodos,
             nodes,
-            edges: uniqueEdges,
+            edges: validEdges,
             loading: false,
             analysing: false,
             queries: allQueries,
@@ -1084,7 +1067,7 @@ Queries should be natural language descriptions that match how code documentatio
           id,
         });
 
-        return { data: { nodes, edges: uniqueEdges } };
+        return { data: { nodes, edges: validEdges } };
       } catch (error) {
         Sentry.captureException(error, {
           tags: { context: "indexed_code_graph_failed" },
@@ -1109,92 +1092,6 @@ Queries should be natural language descriptions that match how code documentatio
     },
   });
 };
-
-/**
- * Build edges from indexed metadata (imports, inheritance, function calls)
- */
-function buildEdgesFromMetadata(
-  chunks: { id: string; metadata: CodeChunkMetadata }[],
-  nodeIds: Set<string>,
-): {
-  source: string;
-  target: string;
-  label?: string;
-  type?: "imports" | "calls" | "extends" | "uses";
-}[] {
-  const edges: {
-    source: string;
-    target: string;
-    label?: string;
-    type?: "imports" | "calls" | "extends" | "uses";
-  }[] = [];
-
-  // Create lookup maps
-  const chunksByName = new Map<string, string[]>();
-  const chunksByFile = new Map<string, string[]>();
-
-  chunks.forEach((chunk) => {
-    const name = chunk.metadata.entityName.toLowerCase();
-    if (!chunksByName.has(name)) chunksByName.set(name, []);
-    chunksByName.get(name)!.push(chunk.id);
-
-    const file = chunk.metadata.filePath;
-    if (!chunksByFile.has(file)) chunksByFile.set(file, []);
-    chunksByFile.get(file)!.push(chunk.id);
-  });
-
-  chunks.forEach((chunk) => {
-    const sourceId = `${chunk.metadata.filePath}::${chunk.metadata.entityName}`;
-    if (!nodeIds.has(sourceId)) return;
-
-    // Inheritance edges
-    if (chunk.metadata.parentClass) {
-      const parentName = chunk.metadata.parentClass.toLowerCase();
-      const parentChunks = chunksByName.get(parentName);
-      if (parentChunks) {
-        parentChunks.forEach((targetChunkId) => {
-          const targetChunk = chunks.find((c) => c.id === targetChunkId);
-          if (targetChunk) {
-            const targetId = `${targetChunk.metadata.filePath}::${targetChunk.metadata.entityName}`;
-            if (nodeIds.has(targetId) && sourceId !== targetId) {
-              edges.push({
-                source: sourceId,
-                target: targetId,
-                label: "extends",
-                type: "extends",
-              });
-            }
-          }
-        });
-      }
-    }
-
-    // Function call edges
-    if (chunk.metadata.calledFunctions) {
-      chunk.metadata.calledFunctions.forEach((funcName) => {
-        const funcChunks = chunksByName.get(funcName.toLowerCase());
-        if (funcChunks) {
-          funcChunks.forEach((targetChunkId) => {
-            const targetChunk = chunks.find((c) => c.id === targetChunkId);
-            if (targetChunk && targetChunk.metadata.entityType === "function") {
-              const targetId = `${targetChunk.metadata.filePath}::${targetChunk.metadata.entityName}`;
-              if (nodeIds.has(targetId) && sourceId !== targetId) {
-                edges.push({
-                  source: sourceId,
-                  target: targetId,
-                  label: `calls ${funcName}`,
-                  type: "calls",
-                });
-              }
-            }
-          });
-        }
-      });
-    }
-  });
-
-  return edges;
-}
 
 /**
  * Create the tools object for the AI agent.

@@ -89,7 +89,7 @@ export function Navbar({ user }: NavbarProps) {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="#" className="flex items-center">
+                      <Link href="/settings" className="flex items-center">
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
                       </Link>
