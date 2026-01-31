@@ -2,32 +2,179 @@
 
 \section{Development Methodology}
 \subsection{Iterative Development Process}
+CodeOrient was developed using an iterative approach, which allowed for continuous refinement and integration of feedbacks. Key stages included:
+\begin{enumerate}
+    \item \textbf{Requirement Analysis:} Initial requirements were gathered based on the pain points of new developers navigating unfamiliar codebases.
+    \item \textbf{Prototyping:} Early prototypes of the search and Generative UI systems were built to validate core concepts. In particular, a simple weather card UI was created to test the dynamic card generation capabilities in Figure \ref{fig:dynamic_card_generation_weather_app}.
+    \begin{figure}[H]
+        \centering
+        {\small
+        \includegraphics[width=6in]{fig/fig8.png}
+        \caption{\textit{Prototype of Dynamic Card Generation for Weather App}}
+        \label{fig:dynamic_card_generation_weather_app}
+        }
+    \end{figure}
+    \item \textbf{Incremental Development:} Development was done based on the priority features identified during prototyping. The search module, code graph analysis, and RAG pipeline were built in successive iterations.
+    \item \textbf{User Feedback Integration:} Feedback from preliminary user testing was incorporated to enhance usability and functionality of the chat application.
+    \item \textbf{Final Testing and Optimisation:} The system underwent rigorous testing to ensure performance, reliability, and accuracy before and after deployment.
+\end{enumerate}
 
 \subsection{Version Control and Branching Strategy}
+The project utilised Git for version control, hosted on GitHub. A feature-branching strategy was employed to isolate the development of core features (e.g. search module, chat interface) while ensuring a stable main branch for continuous deployment via Vercel. Figure \ref{fig:git_branching_strategy} illustrates the branching strategy which squashed feature branches into the main branch after code reviews and testing.
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=6in]{fig/fig9.png}
+    \caption{\textit{Git Branching Strategy for CodeOrient Development}}
+    \label{fig:git_branching_strategy}
+    }
+\end{figure}
 
 \section{Core Implementation Components}
 
 \subsection{Search Module}
 
 \subsubsection{BM25 Sparse Retrieval}
+To handle keyword-based searches, the system implements the Best Matching 25 (BM25) algorithm. The BM25 score for a document \( D \) given a query \( Q \) is computed as:
+\[
+\text{BM25}(D, Q) = \sum_{q_i \in Q} IDF(q_i) \cdot \frac{f(q_i, D) \cdot (k_1 + 1)}{f(q_i, D) + k_1 \cdot (1 - b + b \cdot \frac{|D|}{avgdl})}
+\]
+where:
+\begin{itemize}
+    \item \( f(q_i, D) \) is the term frequency of query term \( q_i \) in document \( D \).
+    \item \( |D| \) is the length of document \( D \).
+    \item \( avgdl \) is the average document length in the corpus.
+    \item \( k_1 \) and \( b \) are hyperparameters, typically set to \( k_1 = 1.5 \) and \( b = 0.75 \) for general text.
+    \item \( IDF(q_i) \) is the inverse document frequency of term \( q_i \), calculated as:
+    \[
+    IDF(q_i) = \log \frac{N - n(q_i) + 0.5}{n(q_i) + 0.5}
+    \]
+    where \( N \) is the total number of documents and \( n(q_i) \) is the number of documents containing term \( q_i \).
+\end{itemize}
+CodeOrient utilise this retrieval method as it is effective in retrieving exact variable or function names in the codebase.
 
 \subsubsection{Dense Embedding Retrieval}
+For semantic search, the system leverages the \texttt{bge-large-en-v1.5} embedding model. Each chunk of code is converted to a 1024-dimensional vector and stored in Upstash Vector. This allows the engine to retrieve code snippets based on semantic similarity to the user query. The similarity between the query vector \( Q \) and document vector \( D \) is computed using cosine similarity:
+\[
+\text{cosine\_similarity}(\vec{a}, \vec{b}) = \frac{\vec{a} \cdot \vec{b}}{\|\vec{a}\| \|\vec{b}\|}
+\]
 
 \subsubsection{Hybrid Search Integration}
-
+The final ranking is acheived through Distributed-Based Score Fusion. The normalised score is computed as:
+\[
+Score = \frac{s - (\mu - 3\sigma)}{(\mu + 3\sigma) - (\mu - 3\sigma)}
+\]
+where:
+\begin{itemize}
+    \item $s$ is the score.
+    \item $\mu$ is the mean of the scores.
+    \item $\sigma$ is the standard deviation.
+    \item $(\mu - 3\sigma)$ represents the minimum value (lower tail of the distribution).
+    \item $(\mu + 3\sigma)$ represents the maximum value (upper tail of the distribution).
+\end{itemize}
+This approach takes into account the distribution of scores which is more sensitive to variation in score ranges from the different retrieval methods.
+% Insert code snippet here %
 \subsection{Code Graph Analysis}
+This section details the transformation of the codebase into an interactive graph seen in Generative UI System (Figure \ref{fig:generative_ui_system}).
 \subsubsection{Dependency Extraction}
+Rather than using AST for traversal, the system utilise regex-based extraction to identify how logic flows across repository files. This approach was chosen for its simplicity and cross-language applicability. An example implementation is shown in Algorithm \ref{alg:dependency_extraction}.
+\begin{algorithm}[H]
+\SetAlgoLined
+\DontPrintSemicolon
+\KwIn{Source Content $C$, Language Metadata $L$}
+\KwOut{Set of Unique Dependencies $D$}
+
+$D \gets \emptyset$\;
+$Patterns \gets$ \text{RetrieveExtractionRules}($L$)\; \tcp*{Map of regex/rules for the specific language}
+
+\If{$Patterns$ is not null}{
+    \ForEach{Rule $R$ in $Patterns$}{
+        $Matches \gets$ \text{ExecutePatternMatching}($C, R$)\;
+        \ForEach{Match $M$ in $Matches$}{
+            $Dependency \gets$ \text{ParseSymbol}($M, R.type$)\;
+            \If{$Dependency$ is valid}{
+                Add $Dependency$ to $D$\;
+            }
+        }
+    }
+}
+
+\Return{De-duplicated set $D$}\;
+\caption{Cross-Language Dependency Extraction Algorithm}
+\label{alg:dependency_extraction}
+\end{algorithm}
 
 \subsubsection{Graph Construction Algorithm}
+The extracted entities and their relationships are mapped to a JSON structure compatible with React Flow. In Listing \ref{lst:graph_metadata_schema}, the node and edge schemas are defined to represent code entities and their interactions.
+\begin{listing}[H]
+\begin{minted}[frame=lines, framesep=2mm, fontsize=\footnotesize, linenos]{typescript}
+/**
+ * Metadata schema for Code Graph Nodes
+ * Represents logical code entities within the React Flow canvas.
+ */
+export type CodeGraphNode = {
+  id: string; // Unique identifier: userId::repo::path::type::name
+  label: string; // The display name of the entity (e.g., function name)
+  type?: "file" | "function" | "class" | "component"; 
+  filePath?: string; // Original source file path
+  codeSnippet?: string; // The raw source code associated with the entity
+  description?: string; // Extracted docstring or JSDoc comment
+};
 
-\subsubsection{Graph Traversal and Ranking}
+/**
+ * Metadata schema for Code Graph Edges
+ * Defines the directional relationships between code entities.
+ */
+export type CodeGraphEdge = {
+  id: string; // Composite ID: sourceID->targetID
+  source: string; // ID of the originating node
+  target: string; // ID of the destination node
+  label?: string; // Relationship type for UI display
+  type?: "imports" | "calls" | "extends" | "uses";
+  animated?: boolean; // Visual indicator for active data/logic flow
+};
+\end{minted}
+\caption{TypeScript interfaces for CodeOrient graph entities.}
+\label{lst:graph_metadata_schema}
+\end{listing}
 
 \subsection{Generative UI System}
-\subsubsection{Query-to-Task Model Translation}
-
-\subsubsection{Task Model to UI Specification}
+The Generative UI system dynamically creates interactive UI cards based on user queries. The implementation involves several key components:
+\subsubsection{Toolkit Selection}
+To enrich the LLM's capabilities, external tools are integrated. The available tools available for selection based on the user query are:
+\begin{itemize}
+    \item \textbf{Code Graph Tool:} Retrieves and visualises code entities and their relationships.
+    \item \textbf{Repository Search Tool:} Fetches all repositories associated with the user.
+    \item \textbf{GitHub Search Tool:} Fetches specific files or code snippets from GitHub directly.
+    \item \textbf{Vector Search Tool:} Interacts with the hybrid search module to fetch relevant code snippets.
+\end{itemize}
 
 \subsubsection{Dynamic Card Generation}
+Based on the user query, the LLM intelligently selects the appropriate tool(s) to fulfill the request. It then generates a structured JSON object based on the tool(s) chosen which results in different card visualisations. It is dynamically streamed to the frontend for real-time rendering. The different visualisations supported are:
+\begin{itemize}
+    \item \textbf{Repository Card} 
+    \begin{figure}[H]
+        \centering
+        {\small
+        \includegraphics[width=6in]{fig/fig10.png}
+        \caption{\textit{Example of Repository Card in Generative UI}}
+        \label{fig:repository_card_example}
+        }
+    \end{figure}
+    \item \textbf{Code Graph Card} 
+    \begin{figure}[H]
+        \centering
+        {\small
+        \includegraphics[width=6in]{fig/fig11.png}
+        \caption{\textit{Example of Code Graph Card in Generative UI}}
+        \label{fig:code_graph_card_example}
+        }
+    \end{figure}
+\end{itemize}
+
+\subsection{Large Language Model Integration}
+\subsubsection{Model Selection and Justification}
+\subsubsection{Prompt Engineering Strategies}
 
 \subsection{RAG Pipeline Implementation}
 \subsubsection{Query Processing}
@@ -39,6 +186,94 @@
 \subsubsection{Citation Extraction and Grounding}
 
 \section{Database Schema}
+CodeOrient utilises PostgreSQL for relational data storage, managed via Prisma ORM. The schema is organised into three primary clusters:
+\begin{itemize}
+    \item \textbf{User Identity \& Session:} Tables to manage user authentication and GitHub Personal Access Tokens (PATs).
+    \item \textbf{Conversation State:} Tables storing \texttt{Chat}, \texttt{Message}, and \texttt{Part} models to support Generative UI and tool-calling outputs.
+    \item \textbf{Indexing Lifecycle:} Table to track the asynchronous indexing jobs for user repositories, used in the RAG pipeline.
+\end{itemize}
+The complete Prisma schema is provided in Listing \ref{lst:database_schema}.
+
+
+\begin{minted}[
+    frame=lines, 
+    framesep=2mm, 
+    fontsize=\footnotesize, 
+    linenos,
+    breaklines,      % Allows breaking of long lines
+    breakanywhere    % Allows breaking mid-word if necessary
+]{text}
+// Core User and Repository Models
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  githubPAT     String?   // Encrypted token for repository access
+  chats         Chat[]
+  createdAt     DateTime  @default(now())
+  @@map("user")
+}
+
+model IndexedRepository {
+  id            String         @id @default(cuid())
+  userId        String
+  repoFullName  String         // Format: "owner/repo"
+  status        IndexingStatus @default(PENDING)
+  progress      Int            @default(0)
+  totalFiles    Int            @default(0)
+  indexedFiles  Int            @default(0)
+  lastIndexedAt DateTime?
+  
+  @@unique([userId, repoFullName])
+  @@map("indexed_repository")
+}
+
+// Conversational State with Generative UI Support
+model Chat {
+  id        String    @id @default(cuid())
+  title     String
+  messages  Message[]
+  userId    String?
+  User      User?     @relation(fields: [userId], references: [id])
+  @@map("chat")
+}
+
+model Message {
+  id        String      @id @default(cuid())
+  chatId    String
+  chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  role      MessageRole
+  parts     Part[]      // Supports multi-modal and tool-call outputs
+  @@map("message")
+}
+
+model Part {
+  id        String          @id @default(cuid())
+  messageId String
+  message   Message         @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  type      MessagePartType
+  
+  // Generative UI and Tool Metadata
+  tool_toolCallId           String?
+  tool_visualiseCodeGraph_output Json? // Stores React Flow graph data
+  data_codeGraph            Json?
+  
+  @@map("part")
+}
+
+enum IndexingStatus {
+  PENDING
+  CLONING
+  PARSING
+  INDEXING
+  COMPLETED
+  FAILED
+}
+\end{minted}
+\begin{center}
+    \captionof{listing}{Prisma Schema.}
+    \label{lst:database_schema}
+\end{center}
 
 \section{Challenges and Solutions}
 \subsection{Handling Large Codebases}
