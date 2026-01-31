@@ -12,7 +12,7 @@ The main components of CodeOrient include:
 \end{itemize}
 
 \subsection{Data Flow Architecture}
-CodeOrient handles user interaction througha multi-stage pipeline that is optimised for speed and quality of responses. The lifecycle is split into two phases: \textit{Code Indexing Cycle} and \textit{Query-Response Cycle}.
+CodeOrient handles user interaction througha multi-stage pipeline that is optimised for speed and quality of responses. Figure \ref{fig:data_flow_architecture} illustrates the data flow architecture where the lifecycle is split into two phases: \textit{Code Indexing Cycle} and \textit{Query-Response Cycle}.
 
 \begin{figure}[H]
     \centering
@@ -70,7 +70,7 @@ Even as a monorepo, the backend logic is divided into specialised services that 
 \end{itemize}
 
 \subsection{User Interface Design}
-This section discusses the key design principles and layout of the chat page of CodeOrient application. The page features a split-pane design that prioritise the chat interface with the AI assistant and the source code.
+This section discusses the key design principles and layout of the chat page of CodeOrient application. Figure \ref{fig:chat_page_layout} showcases the chat page layout which features a split-pane design that prioritise the chat interface with the AI assistant and the source code.
 \begin{figure}[H]
     \centering
     {\small
@@ -124,18 +124,7 @@ Traditional keyword-based or fuzzy search methods fail to capture the intent beh
     \item \textbf{GitHub Octokit:} The engine uses GitHub's Octokit library to fetch private repository contents from the user's account. This allows the system to access up-to-date codebases for indexing.
     \item \textbf{Hybrid Retrieval Strategy:} The engine utilises \texttt{bge-large-en-v1.5}, an embedding model to perform semantic search in Upstash Vector. Furthermore, it conducts a sparse search to find documents based on keyword frequency and term importance. This hybrid approach allows the engine to find relevant code even if the user's query does not explicitly match the code's keywords or function names. Apart from the code itself, the engine leverages the docstrings and comments extracted during the indexing phase to improve context matching.
     \item \textbf{Scoping and Filtering:} The engine partitions searches by repository and user ID to prevent cross-project contamination. Additionally, the engine supports metadata filtering, such as file type or entity type, to refine search results.
-    \item \textbf{Ranking Mechanism:} Retrieved code snippets are ranked using Distributed-Based Score Fusion (DBSF), which combines results from dense and sparse indexes. The normalised score is computed as:
-    \[
-    Score = \frac{s - (\mu - 3\sigma)}{(\mu + 3\sigma) - (\mu - 3\sigma)}
-    \]
-    where:
-    \begin{itemize}
-        \item $s$ is the score.
-        \item $\mu$ is the mean of the scores.
-        \item $\sigma$ is the standard deviation.
-        \item $(\mu - 3\sigma)$ represents the minimum value (lower tail of the distribution).
-        \item $(\mu + 3\sigma)$ represents the maximum value (upper tail of the distribution).
-    \end{itemize}
+    \item \textbf{Ranking Mechanism:} Retrieved code snippets are ranked using Distributed-Based Score Fusion (DBSF), which combines results from dense and sparse indexes. 
     For CodeOrient, DBSF was chosen because it balances semantic meaning with exact keyword match effectively. This ranking ensures that the most contextually relevant code snippets are prioritised for retrieval. 
 \end{enumerate}
 \subsection{LLM Integration and RAG Pipeline}
@@ -204,8 +193,6 @@ The final stage involves storing the processed code chunks for low-latency retri
         \addlinespace
         \textbf{AI Framework} & Vercel AI SDK & Provides native primitives for \texttt{streamObject}, enabling real-time Generative UI rendering and SSE-based communication. \\
         \addlinespace
-        \textbf{LLM Provider} & OpenAI & Offers state-of-the-art models with robust capabilities in code understanding and multi-turn reasoning. \\
-        \addlinespace
         \textbf{Database \& ORM} & PostgreSQL \& Prisma & Ensures robust relational integrity for managing complex user, repository, and chat-session hierarchies via Prisma ORM. \\
         \addlinespace
         \textbf{Vector Store} & Upstash Vector & A serverless vector database that allows for high-dimensional semantic indexing with native metadata filtering for multi-repo isolation. \\
@@ -215,6 +202,8 @@ The final stage involves storing the processed code chunks for low-latency retri
         \textbf{Visualisation} & React Flow & Offers the capabability of rendering dynamic nodes and edges derived from code analysis. \\
         \addlinespace
         \textbf{Ingestion} & Octokit (GitHub) & Facilitates secure fetching of code repositories from GitHub. \\
+        \addlinespace
+        \textbf{Analytics} & Sentry & Provides real-time error monitoring and performance tracking for both frontend and backend components. \\
         \bottomrule
     \end{tabular}
     \caption{Summary of Technical Stack and Rationale}

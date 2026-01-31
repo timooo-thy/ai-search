@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2026.1.23)  30 JAN 2026 15:26
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2026.1.23)  30 JAN 2026 20:02
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -734,79 +734,250 @@ Package: array 2024/10/17 v2.6g Tabular extension package (FMi)
 \extratabsurround=\skip113
 \backup@length=\skip114
 \ar@cellbox=\box59
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/algorithm2e/algorithm2e.sty
+Package: algorithm2e 2017/07/18 v5.2 algorithms environments
+\c@AlgoLine=\count440
+\algocf@hangindent=\skip115
+ (/usr/local/texlive/2025/texmf-dist/tex/latex/ifoddpage/ifoddpage.sty
+Package: ifoddpage 2022/10/18 v1.2 Conditionals for odd/even page detection
+\c@checkoddpage=\count441
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/tools/xspace.sty
+Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/relsize/relsize.sty
+Package: relsize 2013/03/29 ver 4.1
 )
-LaTeX Font Info:    Trying to load font information for OT1+ntxtlf on input line 31.
+\skiptotal=\skip116
+\skiplinenumber=\skip117
+\skiprule=\skip118
+\skiphlne=\skip119
+\skiptext=\skip120
+\skiplength=\skip121
+\algomargin=\skip122
+\skipalgocfslide=\skip123
+\algowidth=\dimen199
+\inoutsize=\dimen256
+\inoutindent=\dimen257
+\interspacetitleruled=\dimen258
+\interspacealgoruled=\dimen259
+\interspacetitleboxruled=\dimen260
+\algocf@ruledwidth=\skip124
+\algocf@inoutbox=\box60
+\algocf@inputbox=\box61
+\AlCapSkip=\skip125
+\AlCapHSkip=\skip126
+\algoskipindent=\skip127
+\algocf@nlbox=\box62
+\algocf@hangingbox=\box63
+\algocf@untilbox=\box64
+\algocf@skipuntil=\skip128
+\algocf@capbox=\box65
+\algocf@lcaptionbox=\skip129
+\algoheightruledefault=\skip130
+\algoheightrule=\skip131
+\algotitleheightruledefault=\skip132
+\algotitleheightrule=\skip133
+\c@algocfline=\count442
+\c@algocfproc=\count443
+\c@algocf=\count444
+\algocf@algoframe=\box66
+\algocf@algobox=\box67
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/minted/minted.sty
+Package: minted 2025/03/06 v3.6.0 Yet another Pygments shim for LaTeX
+ (/usr/local/texlive/2025/texmf-dist/tex/generic/catchfile/catchfile.sty
+Package: catchfile 2019/12/09 v1.8 Catch the contents of a file (HO)
+ (/usr/local/texlive/2025/texmf-dist/tex/generic/etexcmds/etexcmds.sty
+Package: etexcmds 2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
+)) (/usr/local/texlive/2025/texmf-dist/tex/latex/fvextra/fvextra.sty
+Package: fvextra 2025/03/04 v1.12.0 fvextra - extensions and patches for fancyvrb
+ (/usr/local/texlive/2025/texmf-dist/tex/latex/fancyvrb/fancyvrb.sty
+Package: fancyvrb 2024/01/20 4.5c verbatim text (tvz,hv)
+\FV@CodeLineNo=\count445
+\FV@InFile=\read4
+\FV@TabBox=\box68
+\c@FancyVerbLine=\count446
+\FV@StepNumber=\count447
+\FV@OutFile=\write4
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/upquote/upquote.sty
+Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verbatim
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/lineno/lineno.sty
+Package: lineno 2025/01/29 line numbers on paragraphs v5.4
+\linenopenalty=\count448
+\output=\toks32
+\linenoprevgraf=\count449
+\linenumbersep=\dimen261
+\linenumberwidth=\dimen262
+\c@linenumber=\count450
+\c@pagewiselinenumber=\count451
+\c@LN@truepage=\count452
+\c@internallinenumber=\count453
+\c@internallinenumbers=\count454
+\quotelinenumbersep=\dimen263
+\bframerule=\dimen264
+\bframesep=\dimen265
+\bframebox=\box69
+\@LN@amsmath@ams@eqpen=\count455
+LaTeX Info: Redefining \\ on input line 3187.
+)
+\c@FancyVerbWriteLine=\count456
+\c@FancyVerbBufferLine=\count457
+\c@FV@TrueTabGroupLevel=\count458
+\c@FV@TrueTabCounter=\count459
+\FV@TabBox@Group=\box70
+\FV@bgcolorstructbox=\box71
+\FV@TmpLength=\skip134
+\c@FV@HighlightLinesStart=\count460
+\c@FV@HighlightLinesStop=\count461
+\FV@LoopCount=\count462
+\FV@NCharsBox=\box72
+\FV@BreakIndent=\dimen266
+\FV@BreakIndentNChars=\count463
+\FV@BreakSymbolSepLeft=\dimen267
+\FV@BreakSymbolSepLeftNChars=\count464
+\FV@BreakSymbolSepRight=\dimen268
+\FV@BreakSymbolSepRightNChars=\count465
+\FV@BreakSymbolIndentLeft=\dimen269
+\FV@BreakSymbolIndentLeftNChars=\count466
+\FV@BreakSymbolIndentRight=\dimen270
+\FV@BreakSymbolIndentRightNChars=\count467
+\c@FancyVerbLineBreakLast=\count468
+\FV@LineBox=\box73
+\FV@LineIndentBox=\box74
+\c@FV@BreakBufferDepth=\count469
+\FV@LineWidth=\dimen271
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/latex2pydata/latex2pydata.sty
+Package: latex2pydata 2025/03/03 v0.5.0 latex2pydata - write data to file in Python literal format
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
+\pgfkeys@pathtoks=\toks33
+\pgfkeys@temptoks=\toks34
+ (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/utilities/pgfkeyslibraryfiltered.code.tex
+\pgfkeys@tmptoks=\toks35
+))) (/usr/local/texlive/2025/texmf-dist/tex/latex/pgfopts/pgfopts.sty
+Package: pgfopts 2014/07/10 v2.1a LaTeX package options with pgfkeys
+\pgfopts@list@add@a@toks=\toks36
+\pgfopts@list@add@b@toks=\toks37
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/tools/shellesc.sty
+Package: shellesc 2023/07/08 v1.0d unified shell escape interface for LaTeX
+Package shellesc Info: Restricted shell escape enabled on input line 77.
+)
+\c@minted@FancyVerbLineTemp=\count470
+\@float@every@listing=\toks38
+\c@listing=\count471
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/listings.sty
+\lst@mode=\count472
+\lst@gtempboxa=\box75
+\lst@token=\toks39
+\lst@length=\count473
+\lst@currlwidth=\dimen272
+\lst@column=\count474
+\lst@pos=\count475
+\lst@lostspace=\dimen273
+\lst@width=\dimen274
+\lst@newlines=\count476
+\lst@lineno=\count477
+\lst@maxwidth=\dimen275
+ (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstpatch.sty
+File: lstpatch.sty 2024/09/23 1.10c (Carsten Heinz)
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2024/09/23 1.10c (Carsten Heinz)
+\c@lstnumber=\count478
+\lst@skipnumbers=\count479
+\lst@framebox=\box76
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/listings/listings.cfg
+File: listings.cfg 2024/09/23 1.10c listings configuration
+))
+Package: listings 2024/09/23 1.10c (Carsten Heinz)
+ (/usr/local/texlive/2025/texmf-dist/tex/latex/caption/caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+ (/usr/local/texlive/2025/texmf-dist/tex/latex/caption/caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen276
+\captionmargin=\dimen277
+\caption@leftmargin=\dimen278
+\caption@rightmargin=\dimen279
+\caption@width=\dimen280
+\caption@indent=\dimen281
+\caption@parindent=\dimen282
+\caption@hangindent=\dimen283
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count480
+\c@continuedfloat=\count481
+Package caption Info: float package is loaded.
+Package caption Info: hyperref package is loaded.
+Package caption Info: listings package is loaded.
+)
+LaTeX Font Info:    Trying to load font information for OT1+ntxtlf on input line 35.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/newtx/ot1ntxtlf.fd
 File: ot1ntxtlf.fd 2021/05/24 v1.0 font definition file for OT1/ntx/tlf
 )
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
-(Font)              scaled to size 12.0pt on input line 31.
-\@quotelevel=\count440
-\@quotereset=\count441
+(Font)              scaled to size 12.0pt on input line 35.
+\@quotelevel=\count482
+\@quotereset=\count483
  (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/ntxmi/m/it on input line 31.
-LaTeX Font Info:    Trying to load font information for OML+ntxmi on input line 31.
+LaTeX Font Info:    Checking defaults for OML/ntxmi/m/it on input line 35.
+LaTeX Font Info:    Trying to load font information for OML+ntxmi on input line 35.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/newtx/omlntxmi.fd
 File: omlntxmi.fd 2015/08/25 Fontinst v1.933 font definitions for OML/ntxmi.
 )
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for U/ntxexa/m/n on input line 31.
-LaTeX Font Info:    Trying to load font information for U+ntxexa on input line 31.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for U/ntxexa/m/n on input line 35.
+LaTeX Font Info:    Trying to load font information for U+ntxexa on input line 35.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/newtx/untxexa.fd
 File: untxexa.fd 2012/04/16 Fontinst v1.933 font definitions for U/ntxexa.
 )
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for LMS/ntxsy/m/n on input line 31.
-LaTeX Font Info:    Trying to load font information for LMS+ntxsy on input line 31.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for LMS/ntxsy/m/n on input line 35.
+LaTeX Font Info:    Trying to load font information for LMS+ntxsy on input line 35.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/newtx/lmsntxsy.fd
 File: lmsntxsy.fd 2016/07/02 Fontinst v1.933 font definitions for LMS/ntxsy.
 )
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for LMX/ntxexx/m/n on input line 31.
-LaTeX Font Info:    Trying to load font information for LMX+ntxexx on input line 31.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for LMX/ntxexx/m/n on input line 35.
+LaTeX Font Info:    Trying to load font information for LMX+ntxexx on input line 35.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/newtx/lmxntxexx.fd
 File: lmxntxexx.fd 2016/07/03 Fontinst v1.933 font definitions for LMX/ntxexx.
 )
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
  (/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count442
-\scratchdimen=\dimen199
-\scratchbox=\box60
-\nofMPsegments=\count443
-\nofMParguments=\count444
-\everyMPshowfont=\toks32
-\MPscratchCnt=\count445
-\MPscratchDim=\dimen256
-\MPnumerator=\count446
-\makeMPintoPDFobject=\count447
-\everyMPtoPDFconversion=\toks33
+\scratchcounter=\count484
+\scratchdimen=\dimen284
+\scratchbox=\box77
+\nofMPsegments=\count485
+\nofMParguments=\count486
+\everyMPshowfont=\toks40
+\MPscratchCnt=\count487
+\MPscratchDim=\dimen285
+\MPnumerator=\count488
+\makeMPintoPDFobject=\count489
+\everyMPtoPDFconversion=\toks41
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-\c@mv@tabular=\count448
-\c@mv@boldtabular=\count449
-LaTeX Info: Command `\dddot' is already robust on input line 31.
-LaTeX Info: Command `\ddddot' is already robust on input line 31.
+\c@mv@tabular=\count490
+\c@mv@boldtabular=\count491
+LaTeX Info: Command `\dddot' is already robust on input line 35.
+LaTeX Info: Command `\ddddot' is already robust on input line 35.
 
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -841,10 +1012,10 @@ LaTeX Info: Command `\ddddot' is already robust on input line 31.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring OFF on input line 31.
+Package hyperref Info: Link coloring OFF on input line 35.
 (./main.out) (./main.out)
-\@outlinefile=\write4
-\openout4 = `main.out'.
+\@outlinefile=\write5
+\openout5 = `main.out'.
 
 Package biblatex Info: Trying to load language 'english'...
 Package biblatex Info: ... file 'english.lbx' found.
@@ -859,8 +1030,11 @@ Package biblatex Info: Automatic encoding selection.
 Package biblatex Info: Trying to load bibliographic data...
 Package biblatex Info: ... file 'main.bbl' found.
  (./main.bbl)
-Package biblatex Info: Reference section=0 on input line 31.
-Package biblatex Info: Reference segment=0 on input line 31.
+Package biblatex Info: Reference section=0 on input line 35.
+Package biblatex Info: Reference segment=0 on input line 35.
+\c@lstlisting=\count492
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
  (./cover.tex
 LaTeX Font Info:    Font shape `OT1/ntxtlf/b/n' will be
 (Font)              scaled to size 12.0pt on input line 5.
@@ -967,14 +1141,14 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 [3]
 
 [4])
-\tf@toc=\write5
-\openout5 = `main.toc'.
+\tf@toc=\write6
+\openout6 = `main.toc'.
 
 
 
 [5] (./main.lot)
-\tf@lot=\write6
-\openout6 = `main.lot'.
+\tf@lot=\write7
+\openout7 = `main.lot'.
 
 
 
@@ -982,12 +1156,28 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 (Font)              scaled to size 12.0pt on input line 3.
 )
-\tf@lof=\write7
-\openout7 = `main.lof'.
+\tf@lof=\write8
+\openout8 = `main.lof'.
 
 
 
-[7] (./introduction.tex
+[7] (./main.lol)
+\tf@lol=\write9
+\openout9 = `main.lol'.
+
+
+
+[8
+
+] (./main.loa)
+\tf@loa=\write10
+\openout10 = `main.loa'.
+
+
+
+[9
+
+] (./introduction.tex
 Chapter 1.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 17.28pt on input line 3.
@@ -1030,24 +1220,19 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 ]
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 10.95pt on input line 23.
-<fig/fig1.png, id=373, 585.18625pt x 559.08875pt>
+<fig/fig1.png, id=481, 585.18625pt x 559.08875pt>
 File: fig/fig1.png Graphic file (type png)
 <use fig/fig1.png>
 Package pdftex.def Info: fig/fig1.png  used on input line 24.
 (pdftex.def)             Requested size: 216.81pt x 207.14111pt.
 
 
-[5
-pdfTeX warning (ext4): destination with the same identifier (name{figure.2.1}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.34 
-      <./fig/fig1.png>]
+[5 <./fig/fig1.png>]
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 8.8pt on input line 40.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 6.6pt on input line 40.
-<fig/fig2.png, id=386, 1278.7775pt x 317.185pt>
+<fig/fig2.png, id=494, 1278.7775pt x 317.185pt>
 File: fig/fig2.png Graphic file (type png)
 <use fig/fig2.png>
 Package pdftex.def Info: fig/fig2.png  used on input line 49.
@@ -1056,62 +1241,42 @@ Package pdftex.def Info: fig/fig2.png  used on input line 49.
 
 [6]
 
-[7
-pdfTeX warning (ext4): destination with the same identifier (name{figure.2.2}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.67 
-      <./fig/fig2.png>]
-<fig/fig3.png, id=406, 399.4925pt x 423.5825pt>
+[7 <./fig/fig2.png>]
+<fig/fig3.png, id=515, 399.4925pt x 423.5825pt>
 File: fig/fig3.png Graphic file (type png)
 <use fig/fig3.png>
 Package pdftex.def Info: fig/fig3.png  used on input line 73.
 (pdftex.def)             Requested size: 180.67499pt x 191.56694pt.
 
 
-[8
-pdfTeX warning (ext4): destination with the same identifier (name{figure.2.3}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.81 
-      <./fig/fig3.png>]
-<fig/fig4.png, id=417, 1358.07375pt x 372.39125pt>
+[8 <./fig/fig3.png>]
+<fig/fig4.png, id=527, 1358.07375pt x 372.39125pt>
 File: fig/fig4.png Graphic file (type png)
 <use fig/fig4.png>
 Package pdftex.def Info: fig/fig4.png  used on input line 88.
 (pdftex.def)             Requested size: 361.34999pt x 99.08096pt.
 
 
-[9
-pdfTeX warning (ext4): destination with the same identifier (name{figure.2.4}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.98 
-      <./fig/fig4.png>]
+[9 <./fig/fig4.png>]
 
 [10]
 
 [11]
-<fig/fig5.jpeg, id=447, 3127.685pt x 1716.4125pt>
+<fig/fig5.jpeg, id=556, 3127.685pt x 1716.4125pt>
 File: fig/fig5.jpeg Graphic file (type jpg)
 <use fig/fig5.jpeg>
 Package pdftex.def Info: fig/fig5.jpeg  used on input line 126.
 (pdftex.def)             Requested size: 397.48499pt x 218.11292pt.
 ) (./architecture.tex
 
-[12
-pdfTeX warning (ext4): destination with the same identifier (name{figure.2.5}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {System Design and Architecture} <./fig/fig5.jpeg>]
+[12 <./fig/fig5.jpeg>]
 Chapter 3.
 
 
 [13
 
 ]
-<fig/fig6.png, id=461, 1758.57pt x 1861.95625pt>
+<fig/fig6.png, id=572, 1758.57pt x 1861.95625pt>
 File: fig/fig6.png Graphic file (type png)
 <use fig/fig6.png>
 Package pdftex.def Info: fig/fig6.png  used on input line 20.
@@ -1123,12 +1288,7 @@ Overfull \hbox (21.05502pt too wide) in paragraph at lines 20--21
 
 
 
-[14
-pdfTeX warning (ext4): destination with the same identifier (name{figure.3.1}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.28 
-      <./fig/fig6.png>]
+[14 <./fig/fig6.png>]
 
 [15]
 LaTeX Font Info:    Trying to load font information for OT1+ntxtt on input line 50.
@@ -1140,7 +1300,7 @@ LaTeX Font Info:    Font shape `OT1/ntxtt/m/n' will be
 
 
 [16]
-<fig/fig7.png, id=483, 2015.53pt x 1359.0775pt>
+<fig/fig7.png, id=596, 2015.53pt x 1359.0775pt>
 File: fig/fig7.png Graphic file (type png)
 <use fig/fig7.png>
 Package pdftex.def Info: fig/fig7.png  used on input line 77.
@@ -1154,12 +1314,7 @@ Overfull \hbox (21.05502pt too wide) in paragraph at lines 77--78
 
 [17]
 
-[18
-pdfTeX warning (ext4): destination with the same identifier (name{figure.3.2}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.92 
-      <./fig/fig7.png>]
+[18 <./fig/fig7.png>]
 
 [19]
 Overfull \hbox (0.7507pt too wide) in paragraph at lines 116--117
@@ -1174,63 +1329,227 @@ Overfull \hbox (0.7507pt too wide) in paragraph at lines 116--117
 
 [22]
 
-[23
-pdfTeX warning (ext4): destination with the same identifier (name{table.3.1}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.184     \item \textbf
-                       {Docstring Extraction:} The parser scans for docstrin...]
-Overfull \hbox (77.48848pt too wide) in paragraph at lines 192--193
+[23]
+Overfull \hbox (77.48848pt too wide) in paragraph at lines 181--182
 \OT1/minntx/m/n/12 in-dex-ing life-cy-cle of each repos-i-tory (e.g., \OT1/ntxtt/m/n/12 CLONING $\LMS/ntxsy/m/n/12 !$ \OT1/ntxtt/m/n/12 PARSING $\LMS/ntxsy/m/n/12 !$ \OT1/ntxtt/m/n/12 INDEXING $\LMS/ntxsy/m/n/12 !$ \OT1/ntxtt/m/n/12 `CO'MPLETED\OT1/minntx/m/n/12 ).
  []
 
 
-Overfull \hbox (53.27547pt too wide) in paragraph at lines 199--220
+Overfull \hbox (53.27547pt too wide) in paragraph at lines 188--209
  [][] 
  []
 
-)
+) (./implementation.tex
 
 [24]
 
-[25
-pdfTeX warning (ext4): destination with the same identifier (name{table.3.2}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.94 
-     ]
-LaTeX Font Info:    Font shape `OT1/ntxtlf/m/sc' will be
-(Font)              scaled to size 12.0pt on input line 132.
+[25]
+Chapter 4.
+<fig/fig8.png, id=658, 1123.19624pt x 786.94pt>
+File: fig/fig8.png Graphic file (type png)
+<use fig/fig8.png>
+Package pdftex.def Info: fig/fig8.png  used on input line 12.
+(pdftex.def)             Requested size: 433.62pt x 303.79536pt.
+
+Overfull \hbox (21.05502pt too wide) in paragraph at lines 12--13
+ [][] 
+ []
+
 
 
 [26
 
+]
+<fig/fig9.png, id=667, 652.4375pt x 291.0875pt>
+File: fig/fig9.png Graphic file (type png)
+<use fig/fig9.png>
+Package pdftex.def Info: fig/fig9.png  used on input line 27.
+(pdftex.def)             Requested size: 433.62pt x 193.46858pt.
+
+Overfull \hbox (21.05502pt too wide) in paragraph at lines 27--28
+ [][] 
+ []
+
+
+
+[27 <./fig/fig8.png>]
+
+[28 <./fig/fig9.png>]
+
+[29]
+
+LaTeX Warning: Reference `fig:generative_ui_system' on page 30 undefined on input line 78.
+
+\pydata@fh@_FAD58DE7366495DB4650CFEFAC2FCD61.data.minted=\write11
+\openout11 = `_FAD58DE7366495DB4650CFEFAC2FCD61.data.minted'.
+
+runsystem(latexminted config  --timestamp 20260130200212 FAD58DE7366495DB4650CFEFAC2FCD61)...executed safely (allowed).
+
+(./_FAD58DE7366495DB4650CFEFAC2FCD61.config.minted)
+runsystem(latexminted cleanconfig  --timestamp 20260130200212 FAD58DE7366495DB4650CFEFAC2FCD61)...executed safely (allowed).
+
+ (./_minted/default.style.minted) (./_minted/6EE2F6A2D56388BF65F7316A73B235CD.highlight.minted
+LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
+(Font)              scaled to size 10.0pt on input line 1.
+LaTeX Font Info:    Font shape `OT1/ntxtt/m/n' will be
+(Font)              scaled to size 10.0pt on input line 1.
+LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
+(Font)              scaled to size 6.0pt on input line 2.
+LaTeX Font Info:    Trying to load font information for OT1+txtt on input line 2.
+ (/usr/local/texlive/2025/texmf-dist/tex/latex/txfonts/ot1txtt.fd
+File: ot1txtt.fd 2000/12/15 v3.1
+)
+LaTeX Font Info:    Font shape `OT1/ntxtt/m/it' in size <10> not available
+(Font)              Font shape `OT1/txtt/m/sl' tried instead on input line 2.
+LaTeX Font Info:    Font shape `OT1/ntxtt/b/n' will be
+(Font)              scaled to size 10.0pt on input line 6.
+)
+Package hyperref Info: bookmark level for unknown listing defaults to 0 on input line 137.
+
+
+[30]
+
+[31]
+<fig/fig10.png, id=701, 2009.5075pt x 504.88625pt>
+File: fig/fig10.png Graphic file (type png)
+<use fig/fig10.png>
+Package pdftex.def Info: fig/fig10.png  used on input line 159.
+(pdftex.def)             Requested size: 433.62pt x 108.94131pt.
+
+Overfull \hbox (21.05502pt too wide) in paragraph at lines 159--160
+ [][] 
+ []
+
+<fig/fig11.png, id=702, 2008.50375pt x 822.07124pt>
+File: fig/fig11.png Graphic file (type png)
+<use fig/fig11.png>
+Package pdftex.def Info: fig/fig11.png  used on input line 168.
+(pdftex.def)             Requested size: 433.62pt x 177.4694pt.
+
+Overfull \hbox (21.05502pt too wide) in paragraph at lines 168--169
+ [][] 
+ []
+
+
+
+[32 <./fig/fig10.png>]
+
+[33 <./fig/fig11.png>] (./_minted/DF9D1BBD479CBEB1F6936A81C2750106.highlight.minted
+
+[34]
+LaTeX Font Info:    Font shape `OT1/minntx/m/n' will be
+(Font)              scaled to size 10.0pt on input line 40.
+LaTeX Font Info:    Font shape `OT1/minntx/m/n' will be
+(Font)              scaled to size 7.3pt on input line 40.
+LaTeX Font Info:    Font shape `OT1/minntx/m/n' will be
+(Font)              scaled to size 5.5pt on input line 40.
+LaTeX Font Info:    Font shape `OML/ntxmi/m/it' will be
+(Font)              scaled to size 10.0pt on input line 40.
+LaTeX Font Info:    Font shape `OML/ntxmi/m/it' will be
+(Font)              scaled to size 7.3pt on input line 40.
+LaTeX Font Info:    Font shape `OML/ntxmi/m/it' will be
+(Font)              scaled to size 5.5pt on input line 40.
+LaTeX Font Info:    Font shape `LMS/ntxsy/m/n' will be
+(Font)              scaled to size 10.0pt on input line 40.
+LaTeX Font Info:    Font shape `LMS/ntxsy/m/n' will be
+(Font)              scaled to size 7.3pt on input line 40.
+LaTeX Font Info:    Font shape `LMS/ntxsy/m/n' will be
+(Font)              scaled to size 5.5pt on input line 40.
+LaTeX Font Info:    Font shape `LMX/ntxexx/m/n' will be
+(Font)              scaled to size 10.0pt on input line 40.
+LaTeX Font Info:    Font shape `LMX/ntxexx/m/n' will be
+(Font)              scaled to size 7.3pt on input line 40.
+LaTeX Font Info:    Font shape `LMX/ntxexx/m/n' will be
+(Font)              scaled to size 5.5pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxmia/m/it' will be
+(Font)              scaled to size 10.0pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxmia/m/it' will be
+(Font)              scaled to size 7.3pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxmia/m/it' will be
+(Font)              scaled to size 5.5pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxsym/m/n' will be
+(Font)              scaled to size 10.0pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxsym/m/n' will be
+(Font)              scaled to size 7.3pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxsym/m/n' will be
+(Font)              scaled to size 5.5pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxsyc/m/n' will be
+(Font)              scaled to size 10.0pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxsyc/m/n' will be
+(Font)              scaled to size 7.3pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxsyc/m/n' will be
+(Font)              scaled to size 5.5pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
+(Font)              scaled to size 10.0pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
+(Font)              scaled to size 7.3pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
+(Font)              scaled to size 5.5pt on input line 40.
+LaTeX Font Info:    Font shape `OT1/ntxtt/m/n' will be
+(Font)              scaled to size 6.0pt on input line 40.
+LaTeX Font Info:    Font shape `OT1/minntx/m/n' will be
+(Font)              scaled to size 6.5pt on input line 40.
+LaTeX Font Info:    Font shape `OML/ntxmi/m/it' will be
+(Font)              scaled to size 6.5pt on input line 40.
+LaTeX Font Info:    Font shape `LMS/ntxsy/m/n' will be
+(Font)              scaled to size 6.5pt on input line 40.
+LaTeX Font Info:    Font shape `LMX/ntxexx/m/n' will be
+(Font)              scaled to size 6.5pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxmia/m/it' will be
+(Font)              scaled to size 6.5pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxsym/m/n' will be
+(Font)              scaled to size 6.5pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxsyc/m/n' will be
+(Font)              scaled to size 6.5pt on input line 40.
+LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
+(Font)              scaled to size 6.5pt on input line 40.
+)
+
+Package caption Warning: The option `hypcap=true' will be ignored for this
+(caption)                particular \caption on input line 274.
+See the caption package documentation for explanation.
+
+)
+
+[35]
+
+[36]
+LaTeX Font Info:    Font shape `OT1/ntxtlf/m/sc' will be
+(Font)              scaled to size 12.0pt on input line 144.
+
+
+[37
+
 {/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/newtx/ntx-ot1-tlf-pc.enc}]
 
-[27] (./main.aux)
+[38] (./main.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2020/03/25>
  ***********
+
+
+LaTeX Warning: There were undefined references.
+
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 81E4A8F44B444A14530D25EA1DE567A8;11111.
+(rerunfilecheck)             Checksum: 8495FBCECDEAEAB5C03FF6BC42FDCBDC;14166.
 Package logreq Info: Writing requests to 'main.run.xml'.
 \openout1 = `main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 22438 strings out of 473190
- 373582 string characters out of 5715800
- 1188946 words of memory out of 5000000
- 45215 multiletter control sequences out of 15000+600000
- 588210 words of font info for 95 fonts, out of 8000000 for 9000
+ 30782 strings out of 473190
+ 565725 string characters out of 5715800
+ 1485466 words of memory out of 5000000
+ 53386 multiletter control sequences out of 15000+600000
+ 613527 words of font info for 155 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 80i,11n,93p,1259b,1692s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/tex-gyre/qtmr.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txsys.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/txfonts/txtt.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/ztmr.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main.pdf (36 pages, 1450501 bytes).
+ 80i,19n,117p,1259b,1819s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/tex-gyre/qtmr.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/txfonts/txbtt.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txexs.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txsys.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/txfonts/txtt.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/txfonts/txtt.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/ztmr.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
+Output written on main.pdf (49 pages, 1835810 bytes).
 PDF statistics:
- 656 PDF objects out of 1000 (max. 8388607)
- 582 compressed objects within 6 object streams
- 149 named destinations out of 1000 (max. 500000)
- 476 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 866 PDF objects out of 1000 (max. 8388607)
+ 758 compressed objects within 8 object streams
+ 192 named destinations out of 1000 (max. 500000)
+ 632 words of extra memory for PDF output out of 10000 (max. 10000000)
 

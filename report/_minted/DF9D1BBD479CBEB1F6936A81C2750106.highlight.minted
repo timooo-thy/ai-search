@@ -1,0 +1,68 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+// Core User and Repository Models
+model User \PYGZob{}
+  id            String    @id
+  name          String
+  email         String    @unique
+  githubPAT     String?   // Encrypted token for repository access
+  chats         Chat[]
+  createdAt     DateTime  @default(now())
+  @@map(\PYGZdq{}user\PYGZdq{})
+\PYGZcb{}
+
+model IndexedRepository \PYGZob{}
+  id            String         @id @default(cuid())
+  userId        String
+  repoFullName  String         // Format: \PYGZdq{}owner/repo\PYGZdq{}
+  status        IndexingStatus @default(PENDING)
+  progress      Int            @default(0)
+  totalFiles    Int            @default(0)
+  indexedFiles  Int            @default(0)
+  lastIndexedAt DateTime?
+
+  @@unique([userId, repoFullName])
+  @@map(\PYGZdq{}indexed\PYGZus{}repository\PYGZdq{})
+\PYGZcb{}
+
+// Conversational State with Generative UI Support
+model Chat \PYGZob{}
+  id        String    @id @default(cuid())
+  title     String
+  messages  Message[]
+  userId    String?
+  User      User?     @relation(fields: [userId], references: [id])
+  @@map(\PYGZdq{}chat\PYGZdq{})
+\PYGZcb{}
+
+model Message \PYGZob{}
+  id        String      @id @default(cuid())
+  chatId    String
+  chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  role      MessageRole
+  parts     Part[]      // Supports multi\PYGZhy{}modal and tool\PYGZhy{}call outputs
+  @@map(\PYGZdq{}message\PYGZdq{})
+\PYGZcb{}
+
+model Part \PYGZob{}
+  id        String          @id @default(cuid())
+  messageId String
+  message   Message         @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  type      MessagePartType
+
+  // Generative UI and Tool Metadata
+  tool\PYGZus{}toolCallId           String?
+  tool\PYGZus{}visualiseCodeGraph\PYGZus{}output Json? // Stores React Flow graph data
+  data\PYGZus{}codeGraph            Json?
+
+  @@map(\PYGZdq{}part\PYGZdq{})
+\PYGZcb{}
+
+enum IndexingStatus \PYGZob{}
+  PENDING
+  CLONING
+  PARSING
+  INDEXING
+  COMPLETED
+  FAILED
+\PYGZcb{}
+\end{MintedVerbatim}

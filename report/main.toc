@@ -3,6 +3,8 @@
 \contentsline {chapter}{Contents}{iii}{chapter*.2}%
 \contentsline {chapter}{List of Tables}{vi}{chapter*.2}%
 \contentsline {chapter}{List of Figures}{vii}{chapter*.2}%
+\contentsline {chapter}{List of Listings}{viii}{chapter*.2}%
+\contentsline {chapter}{List of Algorithms}{ix}{chapter*.3}%
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Motivation and Problem Statement}{1}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Research Objectives and Goals}{2}{section.1.2}%
@@ -46,10 +48,38 @@
 \contentsline {section}{\numberline {3.3}Backend Architecture}{20}{section.3.3}%
 \contentsline {subsection}{\numberline {3.3.1}API Design}{20}{subsection.3.3.1}%
 \contentsline {subsection}{\numberline {3.3.2}Code Search Engine}{20}{subsection.3.3.2}%
-\contentsline {subsection}{\numberline {3.3.3}LLM Integration and RAG Pipeline}{22}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.3}LLM Integration and RAG Pipeline}{21}{subsection.3.3.3}%
 \contentsline {section}{\numberline {3.4}Data Pipeline}{22}{section.3.4}%
 \contentsline {subsection}{\numberline {3.4.1}Repository Ingestion}{22}{subsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.4.2}Chunking Strategy}{23}{subsection.3.4.2}%
-\contentsline {subsection}{\numberline {3.4.3}Metadata Extraction}{24}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.2}Chunking Strategy}{22}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Metadata Extraction}{23}{subsection.3.4.3}%
 \contentsline {subsection}{\numberline {3.4.4}Indexing and Storage}{24}{subsection.3.4.4}%
 \contentsline {section}{\numberline {3.5}Technical Stack Summary}{25}{section.3.5}%
+\contentsline {chapter}{\numberline {4}Implementation Details}{26}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Development Methodology}{26}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Iterative Development Process}{26}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Version Control and Branching Strategy}{27}{subsection.4.1.2}%
+\contentsline {section}{\numberline {4.2}Core Implementation Components}{28}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Search Module}{28}{subsection.4.2.1}%
+\contentsline {subsubsection}{BM25 Sparse Retrieval}{28}{subsection.4.2.1}%
+\contentsline {subsubsection}{Dense Embedding Retrieval}{29}{subsection.4.2.1}%
+\contentsline {subsubsection}{Hybrid Search Integration}{29}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Code Graph Analysis}{30}{subsection.4.2.2}%
+\contentsline {subsubsection}{Dependency Extraction}{30}{subsection.4.2.2}%
+\contentsline {subsubsection}{Graph Construction Algorithm}{31}{algocf.1}%
+\contentsline {subsection}{\numberline {4.2.3}Generative UI System}{31}{subsection.4.2.3}%
+\contentsline {subsubsection}{Toolkit Selection}{32}{subsection.4.2.3}%
+\contentsline {subsubsection}{Dynamic Card Generation}{32}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Large Language Model Integration}{33}{subsection.4.2.4}%
+\contentsline {subsubsection}{Model Selection and Justification}{33}{subsection.4.2.4}%
+\contentsline {subsubsection}{Prompt Engineering Strategies}{33}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.2.5}RAG Pipeline Implementation}{33}{subsection.4.2.5}%
+\contentsline {subsubsection}{Query Processing}{33}{subsection.4.2.5}%
+\contentsline {subsubsection}{Multi-Stage Retrieval}{33}{subsection.4.2.5}%
+\contentsline {subsubsection}{Context Assembly}{33}{subsection.4.2.5}%
+\contentsline {subsubsection}{Citation Extraction and Grounding}{33}{subsection.4.2.5}%
+\contentsline {section}{\numberline {4.3}Database Schema}{33}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Challenges and Solutions}{36}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Handling Large Codebases}{36}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Real-Time Graph Updates}{36}{subsection.4.4.2}%
+\contentsline {subsection}{\numberline {4.4.3}Hallucination Prevention}{36}{subsection.4.4.3}%
