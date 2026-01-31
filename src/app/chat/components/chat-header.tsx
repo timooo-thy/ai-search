@@ -122,12 +122,25 @@ export function ChatHeader({
     : "";
 
   const handleCopyLink = async () => {
-    if (shareUrl) {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      toast.success("Link copied to clipboard");
-      setTimeout(() => setCopied(false), 2000);
-    }
+    if (!shareUrl) return;
+    Sentry.startSpan(
+      {
+        name: "share.copy",
+        op: "ui.action.click",
+        attributes: { chatId, hasShareUrl: true },
+      },
+      async () => {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          setCopied(true);
+          toast.success("Link copied to clipboard");
+          setTimeout(() => setCopied(false), 2000);
+        } catch (error) {
+          Sentry.captureException(error);
+          toast.error("Failed to copy link");
+        }
+      },
+    );
   };
 
   // Read-only header for shared chats
