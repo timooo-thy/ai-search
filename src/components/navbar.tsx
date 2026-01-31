@@ -89,7 +89,7 @@ export function Navbar({ user }: NavbarProps) {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="#" className="flex items-center">
+                      <Link href="/settings" className="flex items-center">
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
                       </Link>
@@ -184,7 +184,7 @@ export function Navbar({ user }: NavbarProps) {
                     Account
                   </Link>
                   <Link
-                    href="#"
+                    href="/settings"
                     className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
