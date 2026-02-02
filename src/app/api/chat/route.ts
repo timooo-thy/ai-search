@@ -1,7 +1,7 @@
 import { loadChat, upsertMessages } from "@/actions/ui-message-actions";
 import { auth } from "@/lib/auth";
 import { metadataSchema, MyUIMessage } from "@/types/ui-message-type";
-import { openai } from "@ai-sdk/openai";
+import { openai, OpenAIResponsesProviderOptions } from "@ai-sdk/openai";
 import {
   convertToModelMessages,
   createIdGenerator,
@@ -208,6 +208,13 @@ export async function POST(req: Request) {
           messages: convertToModelMessages(validatedMessages),
           stopWhen: stepCountIs(2),
           tools: tools(writer, session.user.id, indexedRepoNames),
+          providerOptions: {
+            openai: {
+              reasoningEffort: "low", // Balance between performance and speed
+              store: false, // No data retention - makes interaction stateless
+              include: ["reasoning.encrypted_content"], // Hence, we need to retrieve the model's encrypted reasoning to be able to pass it to follow-up requests
+            } satisfies OpenAIResponsesProviderOptions,
+          },
         });
 
         result.consumeStream();
