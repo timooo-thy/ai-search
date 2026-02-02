@@ -31,9 +31,7 @@ The project utilised Git for version control, hosted on GitHub. A feature-branch
 \end{figure}
 
 \section{Core Implementation Components}
-
 \subsection{Search Module}
-
 \subsubsection{BM25 Sparse Retrieval}
 To handle keyword-based searches, the system implements the Best Matching 25 (BM25) algorithm. The BM25 score for a document \( D \) given a query \( Q \) is computed as:
 \[
@@ -77,31 +75,31 @@ This approach takes into account the distribution of scores which is more sensit
 \subsection{Code Graph Analysis}
 This section details the transformation of the codebase into an interactive graph seen in Generative UI System (Figure \ref{fig:generative_ui_system}).
 \subsubsection{Dependency Extraction}
-Rather than using AST for traversal, the system utilise regex-based extraction to identify how logic flows across repository files. This approach was chosen for its simplicity and cross-language applicability. An example implementation is shown in Algorithm \ref{alg:dependency_extraction}.
+Rather than using AST for traversal, the system utilise a recursive language aware splitting strategy. This approach breaks down code files by identifying structural boundariees based on the programming language syntax. The algorithm is outlined in Algorithm \ref{alg:recursive_splitting}.
+
 \begin{algorithm}[H]
 \SetAlgoLined
 \DontPrintSemicolon
-\KwIn{Source Content $C$, Language Metadata $L$}
-\KwOut{Set of Unique Dependencies $D$}
+\KwIn{File Content $C$, File Extension $E$, ChunkSize $S$, Overlap $O$}
+\KwOut{List of Semantic Chunks $K$}
 
-$D \gets \emptyset$\;
-$Patterns \gets$ \text{RetrieveExtractionRules}($L$)\; \tcp*{Map of regex/rules for the specific language}
-
-\If{$Patterns$ is not null}{
-    \ForEach{Rule $R$ in $Patterns$}{
-        $Matches \gets$ \text{ExecutePatternMatching}($C, R$)\;
-        \ForEach{Match $M$ in $Matches$}{
-            $Dependency \gets$ \text{ParseSymbol}($M, R.type$)\;
-            \If{$Dependency$ is valid}{
-                Add $Dependency$ to $D$\;
-            }
-        }
-    }
+$K \gets \emptyset$\;
+$Language \gets$ \text{MapExtensionToLanguage}($E$)\;
+\If{$Language$ is supported}{
+    $Splitter \gets$ \text{InitialiseLangChainSplitter}($Language, S, O$)\;
 }
-
-\Return{De-duplicated set $D$}\;
-\caption{Cross-Language Dependency Extraction Algorithm}
-\label{alg:dependency_extraction}
+\Else{
+    $Separators \gets \{ \texttt{"\char`\\ nclass "}, \texttt{"\char`\\ ndef "}, \texttt{"\char`\\ n\char`\\ n"}, \texttt{"\char`\\ n"}, \texttt{" "} \}$\;
+    $Splitter \gets$ \text{InitialiseRecursiveSplitter}($Separators, S, O$)\;
+}
+$Documents \gets Splitter.\text{createDocuments}(C)$\;
+\ForEach{$Doc$ in $Documents$}{
+    $Chunk \gets \text{ExtractContentAndMetadata}(Doc)$\;
+    Add $Chunk$ to $K$\;
+}
+\Return{$K$}\;
+\caption{Language-Aware Recursive Code Splitting Algorithm}
+\label{alg:recursive_splitting}
 \end{algorithm}
 
 \subsubsection{Graph Construction Algorithm}
@@ -173,17 +171,78 @@ Based on the user query, the LLM intelligently selects the appropriate tool(s) t
 \end{itemize}
 
 \subsection{Large Language Model Integration}
+CodeOrient is model agnostic and can integrate with any LLM providers that support tool-calling. 
 \subsubsection{Model Selection and Justification}
+In this implementation, CodeOrient utilises OpenAI's GPT-4.1-mini model due to its advanced reasoning capabilities and large context window, which prevents "lost in the middle" degradation. Furthermore, the latency and cost-effectiveness of the mini variant make it suitable for real-time applications compared to State-Of-The-Art reasoning models.
 \subsubsection{Prompt Engineering Strategies}
+To optimise the performance of the LLM and reduce hallucinations during code exploration, a Multi-layered Prompting Strategy is employed with specialised personas for different stages of the RAG pipeline:
+\begin{itemize}
+    \item \textbf{Search Architect Persona:} This persona's responsibility is to decompose a user's query into a structured search plan. The plan entails the steps it will take before generating a graph. The most important responsibility is to break down complex queries into non-overlapping sub-queries that target different parts of the codebase. Additionally, the repository's tree is provided as context to guide the planning process. This reduces the hallucination of non-existent files or functions. In Figure \ref{fig:planning_example}, the step by step breakdown of the planning process is illustrated to the user.
+    \begin{figure}[H]
+        \centering
+        {\small
+        \includegraphics[width=6in]{fig/fig12.png}
+        \caption{\textit{Example of Multistep Planning by Search Architect Persona}}
+        \label{fig:planning_example}
+        }
+    \end{figure}
+    \item \textbf{Gap Analyser Persona:} To give the LLM autonomy in exploring the codebase, this persona acts as a quality control layer to identify gaps in the retreived context. If there are any missing pieces of information, it will trigger an additional search iteration with refined queries. This iterative process continues until sufficient context is gathered to answer the user's query accurately. Figure \ref{fig:gap_analysis_example} illustrates an example of gap analysis performed by this persona.
+    \begin{figure}[H]
+        \centering
+        {\small
+        \includegraphics[width=6in]{fig/fig13.png}
+        \caption{\textit{Example of Gap Analysis by Gap Analyser Persona}}
+        \label{fig:gap_analysis_example}
+        }
+    \end{figure}
+    \item \textbf{Graph Architect Persona:} This persona is responsible for translating the retrieved context into a graph object required for React Flow. It identifies the relevant code entities and their relationships, ensuring that the graph accurately represents the code structure and logic flow.
+\end{itemize}
 
 \subsection{RAG Pipeline Implementation}
-\subsubsection{Query Processing}
+This pipeline iteratively retrieves relevant code snippets to ground the LLM's responses. The key components are outlined below:
 
-\subsubsection{Multi-Stage Retrieval}
+\subsubsection{Query Processing}
+Raw user queries are usually ambiguous and require refinement. The pipeline first rephrases the query into technical search queries that align with the codebase's terminology and structure. This is achieved using the Search Architect persona described earlier.
+
+\subsubsection{Multistep Planning \& Exploration}
+Mentioned previously, the Search Architect persona decomposes complex queries and conducts a breadth-first exploration. 
+
+\subsubsection{Retrieval \& Ranking}
+The refined queries are used to fetch relevant code chunks from the hybrid search module, with \texttt{userId} and \texttt{repoFullName} used as filters to ensure strict multi-tenancy. K-Nearest Neighbour with $K=10$ is used to retrieve the most similar chunks based on cosine similarity.
+The retrieved chunks are then ranked using the Distributed-Based Score Fusion method to ensure the most relevant snippets are prioritised.
 
 \subsubsection{Context Assembly}
+The top-ranked code chunks are assembled and wrapped in XML-style tags containing metadata for the LLM to accurately reference the sources during the response phase. An example of the assembled context is shown in Listing \ref{lst:assembled_context_example}.
+\begin{listing}[H]
+\begin{minted}[frame=lines, framesep=2mm, fontsize=\footnotesize, linenos]{xml}
+<chunk file="lib/auth.ts" lines="12-45" url="...">
+  [Code Snippet]
+</chunk>
+\end{minted}
+\caption{Example of Assembled Context with Source Metadata.}
+\label{lst:assembled_context_example}
+\end{listing}
 
 \subsubsection{Citation Extraction and Grounding}
+To increase the credibility of the generated answer, all sources retrieved from the RAG pipeline are shown to the user in Figure~\ref{fig:rag_sources_example}. To further reduce hallucination in the response, the LLM is prompted to provide inline citations using markdown format \texttt{[file\_path](link\_to\_source\_code)}. The frontend parses these citations to create clickable links that direct users to the exact source code locations. An example of inline citations is shown in Figure~\ref{fig:inline_citations_example}.
+
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=6in]{fig/fig14.png}
+    \caption{\textit{Example of sources retrieved from RAG pipeline}}
+    \label{fig:rag_sources_example}
+    }
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=6in]{fig/fig15.png}
+    \caption{\textit{Example of inline citations in LLM response}}
+    \label{fig:inline_citations_example}
+    }
+\end{figure}
 
 \section{Database Schema}
 CodeOrient utilises PostgreSQL for relational data storage, managed via Prisma ORM. The schema is organised into three primary clusters:
@@ -193,7 +252,6 @@ CodeOrient utilises PostgreSQL for relational data storage, managed via Prisma O
     \item \textbf{Indexing Lifecycle:} Table to track the asynchronous indexing jobs for user repositories, used in the RAG pipeline.
 \end{itemize}
 The complete Prisma schema is provided in Listing \ref{lst:database_schema}.
-
 
 \begin{minted}[
     frame=lines, 
@@ -271,13 +329,53 @@ enum IndexingStatus {
 }
 \end{minted}
 \begin{center}
-    \captionof{listing}{Prisma Schema.}
+    \captionof{listing}{Prisma Database Schema.}
     \label{lst:database_schema}
 \end{center}
 
+\section{UI/UX Enhancements}
+This section highlights the various UI/UX features implemented to enhance user experience in CodeOrient.
+\subsection{Account Dashboard}
+The account dashboard allows users to monitor their interaction with the platform. As shown in Figure \ref{fig:account_dashboard}, users can view statistics such as:
+\begin{itemize}
+    \item Recent Activities
+    \item Usage statistics (e.g., lifetime searches, total repositories analysed)
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=6in]{fig/fig16.png}
+    \caption{\textit{Example of Account Dashboard}}
+    \label{fig:account_dashboard}
+    }
+\end{figure}
+
+\subsection{Sharing of Conversations}
+To facilitate collaboration, CodeOrient supports the sharing of conversations via unique read-only links. Figure \ref{fig:sharing_conversation_link} illustrates the shared chat view where authorised users can view the conversation history in a read-only format.
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=6in]{fig/fig17.png}
+    \caption{\textit{Example of Sharing Conversation Link}}
+    \label{fig:sharing_conversation_link}
+    }
+\end{figure}
+
+\subsection{Setting Preferences}
+This interface allows users to customise their experience. As illustrated in Figure \ref{fig:user_preferences_settings}, this tab of the settings page focuses on data integration. Users can securely connect their GitHub accounts via Personal Access Tokens (PATs) to enable repository indexing and analysis. Furthermore, users can index any private repositories they have access to. The entire indexing process is asynchronous, and real-time progress updates are provided. By enabling indexing, the LLM will prioritise searching the vector database over GitHub to reduce latency and cost.
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=6in]{fig/fig18.png}
+    \caption{\textit{Example of User Preferences Settings}}
+    \label{fig:user_preferences_settings}
+    }
+\end{figure}
+
 \section{Challenges and Solutions}
 \subsection{Handling Large Codebases}
+To overcome GitHub API rate limits, the system implements a \textbf{Streaming Tarball Strategy}. By fetching a single compressed \texttt{.tar.gz} archive, the system reduces network calls by over 90\% and processes repository data entirely in-memory.
 
 \subsection{Real-Time Graph Updates}
-
-\subsection{Hallucination Prevention}
+To ensure a smooth user experience, the system utilizes Server-Sent Events (SSE) to stream graph data. This allows the React Flow canvas to begin rendering nodes as they are discovered by the RAG agent, rather than waiting for the entire process to complete.

@@ -1,0 +1,5 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{n+nt}{\PYGZlt{}chunk}\PYG{+w}{ }\PYG{n+na}{file=}\PYG{l+s}{\PYGZdq{}lib/auth.ts\PYGZdq{}}\PYG{+w}{ }\PYG{n+na}{lines=}\PYG{l+s}{\PYGZdq{}12\PYGZhy{}45\PYGZdq{}}\PYG{+w}{ }\PYG{n+na}{url=}\PYG{l+s}{\PYGZdq{}...\PYGZdq{}}\PYG{n+nt}{\PYGZgt{}}
+\PYG{+w}{  }[Code\PYG{+w}{ }Snippet]
+\PYG{n+nt}{\PYGZlt{}/chunk\PYGZgt{}}
+\end{MintedVerbatim}

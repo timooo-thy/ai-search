@@ -18,9 +18,10 @@ import { ExternalLink, GitBranch, Lock, Unlock } from "lucide-react";
 
 type RepositoriesProps = {
   repositories: MyDataPart["repositories"];
-  setSelectedRepo: React.Dispatch<React.SetStateAction<string>>;
-  selectedRepo: string;
+  setSelectedRepo: React.Dispatch<React.SetStateAction<string>> | undefined;
+  selectedRepo: string | undefined;
   onSubmit: (message: string) => Promise<void>;
+  disableSelect?: boolean;
 };
 /**
  * Render a card interface to browse, select, and confirm a repository from the provided data.
@@ -39,13 +40,16 @@ export default function Repositories({
   selectedRepo,
   setSelectedRepo,
   onSubmit,
+  disableSelect = false,
 }: RepositoriesProps) {
   const { details, loading } = repositories;
 
   const handleRepoToggle = (repoKey: string) => {
     if (loading) return;
 
-    setSelectedRepo((prev) => (prev === repoKey ? "" : repoKey));
+    if (setSelectedRepo) {
+      setSelectedRepo((prev) => (prev === repoKey ? "" : repoKey));
+    }
   };
 
   return (
@@ -102,7 +106,9 @@ export default function Repositories({
                           ? "border-primary bg-primary/5"
                           : "border-border hover:border-primary/50"
                       }`}
-                      onClick={() => handleRepoToggle(repo.url)}
+                      onClick={() =>
+                        !disableSelect && handleRepoToggle(repo.url)
+                      }
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
@@ -131,7 +137,7 @@ export default function Repositories({
                             window.open(
                               repo.url,
                               "_blank",
-                              "noopener,noreferrer"
+                              "noopener,noreferrer",
                             );
                           }}
                         >

@@ -12,7 +12,7 @@ The main components of CodeOrient include:
 \end{itemize}
 
 \subsection{Data Flow Architecture}
-CodeOrient handles user interaction througha multi-stage pipeline that is optimised for speed and quality of responses. Figure \ref{fig:data_flow_architecture} illustrates the data flow architecture where the lifecycle is split into two phases: \textit{Code Indexing Cycle} and \textit{Query-Response Cycle}.
+CodeOrient handles user interaction through a multi-stage pipeline that is optimised for speed and quality of responses. Figure \ref{fig:data_flow_architecture} illustrates the data flow architecture where the lifecycle is split into two phases: \textit{Code Indexing Cycle} and \textit{Query-Response Cycle}.
 
 \begin{figure}[H]
     \centering
@@ -42,7 +42,7 @@ When a user asks a question, the system goes through the following steps:
         \item \textbf{Semantic Retrieval:} Each sub-query is converted into embeddings and the system retrieves the top-K relevant code chunks from the vector database.
         \item \textbf{LLM Evaluation Loop:} The LLM evaluates the retrieved content. If the context is deemed insufficient, it automonously triggers further searches in a loop until it gathers sufficient context to confidently answer the original query.
     \end{itemize}
-    \item \textbf{Citation-Grounded Response:} Once sufficient context is gathered, the LLM generates a structured JSON object that contains the required nodes, edges, code snippets (citations) and explanation required for visualisation and response generation.
+    \item \textbf{Citation-Grounded Response:} Once sufficient context is gathered, the LLM generates a structured JSON object that contains the required nodes, edges, code snippets (citations) and explanation required for visualisation and response generation. Furthermore, the LLM is prompted to perform inline citations for each code snippet used in the response to mitigate hallucinations.
     \item \textbf{Message Persistence \& Caching:} The final result is stored in PostgreSQL for chat history and also cached in Upstash Redis for future identical queries. Simultaneously, the response is streamed via Server-Sent-Events (SSE) back to the frontend for real-time rendering.
     \item \textbf{Interactive Rendering:} Next.js parses the streamed JSON response to render as a Generative UI card that contains an interactive graph visualisation built with React Flow, along with citation-backed explanations and code snippets.
 \end{enumerate}
@@ -141,44 +141,27 @@ This pipeline transforms a raw GitHub code repository into a structured and sear
 To bypass GitHub API rate limits and ensure efficient ingestion, the system uses a streaming ingestion strategy.
 \begin{enumerate}
     \item \textbf{Tarball Archive:} The system fetches the entire repository as a compressed \texttt{.tar.gz} archive in a single request using Octokit.
-    \item \textbf{In-memory Extraction:} Using the \texttt{tar} and \texttt{zlib} libraries, the system decompressed and parses files in-memory without writing to disk. This reduces I/O overhead and speeds up processing.
+    \item \textbf{In-memory Extraction:} The system utilises \texttt{RecursiveCharacterTextSplitter} from LangChain to extract code chunks from the archive without writing to disk. This reduces I/O overhead and speeds up processing.
     \item \textbf{Indexing with Filtering:} The pipeline whitelists indexable file types (e.g., \texttt{.ts}, \texttt{.py}, \texttt{.go}) and ignores binary or large files (e.g., \texttt{node\_modules}) to optimise storage and retrieval efficiency.
 \end{enumerate}
 \subsection{Chunking Strategy}
-Instead of indexing entire files, the engine breaks code files into smaller "logical" chunks to ensure the LLM receives the most relevant context.
+Instead of indexing entire files, the engine breaks code files into smaller semantically "logical" chunks to ensure the LLM receives the most relevant context.
 \begin{enumerate}
-    \item \textbf{Entity-Based Parsing}: The parser isolates code blocks such as standalone functions, classes, or React components as an individual entity type. Each type is assigned a chunk size limit to optimise retrieval:
-    \begin{table}[H]
-        \centering
-        \begin{tabular}{@{}lc>{\raggedright\arraybackslash}p{5.5cm}@{}}
-            \toprule
-            \textbf{Entity Type} & \textbf{Max Character Limit} & \textbf{Rationale} \\
-            \midrule
-            File Header & 2,000 chars & Captures imports and high-level file intent. \\
-            Classes & 2,500 chars & Provides structural context of data and methods. \\
-            Functions/Components & 1,500 chars & Focuses on a single unit of execution logic. \\
-            Methods & 1,500 chars & Enables pinpoint retrieval of class behaviors. \\
-            Notebook Cells & 2,000 chars & Balances code logic with markdown context. \\
-            \bottomrule
-        \end{tabular}
-        \caption{Entity-Based Chunk Size Limits and Rationale}
-        \label{tab:chunk_size_limits}
-    \end{table}
-    \item \textbf{Truncation Strategy:} If an entity exceeds its designated length limit, the engine uses a \texttt{truncateAtBoundary} function to prevent a hard character cut. Instead, it searches for the last complete statement by looking for delimiters. This ensures that code chunks remain syntactically valid and semantically coherent.
+    \item \textbf{Language-Specific Parsers:} The system uses \texttt{RecursiveCharacterTextSplitter} with its \texttt{.fromLanguage()} method to parse code files based on their programming langauge. Unlike generic text splitters, this prioritises splitting at language specific constructs such as function blocks or method signatures.
+    \item \textbf{Chunk Size Optimisation:} Each chunk is limited to a maximum of 1,500 tokens with a chunk overlap of 200 tokens. This overlap is key for maintaining context across chunk boundaries, ensuring that related code segments are not lost during retrieval.
 \end{enumerate}
 
 \subsection{Metadata Extraction}
 To assist LLM with context understanding, each code chunk is enriched with relational metadata:
 \begin{enumerate}
     \item \textbf{Docstring Extraction:} The parser scans for docstrings or comments immediately preceding code entities. These high-level summaries provide a natural language description of what the code does.
-    \item \textbf{Dependency Mapping:} The system extracts \texttt{imports} and \texttt{calledFunctions}. This enables the LLM to understand the relationships between different code entities during reasoning, which increases the accuracy of generated responses.
     \item \textbf{Source Attribution:} Each chunk is tagged with its \texttt{filePath}, \texttt{repoFullName}, and specific \texttt{startLine}/\texttt{endLine}. This creates the ground truth for the citation mechanism during response generation.
 \end{enumerate}
 
 \subsection{Indexing and Storage}
 The final stage involves storing the processed code chunks for low-latency retrieval.
 \begin{enumerate}
-    \item \textbf{State Persistence:} The system uses Prisma ORM and PostgereSQL to track the indexing lifecycle of each repository (e.g., \texttt{CLONING}~$\rightarrow$~\texttt{PARSING}~$\rightarrow$~\texttt{INDEXING}~$\rightarrow$~\texttt{`CO'MPLETED}). This allows for resumable indexing in case of interruptions. Additionally, it allows the UI to show real-time progress updates to the user.
+    \item \textbf{State Persistence:} The system uses Prisma ORM and PostgereSQL to track the indexing lifecycle of each repository (e.g., \texttt{CLONING}~$\rightarrow$~\texttt{PARSING}~$\rightarrow$~\texttt{INDEXING}~$\rightarrow$~\texttt{COMPLETED}). This allows for resumable indexing in case of interruptions. Additionally, it allows the UI to show real-time progress updates to the user.
     \item \textbf{Batch Vector Upsert:} Code chunks are converted into embeddings using \texttt{bge-large-en-v1.5} model and upserted into Upstash Vector in batches of 100. This strategy optimises throughput and ensures the indexing process is resilient to transient API issues.
 \end{enumerate}
 

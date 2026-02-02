@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Weather } from "./weather";
 import { CodeGraph } from "./code-graph/code-graph";
 import { Terminal } from "lucide-react";
+import Repositories from "@/app/chat/components/repositories";
 
 type SharedChatMessagesProps = {
   messages: MyUIMessage[];
@@ -90,26 +91,14 @@ export function SharedChatMessages({
                         case "data-repositories":
                           // Show repositories as a simple list in shared view
                           return (
-                            <div
+                            <Repositories
                               key={`${msg.id}-repositories-${key}`}
-                              className="text-sm text-muted-foreground"
-                            >
-                              <p className="font-medium mb-2">Repositories:</p>
-                              <ul className="list-disc list-inside">
-                                {part.data?.details?.map(
-                                  (
-                                    repo: {
-                                      name: string;
-                                      description: string | null;
-                                      url: string;
-                                    },
-                                    idx: number,
-                                  ) => (
-                                    <li key={idx}>{repo.name}</li>
-                                  ),
-                                )}
-                              </ul>
-                            </div>
+                              repositories={part.data}
+                              disableSelect={true}
+                              selectedRepo={undefined}
+                              setSelectedRepo={undefined}
+                              onSubmit={async () => {}}
+                            />
                           );
                         default:
                           return null;
