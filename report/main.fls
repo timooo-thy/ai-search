@@ -396,12 +396,12 @@ INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/newtx/ts1ntxtlf.fd
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/newtx/ts1ntxtlf.fd
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/newtx/ts1ntxtlf.fd
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/tex-gyre/ts1-qtmr.tfm
-INPUT /usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/tex-gyre/q-ts1.enc
 INPUT ./literature_review.tex
 INPUT ./literature_review.tex
 INPUT ./literature_review.tex
 INPUT ./literature_review.tex
 INPUT literature_review.tex
+INPUT /usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/tex-gyre/q-ts1.enc
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/newtx/ntx-Regular-tlf-ot1.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/newtx/ntx-Regular-tlf-ot1.tfm
 INPUT ./fig/fig1.png
@@ -495,9 +495,9 @@ INPUT ./_minted/_FAD58DE7366495DB4650CFEFAC2FCD61.index.minted
 INPUT ./_minted/default.style.minted
 INPUT ./_minted/default.style.minted
 INPUT _minted/default.style.minted
-INPUT ./_minted/6EE2F6A2D56388BF65F7316A73B235CD.highlight.minted
-INPUT ./_minted/6EE2F6A2D56388BF65F7316A73B235CD.highlight.minted
-INPUT _minted/6EE2F6A2D56388BF65F7316A73B235CD.highlight.minted
+INPUT ./_minted/1BB3299737FCA696E0AD59FFC25808A8.highlight.minted
+INPUT ./_minted/1BB3299737FCA696E0AD59FFC25808A8.highlight.minted
+INPUT _minted/1BB3299737FCA696E0AD59FFC25808A8.highlight.minted
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/newtx/ntx-Regular-tlf-ot1.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/txfonts/txtt.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/newtx/ntx-Regular-tlf-ot1.tfm

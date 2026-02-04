@@ -2,10 +2,10 @@
 
 \section{Development Methodology}
 \subsection{Iterative Development Process}
-CodeOrient was developed using an iterative approach, which allowed for continuous refinement and integration of feedbacks. Key stages included:
+CodeOrient was developed using an iterative approach to continuously refine and integrate feedback. The key stages of the development process are outlined below:
 \begin{enumerate}
-    \item \textbf{Requirement Analysis:} Initial requirements were gathered based on the pain points of new developers navigating unfamiliar codebases.
-    \item \textbf{Prototyping:} Early prototypes of the search and Generative UI systems were built to validate core concepts. In particular, a simple weather card UI was created to test the dynamic card generation capabilities in Figure \ref{fig:dynamic_card_generation_weather_app}.
+    \item \textbf{Requirement Analysis:} The pain points of new developers navigating unfamiliar codebases were identified to gather initial requirements.
+    \item \textbf{Prototyping:} To validate core concepts, early prototypes of the search and Generative UI systems were built. For example, a simple weather card UI was created to test the Generative UI's capabilities is shown in Figure \ref{fig:dynamic_card_generation_weather_app}.
     \begin{figure}[H]
         \centering
         {\small
@@ -13,14 +13,14 @@ CodeOrient was developed using an iterative approach, which allowed for continuo
         \caption{\textit{Prototype of Dynamic Card Generation for Weather App}}
         \label{fig:dynamic_card_generation_weather_app}
         }
-    \end{figure}
-    \item \textbf{Incremental Development:} Development was done based on the priority features identified during prototyping. The search module, code graph analysis, and RAG pipeline were built in successive iterations.
-    \item \textbf{User Feedback Integration:} Feedback from preliminary user testing was incorporated to enhance usability and functionality of the chat application.
-    \item \textbf{Final Testing and Optimisation:} The system underwent rigorous testing to ensure performance, reliability, and accuracy before and after deployment.
+        \end{figure}
+        \item \textbf{Incremental Development:} The search module, code graph analysis, and RAG pipeline were identified as priority features. Developement for these features was done incrementally to gather feedback early.
+    \item \textbf{Integrating User Feedback:} Feedback from user testing was regularly incorporated to improve the user experience of CodeOrient.
+    \item \textbf{Final Testing and Optimisation:} The system underwent rigorous testing and automated deployment via CI/CD pipelines to ensure performance and reliability of production release.
 \end{enumerate}
 
 \subsection{Version Control and Branching Strategy}
-The project utilised Git for version control, hosted on GitHub. A feature-branching strategy was employed to isolate the development of core features (e.g. search module, chat interface) while ensuring a stable main branch for continuous deployment via Vercel. Figure \ref{fig:git_branching_strategy} illustrates the branching strategy which squashed feature branches into the main branch after code reviews and testing.
+This project utilised Git and GitHub for version control. Feature-branching was used to isolate the development of core features. This ensured that the main branch remained stable and protected for user testing. As for deployment, it was automated through CI/CD pipelines and was deployed to Vercel. Figure \ref{fig:git_branching_strategy} illustrates the branching strategy which squashed feature branches into the main branch after code reviews and testing.
 \begin{figure}[H]
     \centering
     {\small
@@ -43,16 +43,16 @@ where:
     \item \( |D| \) is the length of document \( D \).
     \item \( avgdl \) is the average document length in the corpus.
     \item \( k_1 \) and \( b \) are hyperparameters, typically set to \( k_1 = 1.5 \) and \( b = 0.75 \) for general text.
-    \item \( IDF(q_i) \) is the inverse document frequency of term \( q_i \), calculated as:
+    \item \( IDF(q_i) \) is the inverse document frequency of term \( q_i \), which is calculated as:
     \[
     IDF(q_i) = \log \frac{N - n(q_i) + 0.5}{n(q_i) + 0.5}
     \]
     where \( N \) is the total number of documents and \( n(q_i) \) is the number of documents containing term \( q_i \).
 \end{itemize}
-CodeOrient utilise this retrieval method as it is effective in retrieving exact variable or function names in the codebase.
+This retrieval method is used by CodeOrient to retrieve code snippets that match the keywords in the user query. For example, if a user searchs for an exact function name, BM25 will prioritise documents containing that exact term.
 
 \subsubsection{Dense Embedding Retrieval}
-For semantic search, the system leverages the \texttt{bge-large-en-v1.5} embedding model. Each chunk of code is converted to a 1024-dimensional vector and stored in Upstash Vector. This allows the engine to retrieve code snippets based on semantic similarity to the user query. The similarity between the query vector \( Q \) and document vector \( D \) is computed using cosine similarity:
+\texttt{bge-large-en-v1.5} embedding model is used for dense retrieval. Each chunk of code is converted to a 1024-dimensional vector and stored in Upstash Vector. This allows the engine to retrieve code snippets based on semantic similarity to the user query. The similarity between the query vector \( Q \) and document vector \( D \) is computed using cosine similarity:
 \[
 \text{cosine\_similarity}(\vec{a}, \vec{b}) = \frac{\vec{a} \cdot \vec{b}}{\|\vec{a}\| \|\vec{b}\|}
 \]
@@ -73,9 +73,9 @@ where:
 This approach takes into account the distribution of scores which is more sensitive to variation in score ranges from the different retrieval methods.
 % Insert code snippet here %
 \subsection{Code Graph Analysis}
-This section details the transformation of the codebase into an interactive graph seen in Generative UI System (Figure \ref{fig:generative_ui_system}).
+This section details the transformation of the code chunks into an interactive graph.
 \subsubsection{Dependency Extraction}
-Rather than using AST for traversal, the system utilise a recursive language aware splitting strategy. This approach breaks down code files by identifying structural boundariees based on the programming language syntax. The algorithm is outlined in Algorithm \ref{alg:recursive_splitting}.
+Rather than using AST for traversal, the system utilise a recursive language aware splitting strategy. This approach splits the code into smaller chunks while maintaining the programming language's nuances, syntax and structure. This strategy is outlined in Algorithm \ref{alg:recursive_splitting}.
 
 \begin{algorithm}[H]
 \SetAlgoLined
@@ -103,16 +103,15 @@ $Documents \gets Splitter.\text{createDocuments}(C)$\;
 \end{algorithm}
 
 \subsubsection{Graph Construction Algorithm}
-The extracted entities and their relationships are mapped to a JSON structure compatible with React Flow. In Listing \ref{lst:graph_metadata_schema}, the node and edge schemas are defined to represent code entities and their interactions.
+As React Flow requires a structured object to render the graph, the extracted entities and their relationships are mapped to a JSON object. In Listing \ref{lst:graph_metadata_schema}, the code entities are represented as nodes and their relationships as edges. 
 \begin{listing}[H]
 \begin{minted}[frame=lines, framesep=2mm, fontsize=\footnotesize, linenos]{typescript}
 /**
- * Metadata schema for Code Graph Nodes
- * Represents logical code entities within the React Flow canvas.
+ * Schema for Code Graph Nodes
  */
 export type CodeGraphNode = {
   id: string; // Unique identifier: userId::repo::path::type::name
-  label: string; // The display name of the entity (e.g., function name)
+  label: string; // The display name of the entity
   type?: "file" | "function" | "class" | "component"; 
   filePath?: string; // Original source file path
   codeSnippet?: string; // The raw source code associated with the entity
@@ -120,16 +119,15 @@ export type CodeGraphNode = {
 };
 
 /**
- * Metadata schema for Code Graph Edges
- * Defines the directional relationships between code entities.
+ * Schema for Code Graph Edges
  */
 export type CodeGraphEdge = {
   id: string; // Composite ID: sourceID->targetID
   source: string; // ID of the originating node
   target: string; // ID of the destination node
-  label?: string; // Relationship type for UI display
+  label?: string; // Relationship type
   type?: "imports" | "calls" | "extends" | "uses";
-  animated?: boolean; // Visual indicator for active data/logic flow
+  animated?: boolean; // Visual indicator for logic flow
 };
 \end{minted}
 \caption{TypeScript interfaces for CodeOrient graph entities.}
@@ -139,7 +137,7 @@ export type CodeGraphEdge = {
 \subsection{Generative UI System}
 The Generative UI system dynamically creates interactive UI cards based on user queries. The implementation involves several key components:
 \subsubsection{Toolkit Selection}
-To enrich the LLM's capabilities, external tools are integrated. The available tools available for selection based on the user query are:
+External tools are integrated to enhance the LLM's capabilities. The available tools for selection are:
 \begin{itemize}
     \item \textbf{Code Graph Tool:} Retrieves and visualises code entities and their relationships.
     \item \textbf{Repository Search Tool:} Fetches all repositories associated with the user.
@@ -186,7 +184,7 @@ To optimise the performance of the LLM and reduce hallucinations during code exp
         \label{fig:planning_example}
         }
     \end{figure}
-    \item \textbf{Gap Analyser Persona:} To give the LLM autonomy in exploring the codebase, this persona acts as a quality control layer to identify gaps in the retreived context. If there are any missing pieces of information, it will trigger an additional search iteration with refined queries. This iterative process continues until sufficient context is gathered to answer the user's query accurately. Figure \ref{fig:gap_analysis_example} illustrates an example of gap analysis performed by this persona.
+    \item \textbf{Gap Analyser Persona:} To give the LLM autonomy in exploring the codebase, this persona acts as a quality control layer to identify gaps in the retreived context. An additional search iteration with refined queries will be triggered if the context is deemed insufficient. This iterative process continues until the LLM can answer the user's query accurately. Figure \ref{fig:gap_analysis_example} illustrates an example of the LLM identifying a need for additional context.
     \begin{figure}[H]
         \centering
         {\small
@@ -195,14 +193,14 @@ To optimise the performance of the LLM and reduce hallucinations during code exp
         \label{fig:gap_analysis_example}
         }
     \end{figure}
-    \item \textbf{Graph Architect Persona:} This persona is responsible for translating the retrieved context into a graph object required for React Flow. It identifies the relevant code entities and their relationships, ensuring that the graph accurately represents the code structure and logic flow.
+    \item \textbf{Graph Architect Persona:} As React Flow requires a structured object to render the graph, this persona translates the retrieved context into a graph object. This is achieved by identifying the relevant entities and their relationships, before formatting them into nodes and edges. 
 \end{itemize}
 
 \subsection{RAG Pipeline Implementation}
 This pipeline iteratively retrieves relevant code snippets to ground the LLM's responses. The key components are outlined below:
 
 \subsubsection{Query Processing}
-Raw user queries are usually ambiguous and require refinement. The pipeline first rephrases the query into technical search queries that align with the codebase's terminology and structure. This is achieved using the Search Architect persona described earlier.
+User queries are usually ambiguous and may include typos. To address this, the pipeline first rephrases the query into technical search queries that align with the codebase's terminology and structure. This is achieved using the Search Architect persona described earlier.
 
 \subsubsection{Multistep Planning \& Exploration}
 Mentioned previously, the Search Architect persona decomposes complex queries and conducts a breadth-first exploration. 
@@ -378,4 +376,4 @@ This interface allows users to customise their experience. As illustrated in Fig
 To overcome GitHub API rate limits, the system implements a \textbf{Streaming Tarball Strategy}. By fetching a single compressed \texttt{.tar.gz} archive, the system reduces network calls by over 90\% and processes repository data entirely in-memory.
 
 \subsection{Real-Time Graph Updates}
-To ensure a smooth user experience, the system utilizes Server-Sent Events (SSE) to stream graph data. This allows the React Flow canvas to begin rendering nodes as they are discovered by the RAG agent, rather than waiting for the entire process to complete.
+The system utilises Server-Sent Events (SSE) to stream the graph data for a smoother user experience. This allows React Flow to render an empty canvas initially and progressively add nodes and edges after the search has completed.

@@ -1,6 +1,6 @@
 \chapter{Literature Review}
 
-Understanding unfamiliar and large codebases poses significant challenges for software developers, especially those new to a project or organisation. Different organisations have various ways to onboard new developers, yet these approaches to codebase exploration remains inefficient. As AI adoption increases, the problem of accurate code comprehension becomes paramount. Often, AI-assisted tools hallucinate information that is not grounded in actual source code. Furthermore, large codebases make it harder for AI to comprehend due to its limited context window.
+New developers often struggle with understanding new and unfamiliar codebases, leading to prolonged onboarding times and reduced productivity. Various strategies have been proposed to address this challenge such as improved documentation practices. However, these methods often fall short in providing comprehensive and efficient solutions for code comprehension. With the increasing adoption of AI-assisted tools, new challenges have emerged. Often, these tools hallucinate information that is not grounded in actual source code. Furthermore, large codebases make it harder for AI to comprehend due to its limited context window.
 
 This literature review examines five interrelated research domains critical to the proposed AI Search Tool - CodeOrient:
 
@@ -30,18 +30,19 @@ Thomas J.McCabe introduced cyclomatic complexity, a quantitative measure of prog
 McCabe's complexity measure allows developers to identify highly complex functions and recognise problematic code sections that require refactoring. When implementing the code graph visualisation feature in a code search application, cyclomatic complexity serves as one signal among many to highlight high-risk or critical code sections. 
 
 \subsection{Modern Complexity in Distributed Systems}
-Kafura's recent reflection on McCabe's work in 2025 acknowledges that cyclomatic complexity has proven durable for the last 50 years. However, modern software architectures, such as distributed systems and microservices, require additional metrics beyond control flow analysis \cite{kafura2025}. This observation directly motivates the integration of code graph visualisation in modern development tools, as visual representation of information flow across procedures becomes just as important as understanding control flow within individual functions.
+Kafura's recent reflection on McCabe's work in 2025 acknowledges that cyclomatic complexity has proven durable for the last 50 years. However, modern software architectures, such as distributed systems and microservices, require additional metrics beyond control flow analysis \cite{kafura2025}. This observation showcases the potential of integrating graph visualisation into modern AI assistants to help developers understand not just function-level complexity but also system-level interactions.
 
 \section{Code Search and Natural Language Query Processing}
 
 \subsection{Semantic Code Search Through Embeddings}
-With the recent advancements in neural networks and embedding models, the field of semantic code search has evolved significantly from traditional keyword-based search. Cambronero et al. demonstrated that the use of neural embeddings could bridge the semantic gap between natural language queries and code snippets \cite{cambronero2019}. By transforming both code and queries into a shared vector space, and code snippets relevant to the query can be retrieved by calculating the cosine similarity between their embedding vectors, given by the formula:
+Code search has evolved from simple keyword matching to more sophisticated semantic search techniques. Cambronero et al. explored the use of neural embeddings for semantic code search \cite{cambronero2019}. Their approach involves training models  to transform both code snippets and natural language queries into a shared vector space \cite{cambronero2019}. Similar code snippets can be retrieved by calculating the soine similarity between their embedding vectors. The cosine similarity formula is given by:
+Cambronero et al. demonstrated that the use of neural embeddings could bridge the semantic gap between natural language queries and code snippets \cite{cambronero2019}. By transforming both code and queries into a shared vector space, and code snippets relevant to the query can be retrieved by calculating the cosine similarity between their embedding vectors, given by the formula:
 \[
 \text{cosine\_similarity}(\vec{a}, \vec{b}) = \frac{\vec{a} \cdot \vec{b}}{\|\vec{a}\| \|\vec{b}\|}
 \]
 where $\vec{a}$ and $\vec{b}$ are the embedding vectors of the query and code snippet, respectively.
 
-In the figure below, developers can express their intent through natural language, which is then mapped into the same embedding space as code snippets. This technique supplements existing searches, such as fuzzy search or keyword-based approaches that often miss semantically relevant results. This motivates the use of natural language search in modern code repositories like GitHub.
+The figure below showcases how a query is transformed into an embedding vector which shares the same embedding space as code snippets. Although this technique does not replace traditional code search, it complements traditional methods that often miss semantically relevant results.
 
 \begin{figure}[H]
     \centering
@@ -53,19 +54,19 @@ In the figure below, developers can express their intent through natural languag
 \end{figure}
 
 \subsection{Structural Code Search with Domain-Specific Languages}
-Recent research by Limpanukorn et al. (2025) introduces structural code search by translating natural language queries into Doman-Specific Language (DSL) queries for more precise code retrieval \cite{limpanukorn2025}. This approach leverages the architectural information embedded in a codebase rather than just its textual meaning. This method achieved a precision score of 55-70\% and outperformed semantic search baselines by up to 57\% on F1 scores \cite{limpanukorn2025}.
+Recent research conducted in 2025 explored structural code search tecniques using Domain-Specific Languages (DSLs). Limpanukorn et al. proposed translating nautral language queries into DSL queries which capture the structural relationships within a codebase, which goes beyond mere semantic similarity \cite{limpanukorn2025}. Their approach achieved a precision score of 55-70\% and outperformed semantic search baselines by up to 57\% on F1 scores \cite{limpanukorn2025}.
 
-This research presents a critical missing link in developer tools, such as tracing an "authentication flow", where the relationships between modules are more informative than the functions' names themselves. The findings provide a strong validation for the code graph visualisation tool, providing syntactic and architectural information for developers to understand complex problem spaces.
+This research presents a critical missing link in developer tools, such as tracing an ``authentication flow'', where the relationships between modules are more informative than the functions' names themselves. Their findings highlight the need for code graph visualisation to represent these structural relationships effectively.
 
-\subsection{Code Embedding Models for Retrieval}
-In 2025, Qodo introduced specialised code embedding models (Qodo Embed-1) that achieved state-of-the-art performance in Codebase Understanding Gartner{\textregistered} 2025, with a product score of 3.72/5. Their approach directly encodes code semantics without an intermediate language description step \cite{tai2025}. By avoiding the overhead of the intermediate step, Qodo Embed-1 has proved to be computationally efficient while maintaining high retrieval accuracy.
+\subsection{Retrieval using Code Embedding Models}
+Qodo introduced specialised code embedding models (Qodo Embed-1) that achieved state-of-the-art performance (product score of 3.72/5) in Codebase Understanding Gartner{\textregistered} in 2025 \cite{tai2025}. Their approach bypasses the intermediate langauge description step. Instead, their models directly encode code semantics, resulting the models to be computationally efficient while maintaining high retrieval accuracy for code search tasks \cite{tai2025}. 
 
 \section{AI Hallucination and Grounded Code Comprehension}
 
-\subsection{The Hallucination Problem in Code-Generating LLMs}
-With the rise in AI-assisted code generation tools such as GitHub Copilot and ChatGPT, the problem of hallucination becomes increasingly critical. Hallucination refers to generated information that seems plausible but is fabricated or factually incorrect. Spracklen et al.'s (2025) research revealed that package hallucinations are a systemic issue across state-of-the-art code-generating models \cite{spracklen2025}. They analysed over 576,000 generated code samples across 16 Large Language Models (LLMs) and found that the LLMs consistently hallucinate package names. More critically, they regenerate the same false package name across 43\% of repeated prompts \cite{spracklen2025}.
+\subsection{The Hallucination Problem in LLMs}
+With the incresed adoption of AI-assisted code generation tools like GitHub Copilot and ChatGPT, the risk of hallucination has become a critical concern. Hallucination in code generation refers to the generation of code that appears correct but is actually non-functional. In 2025, Spracklen et al. conducted a comprehensive study on hallucination in code-generating LLMs \cite{spracklen2025} and found that package hallucinations are a systemic issue across state-of-the-art code-generating models. Their research included analysing over 576,000 code samples generated by 16 different LLMs. Their findings revealed that LLMs consisitently hallucinate package names, and more worryingly, they regenerate the same false package name in 43\% of repeated prompts \cite{spracklen2025}.
 
-This poses a critical issue in agentic workflow as the hallucination is exploitable via "slopsquatting", creating risks in the software supply chain \cite{spracklen2025}. The figure below showcases how an attacker can exploit hallucinations from LLMs. This research highlights the urgent need for citation-grounded code comprehension systems that can verify all claims against actual source code.
+In an agentic workflow where LLMs autonomously generate and execute code, hallucinations can be exploited by attackers via ``slopsquatting'', which is the practice of creating malicious packages with names similar to popular ones \cite{spracklen2025}. The figure below showcases how an attacker can exploit hallucinations from LLMs. This research highlights the urgent need for citation-grounded code comprehension systems that can verify all claims against actual source code.
 
 \begin{figure}[H]
     \centering
@@ -94,31 +95,24 @@ The broader principle emerging from hallucination research is Retrieval-Augmente
 \section{Code Visualisation and Dependency Analysis}
 
 \subsection{Static Analysis and Dependency Graphs}
-To understand the real structure of a codebase, dependency graphs are essential. Using entities as nodes and relationships as edges, code graphs provide a visual representation of how different components interact with each other \cite{jit2025}. Without this visualisation, it is inherently difficult for developers to grasp the complex relationships present in modern software architectures like microservices. In particular, for CodeOrient, visualising dependencies helps developers trace data flows and control flows across modules, which helps them understand unfamiliar codebases faster.
+To understand the real structure of a codebase, dependency graphs are essential. Using entities as nodes and relationships as edges, code graphs provide a visual representation of how different components interact with each other \cite{jit2025}. The lack of visualisation makes it difficult for developers to grasp the complex relationship that are present in modern software architectures. This motivates CodeOrient's code graph visualisation feature to help developers trace data flows across multiple modules, functions, and files. 
 
 \subsection{Interactive Visualisation Tools}
-React Flow is a popular open-source library for building interactive, node-based User Interfaces (UIs) in React applications \cite{jovanov2025}. This interactivity is crucial for developers to understand the linkage between nodes and edges and how they interact. Rather than traditional static diagrams, developers can explore relationships dynamically by hovering over nodes and their related code snippets.
+Among many code visualisation libraries, React Flow stands out for its interactivity and ease of integration with React applications \cite{jovanov2025}. React Flow allows developers to explore the relationships between entities. Rather than traditional large static diagrams, developers can pan and hover over nodes to reveal additional information, which is cruicial for understanding  complex codebases.
 
 \section{Generative User Interface (UI)}
 
-\subsection{Generative UI as a Paradigm}
-Google's recent research on Generative UI introduces a paradigm shift in interface design \cite{leviathan2025}. Traditionally, LLMs can only generate text-based outputs, but Generative UI extends this capability by generating dynamic user interfaces at runtime based on user prompts. This strengthens the capability of LLMs by giving them the tools to generate dynamic code graphs for visualisation, with their structure and content optimised for each specific query.
-
-\subsection{Task-Driven Data Models for Adaptive Interfaces}
-Recent research by Cao et al. showcases the use of task-driven data models as the foundation for Generative UI \cite{cao2025}. By allowing LLMs to generate a data model representing the core task, then mapping it to UI specifications, the resulting interfaces were more adaptive and aligned with user intent than direct UI code generation. This also ensures that the generated UI is grounded in actual data structures rather than arbitrary code snippets.
-
-\section{Related Systems and Tools}
-Based on current semantic search tools like RAG \cite{ayala2024} and interactive graph visualisation tools \cite{jovanov2025}, there is a clear gap in integrating these capabilities into a unified developer onboarding experience. This addresses the onboarding challenges faced by developers when exploring unfamiliar codebases. The integration of LLMs, semantic search, code graph visualisation, and generative UI into a single application allows developers to search for relevant code snippets, understand their relationships via dynamically generated graphs, while ensuring trust through citation grounding \cite{arafat2025}.
+\subsection{Adaptive and Dynamic Interfaces}
+Generative UI is an emerging field research by Google that focuses on using LLMs to generate dynamic UIs \cite{leviathan2025}. This extends the capability of text-based LLMs to generate UIs using task-driven data models \cite{cao2025}. Different queries will produce different UIs at runtime, allowing for highly personalised and adaptive interfaces. Their research shifts away from generating UI code snippets towards generating UI data models that is more aligned with user intent \cite{cao2025}. This approach directly motivates the use of Generative UI by rendering UI components instead of text-based responses in CodeOrient.
 
 \section{Research Gaps and Motivation}
-
-While the individual domains of semantic search, graph analysis, and Generative UI have matured significantly, their integration into a developer tool reveals two critical research gaps that CodeOrient aims to address:
+The reviewed literature highlights significant advancements in respective domains such as semantic search, graph analysis, and Generative UI. However, their integration into a cohesive system for developer onboarding remains underexplored. The following research gaps motivate the development of CodeOrient:
 
 \subsection{Bridging Semantic and Structural Code Search}
 Current tools typically favour either semantic search (finding code that looks right) or structural analysis (finding code that is connected). As noted by Limpanukorn et al. (2025), structural search outperforms semantic baselines, yet most AI tools like GitHub Copilot still relies primarily on text-based RAG. There is a lack of research into how Generative UI can bridge this gap by dynamically synthesising a visual graph that represents both the user's natural language intent and the codebase's physical architecture.
 
-\subsection{The "Black Box" of Generative UI in Software Engineering}
-Research by Leviathan et al. \cite{leviathan2025} and Cao et al. \cite{cao2025} establishes the framework for task-driven UIs. However, these studies focus on general tasks such as education or shopping, as shown below. In the high-stakes domain of software engineering, it is unknown how a constantly changing, generative interface affects a developer's productivity. CodeOrient provides an experimental platform to observe whether generative graphs reduce cognitive load during onboarding or if the lack of visual consistency hinders comprehension.
+\subsection{The ``Black Box'' of Generative UI in Software Engineering}
+Research by Leviathan et al. \cite{leviathan2025} and Cao et al. \cite{cao2025} establishes the framework for task-driven UIs. However, these studies focus on general tasks such as education or shopping, as shown below. In the high-stakes domain of software engineering, it is unknown how a constantly changing, generative interface affects a developer's productivity. CodeOrient will serve as an experimental platform to explore whether Generative UI can effectively reduce cognitive load and accelerate code comprehension for developers.
 
 \begin{figure}[H]
     \centering
@@ -130,4 +124,4 @@ Research by Leviathan et al. \cite{leviathan2025} and Cao et al. \cite{cao2025} 
 \end{figure}
 
 \section{Conclusion}
-Improving developer onboarding requires addressing code comprehension at multiple levels. Recent research in cyclomatic complexity \cite{mccabe1976}, semantic code search \cite{cambronero2019}, citation-grounded AI \cite{arafat2025}, and Generative UI \cite{cao2025} provides a comprehensive foundation. By integrating these approaches together, CodeOrient has the potential to accelerate developer onboarding while being reliable and accurate.
+To improve developer onboarding, it is essential to address code comprehension at different levels. By integrating insights from software complexity metrics \cite{mccabe1976}, semantic code search \cite{cambronero2019}, hallucination mitigation \cite{arafat2025}, and Generative UI \cite{leviathan2025}, CodeOrient aims to accelerate developer onboarding while being reliable and grounded in actual source code.

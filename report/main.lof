@@ -4,19 +4,19 @@
 \contentsline {figure}{\numberline {2.2}{\ignorespaces \textit {Semantic code search in a shared embedding space for retrieval \blx@tocontentsinit {0}\cite {cambronero2019}.}}}{7}{figure.caption.6}%
 \contentsline {figure}{\numberline {2.3}{\ignorespaces \textit {Exploiting LLM hallucinations through slopsquatting.}}}{8}{figure.caption.7}%
 \contentsline {figure}{\numberline {2.4}{\ignorespaces \textit {Retrieval-Augmented Generation to reduce hallucinations \blx@tocontentsinit {0}\cite {arafat2025}.}}}{9}{figure.caption.8}%
-\contentsline {figure}{\numberline {2.5}{\ignorespaces \textit {Generative UI for a Room Rug Visualiser \blx@tocontentsinit {0}\cite {leviathan2025}.}}}{12}{figure.caption.9}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces \textit {Generative UI for a Room Rug Visualiser \blx@tocontentsinit {0}\cite {leviathan2025}.}}}{11}{figure.caption.9}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {3.1}{\ignorespaces \textit {Data Flow Architecture of CodeOrient}}}{14}{figure.caption.10}%
 \contentsline {figure}{\numberline {3.2}{\ignorespaces \textit {CodeOrient Chat Page Layout}}}{18}{figure.caption.11}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {4.1}{\ignorespaces \textit {Prototype of Dynamic Card Generation for Weather App}}}{26}{figure.caption.13}%
 \contentsline {figure}{\numberline {4.2}{\ignorespaces \textit {Git Branching Strategy for CodeOrient Development}}}{27}{figure.caption.14}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces \textit {Example of Repository Card in Generative UI}}}{31}{figure.caption.15}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces \textit {Example of Code Graph Card in Generative UI}}}{32}{figure.caption.16}%
-\contentsline {figure}{\numberline {4.5}{\ignorespaces \textit {Example of Multistep Planning by Search Architect Persona}}}{33}{figure.caption.17}%
-\contentsline {figure}{\numberline {4.6}{\ignorespaces \textit {Example of Gap Analysis by Gap Analyser Persona}}}{34}{figure.caption.18}%
-\contentsline {figure}{\numberline {4.7}{\ignorespaces \textit {Example of sources retrieved from RAG pipeline}}}{36}{figure.caption.19}%
-\contentsline {figure}{\numberline {4.8}{\ignorespaces \textit {Example of inline citations in LLM response}}}{36}{figure.caption.20}%
-\contentsline {figure}{\numberline {4.9}{\ignorespaces \textit {Example of Account Dashboard}}}{39}{figure.caption.21}%
-\contentsline {figure}{\numberline {4.10}{\ignorespaces \textit {Example of Sharing Conversation Link}}}{40}{figure.caption.22}%
-\contentsline {figure}{\numberline {4.11}{\ignorespaces \textit {Example of User Preferences Settings}}}{41}{figure.caption.23}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces \textit {Example of Repository Card in Generative UI}}}{32}{figure.caption.15}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces \textit {Example of Code Graph Card in Generative UI}}}{33}{figure.caption.16}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces \textit {Example of Multistep Planning by Search Architect Persona}}}{34}{figure.caption.17}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces \textit {Example of Gap Analysis by Gap Analyser Persona}}}{35}{figure.caption.18}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces \textit {Example of sources retrieved from RAG pipeline}}}{37}{figure.caption.19}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces \textit {Example of inline citations in LLM response}}}{37}{figure.caption.20}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces \textit {Example of Account Dashboard}}}{40}{figure.caption.21}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces \textit {Example of Sharing Conversation Link}}}{41}{figure.caption.22}%
+\contentsline {figure}{\numberline {4.11}{\ignorespaces \textit {Example of User Preferences Settings}}}{42}{figure.caption.23}%

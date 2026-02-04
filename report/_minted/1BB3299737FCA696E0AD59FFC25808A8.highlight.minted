@@ -1,11 +1,10 @@
 \begin{MintedVerbatim}[commandchars=\\\{\}]
 \PYG{c+cm}{/**}
-\PYG{c+cm}{ * Metadata schema for Code Graph Nodes}
-\PYG{c+cm}{ * Represents logical code entities within the React Flow canvas.}
+\PYG{c+cm}{ * Schema for Code Graph Nodes}
 \PYG{c+cm}{ */}
 \PYG{k}{export}\PYG{+w}{ }\PYG{k+kr}{type}\PYG{+w}{ }\PYG{n+nx}{CodeGraphNode}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
 \PYG{+w}{  }\PYG{n+nx}{id}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// Unique identifier: userId::repo::path::type::name}
-\PYG{+w}{  }\PYG{n+nx}{label}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// The display name of the entity (e.g., function name)}
+\PYG{+w}{  }\PYG{n+nx}{label}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// The display name of the entity}
 \PYG{+w}{  }\PYG{k+kr}{type}\PYG{o}{?}\PYG{o}{:}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}file\PYGZdq{}}\PYG{+w}{ }\PYG{o}{|}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}function\PYGZdq{}}\PYG{+w}{ }\PYG{o}{|}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}class\PYGZdq{}}\PYG{+w}{ }\PYG{o}{|}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}component\PYGZdq{}}\PYG{p}{;}
 \PYG{+w}{  }\PYG{n+nx}{filePath?}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// Original source file path}
 \PYG{+w}{  }\PYG{n+nx}{codeSnippet?}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// The raw source code associated with the entity}
@@ -13,15 +12,14 @@
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 
 \PYG{c+cm}{/**}
-\PYG{c+cm}{ * Metadata schema for Code Graph Edges}
-\PYG{c+cm}{ * Defines the directional relationships between code entities.}
+\PYG{c+cm}{ * Schema for Code Graph Edges}
 \PYG{c+cm}{ */}
 \PYG{k}{export}\PYG{+w}{ }\PYG{k+kr}{type}\PYG{+w}{ }\PYG{n+nx}{CodeGraphEdge}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
 \PYG{+w}{  }\PYG{n+nx}{id}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// Composite ID: sourceID\PYGZhy{}\PYGZgt{}targetID}
 \PYG{+w}{  }\PYG{n+nx}{source}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// ID of the originating node}
 \PYG{+w}{  }\PYG{n+nx}{target}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// ID of the destination node}
-\PYG{+w}{  }\PYG{n+nx}{label?}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// Relationship type for UI display}
+\PYG{+w}{  }\PYG{n+nx}{label?}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// Relationship type}
 \PYG{+w}{  }\PYG{k+kr}{type}\PYG{o}{?}\PYG{o}{:}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}imports\PYGZdq{}}\PYG{+w}{ }\PYG{o}{|}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}calls\PYGZdq{}}\PYG{+w}{ }\PYG{o}{|}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}extends\PYGZdq{}}\PYG{+w}{ }\PYG{o}{|}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}uses\PYGZdq{}}\PYG{p}{;}
-\PYG{+w}{  }\PYG{n+nx}{animated?}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{boolean}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// Visual indicator for active data/logic flow}
+\PYG{+w}{  }\PYG{n+nx}{animated?}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{boolean}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// Visual indicator for logic flow}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{MintedVerbatim}

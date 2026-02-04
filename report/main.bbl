@@ -353,8 +353,8 @@
       \strng{authornamehash}{c3d8112d2e1a6e595747d1e8f8bf5871}
       \strng{authorfullhash}{c3d8112d2e1a6e595747d1e8f8bf5871}
       \strng{authorfullhashraw}{c3d8112d2e1a6e595747d1e8f8bf5871}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{booktitle}{Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 6: Industry Track)}
