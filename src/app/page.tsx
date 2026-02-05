@@ -431,49 +431,120 @@ export default function Home() {
       </section>
 
       {/* Metrics Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-primary text-primary-foreground relative overflow-hidden">
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_25%,rgba(255,255,255,0.1)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.1)_75%)] bg-size-[60px_60px]" />
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-card relative overflow-hidden">
+        {/* Top border accent */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-primary to-transparent" />
+
+        {/* Background grid pattern */}
+        <div className="absolute inset-0 opacity-[0.02]">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--primary)_1px,transparent_1px)] bg-size-[40px_40px]" />
         </div>
 
         <div className="max-w-7xl mx-auto relative">
-          <div className="text-center mb-16">
-            <div className="text-xs font-bold tracking-widest mb-2 opacity-70">
-              [ SUCCESS METRICS ]
+          {/* Section header */}
+          <div className="flex items-center justify-between mb-16">
+            <div>
+              <div className="text-xs font-bold text-primary tracking-widest mb-2">
+                [ METRICS ]
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+                MEASURABLE IMPACT
+              </h2>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold">
-              MEASURABLE IMPACT
-            </h2>
+            <div className="hidden md:block text-6xl font-bold text-muted-foreground/20">
+              03
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center p-8 border-2 border-primary-foreground/20">
-              <Clock className="w-10 h-10 mx-auto mb-4 opacity-80" />
-              <div className="text-4xl font-bold mb-2">↓ TTFC</div>
-              <div className="text-sm opacity-70">Time-to-First-Commit</div>
-              <p className="text-xs mt-4 opacity-60">
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* TTFC Card */}
+            <div className="bg-background border-2 border-border p-8 group hover:border-primary transition-colors">
+              <div className="flex items-start justify-between mb-6">
+                <div className="w-14 h-14 bg-primary/10 border-2 border-primary flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-primary" />
+                </div>
+                <div className="text-4xl font-bold text-primary">↓</div>
+              </div>
+
+              <div className="text-3xl font-bold text-foreground mb-2">
+                TTFC
+              </div>
+              <div className="text-sm text-primary font-bold mb-4">
+                Time-to-First-Commit
+              </div>
+
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Reduce onboarding time for new developers to make meaningful
-                contributions
+                contributions to the codebase.
               </p>
+
+              {/* Bottom bar */}
+              <div className="mt-6 pt-4 border-t-2 border-border">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-500" />
+                  <span className="text-xs text-muted-foreground">
+                    Faster ramp-up
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div className="text-center p-8 border-2 border-primary-foreground/20">
-              <Users className="w-10 h-10 mx-auto mb-4 opacity-80" />
-              <div className="text-4xl font-bold mb-2">↑ SAT</div>
-              <div className="text-sm opacity-70">User Satisfaction</div>
-              <p className="text-xs mt-4 opacity-60">
-                Improved codebase understanding and navigation experience
+            {/* SAT Card - Featured */}
+            <div className="bg-primary text-primary-foreground p-8">
+              <div className="flex items-start justify-between mb-6">
+                <div className="w-14 h-14 bg-primary-foreground/10 border-2 border-primary-foreground/30 flex items-center justify-center">
+                  <Users className="w-6 h-6" />
+                </div>
+                <div className="text-4xl font-bold">↑</div>
+              </div>
+
+              <div className="text-3xl font-bold mb-2">SAT</div>
+              <div className="text-sm font-bold mb-4 opacity-90">
+                User Satisfaction
+              </div>
+
+              <p className="text-sm leading-relaxed opacity-80">
+                Improved codebase understanding and navigation experience for
+                all developers.
               </p>
+
+              {/* Bottom bar */}
+              <div className="mt-6 pt-4 border-t-2 border-primary-foreground/20">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-primary-foreground" />
+                  <span className="text-xs opacity-80">Higher engagement</span>
+                </div>
+              </div>
             </div>
 
-            <div className="text-center p-8 border-2 border-primary-foreground/20">
-              <Zap className="w-10 h-10 mx-auto mb-4 opacity-80" />
-              <div className="text-4xl font-bold mb-2">↑ EFF</div>
-              <div className="text-sm opacity-70">Search Efficiency</div>
-              <p className="text-xs mt-4 opacity-60">
+            {/* EFF Card */}
+            <div className="bg-background border-2 border-border p-8 group hover:border-primary transition-colors">
+              <div className="flex items-start justify-between mb-6">
+                <div className="w-14 h-14 bg-accent/10 border-2 border-accent flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-accent-foreground" />
+                </div>
+                <div className="text-4xl font-bold text-primary">↑</div>
+              </div>
+
+              <div className="text-3xl font-bold text-foreground mb-2">EFF</div>
+              <div className="text-sm text-primary font-bold mb-4">
+                Search Efficiency
+              </div>
+
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Faster discovery of relevant code compared to traditional search
+                methods.
               </p>
+
+              {/* Bottom bar */}
+              <div className="mt-6 pt-4 border-t-2 border-border">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-500" />
+                  <span className="text-xs text-muted-foreground">
+                    Instant results
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -493,7 +564,7 @@ export default function Home() {
               </h2>
             </div>
             <div className="hidden md:block text-6xl font-bold text-muted-foreground/20">
-              03
+              04
             </div>
           </div>
 
