@@ -90,7 +90,7 @@ export function Navbar({ user }: NavbarProps) {
                   href="/dashboard"
                   className="relative px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors group"
                 >
-                  <span className="relative z-10">[DASH]</span>
+                  <span className="relative z-10">[DASHBOARD]</span>
                   <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/10 transition-colors" />
                 </Link>
 
