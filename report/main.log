@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2026.1.23)  4 FEB 2026 22:25
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2026.1.23)  4 FEB 2026 22:32
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1219,7 +1219,7 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 14.4pt on input line 18.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 10.95pt on input line 23.
-<fig/fig1.png, id=501, 585.18625pt x 559.08875pt>
+<fig/fig1.png, id=500, 585.18625pt x 559.08875pt>
 File: fig/fig1.png Graphic file (type png)
 <use fig/fig1.png>
 Package pdftex.def Info: fig/fig1.png  used on input line 24.
@@ -1231,7 +1231,7 @@ LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 8.8pt on input line 41.
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
 (Font)              scaled to size 6.6pt on input line 41.
-<fig/fig2.png, id=516, 1278.7775pt x 317.185pt>
+<fig/fig2.png, id=515, 1278.7775pt x 317.185pt>
 File: fig/fig2.png Graphic file (type png)
 <use fig/fig2.png>
 Package pdftex.def Info: fig/fig2.png  used on input line 50.
@@ -1241,7 +1241,7 @@ Package pdftex.def Info: fig/fig2.png  used on input line 50.
 [6]
 
 [7 <./fig/fig2.png>]
-<fig/fig3.png, id=538, 399.4925pt x 423.5825pt>
+<fig/fig3.png, id=537, 399.4925pt x 423.5825pt>
 File: fig/fig3.png Graphic file (type png)
 <use fig/fig3.png>
 Package pdftex.def Info: fig/fig3.png  used on input line 74.
@@ -1249,7 +1249,7 @@ Package pdftex.def Info: fig/fig3.png  used on input line 74.
 
 
 [8 <./fig/fig3.png>]
-<fig/fig4.png, id=550, 1358.07375pt x 372.39125pt>
+<fig/fig4.png, id=549, 1358.07375pt x 372.39125pt>
 File: fig/fig4.png Graphic file (type png)
 <use fig/fig4.png>
 Package pdftex.def Info: fig/fig4.png  used on input line 89.
@@ -1259,7 +1259,7 @@ Package pdftex.def Info: fig/fig4.png  used on input line 89.
 [9 <./fig/fig4.png>]
 
 [10]
-<fig/fig5.jpeg, id=573, 3127.685pt x 1716.4125pt>
+<fig/fig5.jpeg, id=572, 3127.685pt x 1716.4125pt>
 File: fig/fig5.jpeg Graphic file (type jpg)
 <use fig/fig5.jpeg>
 Package pdftex.def Info: fig/fig5.jpeg  used on input line 120.
@@ -1275,7 +1275,7 @@ Chapter 3.
 [13
 
 ]
-<fig/fig6.png, id=594, 1758.57pt x 1861.95625pt>
+<fig/fig6.png, id=592, 1758.57pt x 1861.95625pt>
 File: fig/fig6.png Graphic file (type png)
 <use fig/fig6.png>
 Package pdftex.def Info: fig/fig6.png  used on input line 21.
@@ -1301,7 +1301,7 @@ LaTeX Font Info:    Font shape `OT1/ntxtt/m/n' will be
 [16]
 
 [17]
-<fig/fig7.png, id=621, 2015.53pt x 1359.0775pt>
+<fig/fig7.png, id=620, 2015.53pt x 1359.0775pt>
 File: fig/fig7.png Graphic file (type png)
 <use fig/fig7.png>
 Package pdftex.def Info: fig/fig7.png  used on input line 77.
@@ -1332,7 +1332,7 @@ Overfull \hbox (39.04909pt too wide) in paragraph at lines 164--185
 
 [24]
 Chapter 4.
-<fig/fig8.png, id=669, 1123.19624pt x 786.94pt>
+<fig/fig8.png, id=668, 1123.19624pt x 786.94pt>
 File: fig/fig8.png Graphic file (type png)
 <use fig/fig8.png>
 Package pdftex.def Info: fig/fig8.png  used on input line 12.
@@ -1347,7 +1347,7 @@ Overfull \hbox (21.05502pt too wide) in paragraph at lines 12--13
 [25
 
 ]
-<fig/fig9.png, id=677, 616.3025pt x 334.24875pt>
+<fig/fig9.png, id=676, 616.3025pt x 334.24875pt>
 File: fig/fig9.png Graphic file (type png)
 <use fig/fig9.png>
 Package pdftex.def Info: fig/fig9.png  used on input line 27.
@@ -1369,10 +1369,10 @@ Overfull \hbox (21.05502pt too wide) in paragraph at lines 27--28
 \pydata@fh@_FAD58DE7366495DB4650CFEFAC2FCD61.data.minted=\write11
 \openout11 = `_FAD58DE7366495DB4650CFEFAC2FCD61.data.minted'.
 
-runsystem(latexminted config  --timestamp 20260204222531 FAD58DE7366495DB4650CFEFAC2FCD61)...executed safely (allowed).
+runsystem(latexminted config  --timestamp 20260204223200 FAD58DE7366495DB4650CFEFAC2FCD61)...executed safely (allowed).
 
  (./_FAD58DE7366495DB4650CFEFAC2FCD61.config.minted)
-runsystem(latexminted cleanconfig  --timestamp 20260204222531 FAD58DE7366495DB4650CFEFAC2FCD61)...executed safely (allowed).
+runsystem(latexminted cleanconfig  --timestamp 20260204223200 FAD58DE7366495DB4650CFEFAC2FCD61)...executed safely (allowed).
 
  (./_minted/default.style.minted) (./_minted/1BB3299737FCA696E0AD59FFC25808A8.highlight.minted
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
@@ -1396,7 +1396,7 @@ Package hyperref Info: bookmark level for unknown listing defaults to 0 on input
 [30]
 
 [31]
-<fig/fig10.png, id=716, 2009.5075pt x 504.88625pt>
+<fig/fig10.png, id=715, 2009.5075pt x 504.88625pt>
 File: fig/fig10.png Graphic file (type png)
 <use fig/fig10.png>
 Package pdftex.def Info: fig/fig10.png  used on input line 155.
@@ -1406,7 +1406,7 @@ Overfull \hbox (21.05502pt too wide) in paragraph at lines 155--156
  [][] 
  []
 
-<fig/fig11.png, id=717, 1074.0125pt x 831.105pt>
+<fig/fig11.png, id=716, 1074.0125pt x 831.105pt>
 File: fig/fig11.png Graphic file (type png)
 <use fig/fig11.png>
 Package pdftex.def Info: fig/fig11.png  used on input line 164.
@@ -1421,7 +1421,7 @@ Overfull \hbox (21.05502pt too wide) in paragraph at lines 164--165
 [32 <./fig/fig10.png>]
 
 [33 <./fig/fig11.png>]
-<fig/fig12.png, id=730, 1229.59375pt x 335.2525pt>
+<fig/fig12.png, id=729, 1229.59375pt x 335.2525pt>
 File: fig/fig12.png Graphic file (type png)
 <use fig/fig12.png>
 Package pdftex.def Info: fig/fig12.png  used on input line 182.
@@ -1431,7 +1431,7 @@ Overfull \hbox (21.05502pt too wide) in paragraph at lines 182--183
  [][] 
  []
 
-<fig/fig13.png, id=732, 1224.575pt x 333.245pt>
+<fig/fig13.png, id=731, 1224.575pt x 333.245pt>
 File: fig/fig13.png Graphic file (type png)
 <use fig/fig13.png>
 Package pdftex.def Info: fig/fig13.png  used on input line 191.
@@ -1446,7 +1446,7 @@ Overfull \hbox (21.05502pt too wide) in paragraph at lines 191--192
 [34 <./fig/fig12.png>]
 
 [35 <./fig/fig13.png>] (./_minted/9EDAB6DBB97D4854E90321AC2F0CD632.highlight.minted)
-<fig/fig14.png, id=746, 1037.8775pt x 734.745pt>
+<fig/fig14.png, id=745, 1037.8775pt x 734.745pt>
 File: fig/fig14.png Graphic file (type png)
 <use fig/fig14.png>
 Package pdftex.def Info: fig/fig14.png  used on input line 230.
@@ -1459,7 +1459,7 @@ Overfull \hbox (21.05502pt too wide) in paragraph at lines 230--231
 
 
 [36]
-<fig/fig15.png, id=751, 1066.98625pt x 464.73625pt>
+<fig/fig15.png, id=750, 1066.98625pt x 464.73625pt>
 File: fig/fig15.png Graphic file (type png)
 <use fig/fig15.png>
 Package pdftex.def Info: fig/fig15.png  used on input line 239.
@@ -1548,7 +1548,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 330.
 See the caption package documentation for explanation.
 
-<fig/fig16.png, id=769, 1348.03625pt x 565.11125pt>
+<fig/fig16.png, id=768, 1348.03625pt x 565.11125pt>
 File: fig/fig16.png Graphic file (type png)
 <use fig/fig16.png>
 Package pdftex.def Info: fig/fig16.png  used on input line 346.
@@ -1558,7 +1558,7 @@ Overfull \hbox (21.05502pt too wide) in paragraph at lines 346--347
  [][] 
  []
 
-<fig/fig17.png, id=771, 1567.8575pt x 760.8425pt>
+<fig/fig17.png, id=770, 1567.8575pt x 760.8425pt>
 File: fig/fig17.png Graphic file (type png)
 <use fig/fig17.png>
 Package pdftex.def Info: fig/fig17.png  used on input line 357.
@@ -1571,7 +1571,7 @@ Overfull \hbox (21.05502pt too wide) in paragraph at lines 357--358
 
 
 [40 <./fig/fig16.png>]
-<fig/fig18.png, id=778, 1254.6875pt x 993.7125pt>
+<fig/fig18.png, id=777, 1254.6875pt x 993.7125pt>
 File: fig/fig18.png Graphic file (type png)
 <use fig/fig18.png>
 Package pdftex.def Info: fig/fig18.png  used on input line 368.
@@ -1614,10 +1614,10 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  80i,13n,117p,1259b,1819s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/tex-gyre/qtmr.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/txfonts/txbtt.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txexs.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txsys.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/txfonts/txtt.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/txfonts/txtt.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/ztmr.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main.pdf (55 pages, 3136086 bytes).
+Output written on main.pdf (55 pages, 3136122 bytes).
 PDF statistics:
- 931 PDF objects out of 1000 (max. 8388607)
- 802 compressed objects within 9 object streams
+ 930 PDF objects out of 1000 (max. 8388607)
+ 801 compressed objects within 9 object streams
  200 named destinations out of 1000 (max. 500000)
  675 words of extra memory for PDF output out of 10000 (max. 10000000)
 
