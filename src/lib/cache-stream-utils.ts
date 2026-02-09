@@ -10,8 +10,8 @@ async function streamTextPart(
   writer: UIMessageStreamWriter,
   text: string,
   partId: string,
-  chunkSize: number = 20,
-  delayMs: number = 40
+  chunkSize: number = 30,
+  delayMs: number = 40,
 ) {
   writer.write({
     type: "text-start",
@@ -92,7 +92,7 @@ async function streamTextPart(
  */
 async function streamMessagePart(
   writer: UIMessageStreamWriter,
-  part: MyUIMessage["parts"][number]
+  part: MyUIMessage["parts"][number],
 ) {
   const { logger } = Sentry;
   const partId = generateId();
@@ -158,7 +158,7 @@ async function streamMessagePart(
 
     default:
       logger.warn(
-        logger.fmt`Unknown part type in cached message: ${part.type}`
+        logger.fmt`Unknown part type in cached message: ${part.type}`,
       );
   }
 }
@@ -168,7 +168,7 @@ async function streamMessagePart(
  */
 export async function streamCachedMessage(
   writer: UIMessageStreamWriter,
-  cachedMessage: MyUIMessage
+  cachedMessage: MyUIMessage,
 ) {
   const { logger } = Sentry;
   return Sentry.startSpan(
@@ -217,8 +217,8 @@ export async function streamCachedMessage(
       });
 
       logger.debug(
-        logger.fmt`Streamed ${cachedMessage.parts.length} cached message parts`
+        logger.fmt`Streamed ${cachedMessage.parts.length} cached message parts`,
       );
-    }
+    },
   );
 }
