@@ -884,17 +884,24 @@ Queries should be natural language descriptions that match how code documentatio
           }));
           completedTodos.push(...completedTaskTodos);
 
-          // Update sources
+          // Update sources (merge content from multiple chunks of the same file)
           const sources = new Map<
             string,
             { path: string; url: string; content?: string }
           >();
           allSearchResults.forEach((chunk) => {
-            if (!sources.has(chunk.metadata.filePath)) {
+            const existing = sources.get(chunk.metadata.filePath);
+            const lineLabel = `// Lines ${chunk.metadata.startLine}-${chunk.metadata.endLine}`;
+            if (existing) {
+              // Append chunk content with line range to existing file entry
+              existing.content = existing.content
+                ? `${existing.content}\n\n${lineLabel}\n${chunk.metadata.content}`
+                : `${lineLabel}\n${chunk.metadata.content}`;
+            } else {
               sources.set(chunk.metadata.filePath, {
                 path: chunk.metadata.filePath,
                 url: chunk.metadata.fileUrl,
-                content: chunk.metadata.content,
+                content: `${lineLabel}\n${chunk.metadata.content}`,
               });
             }
           });
@@ -990,11 +997,18 @@ Queries should be natural language descriptions that match how code documentatio
           { path: string; url: string; content?: string }
         >();
         allSearchResults.forEach((chunk) => {
-          if (!sources.has(chunk.metadata.filePath)) {
+          const existing = sources.get(chunk.metadata.filePath);
+          const lineLabel = `// Lines ${chunk.metadata.startLine}-${chunk.metadata.endLine}`;
+          if (existing) {
+            // Append chunk content with line range to existing file entry
+            existing.content = existing.content
+              ? `${existing.content}\n\n${lineLabel}\n${chunk.metadata.content}`
+              : `${lineLabel}\n${chunk.metadata.content}`;
+          } else {
             sources.set(chunk.metadata.filePath, {
               path: chunk.metadata.filePath,
               url: chunk.metadata.fileUrl,
-              content: chunk.metadata.content,
+              content: `${lineLabel}\n${chunk.metadata.content}`,
             });
           }
         });

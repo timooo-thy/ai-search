@@ -1,6 +1,7 @@
 import { marked } from "marked";
 import { memo, useMemo } from "react";
 import ReactMarkdown, { Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { ExternalLink } from "lucide-react";
 
 function parseMarkdownIntoBlocks(markdown: string): string[] {
@@ -20,12 +21,32 @@ const markdownComponents: Components = {
       <ExternalLink className="h-3 w-3 shrink-0" />
     </a>
   ),
+  table: ({ children }) => (
+    <div className="my-2 w-full overflow-x-auto">
+      <table className="min-w-full border-collapse text-sm">{children}</table>
+    </div>
+  ),
+  thead: ({ children }) => <thead className="bg-muted/50">{children}</thead>,
+  th: ({ children }) => (
+    <th className="border border-border px-3 py-2 text-left font-semibold">
+      {children}
+    </th>
+  ),
+  td: ({ children }) => (
+    <td className="border border-border px-3 py-2">{children}</td>
+  ),
+  tr: ({ children }) => <tr className="even:bg-muted/30">{children}</tr>,
 };
 
 const MemoizedMarkdownBlock = memo(
   ({ content }: { content: string }) => {
     return (
-      <ReactMarkdown components={markdownComponents}>{content}</ReactMarkdown>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={markdownComponents}
+      >
+        {content}
+      </ReactMarkdown>
     );
   },
   (prevProps, nextProps) => {
