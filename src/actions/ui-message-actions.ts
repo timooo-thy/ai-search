@@ -30,6 +30,22 @@ export async function createChat(title: string) {
   });
 }
 
+// Update the title of a chat
+export async function updateChatTitle(chatId: string, title: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in to update a chat.");
+  }
+
+  await prisma.chat.update({
+    where: { id: chatId, userId: session.user.id },
+    data: { title },
+  });
+}
+
 /**
  * Insert or update UI messages and their associated parts for a chat in the database.
  *

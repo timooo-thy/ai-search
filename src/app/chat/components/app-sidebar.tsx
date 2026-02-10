@@ -155,6 +155,18 @@ export function AppSidebar({ user }: AppSidebarProps) {
   };
 
   useEffect(() => {
+    const handleTitleUpdate = (e: Event) => {
+      const { chatId, title } = (e as CustomEvent).detail;
+      setRecentConversationTitles((prev) =>
+        prev.map((c) => (c.id === chatId ? { ...c, title } : c)),
+      );
+    };
+    window.addEventListener("chatTitleUpdated", handleTitleUpdate);
+    return () =>
+      window.removeEventListener("chatTitleUpdated", handleTitleUpdate);
+  }, []);
+
+  useEffect(() => {
     async function fetchChats() {
       const [chats, bookmarked] = await Promise.all([
         getUserChatTitles(),

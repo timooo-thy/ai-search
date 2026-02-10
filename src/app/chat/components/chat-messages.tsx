@@ -66,13 +66,7 @@ export function ChatMessages({
                   <span className="text-sm sm:text-lg">AI</span>
                 </Avatar>
               )}
-              <div
-                className={cn(
-                  "flex flex-col w-full",
-                  "max-w-[85%]",
-                  msg.role === "user" && "mb-6 sm:mb-10",
-                )}
-              >
+              <div className={cn("flex flex-col w-full", "max-w-[85%]")}>
                 <Card
                   className={cn(
                     "bg-card text-card-foreground px-3 py-2 sm:px-4 sm:py-2 rounded-lg shadow min-h-12 sm:min-h-14",

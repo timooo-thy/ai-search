@@ -12,6 +12,7 @@ import {
 import { ChatHeader } from "./chat-header";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
+import { updateChatTitle } from "@/actions/ui-message-actions";
 
 type ChatPanelProps = {
   chatId: string;
@@ -45,6 +46,7 @@ export default function ChatPanel({
   const [input, setInput] = useState("");
   const [selectedRepo, setSelectedRepo] = useState<string>("");
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const hasTitleBeenUpdatedRef = useRef(previousMessages.length > 0);
 
   const { messages, sendMessage, status, stop } = useChat({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
@@ -67,7 +69,7 @@ export default function ChatPanel({
     }),
     onError: (error) => {
       toast.error(
-        error?.message || "An error occurred. Please try again later."
+        error?.message || "An error occurred. Please try again later.",
       );
     },
     messages: previousMessages,
@@ -85,15 +87,33 @@ export default function ChatPanel({
           }),
         },
       }),
-    [sendMessage]
+    [sendMessage],
   );
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (input.trim()) {
-      sendText(input);
+      const messageText = input.trim();
+      sendText(messageText);
       setInput("");
+
+      if (!hasTitleBeenUpdatedRef.current) {
+        hasTitleBeenUpdatedRef.current = true;
+        const title =
+          messageText.length > 80
+            ? messageText.slice(0, 80) + "…"
+            : messageText;
+        updateChatTitle(chatId, title)
+          .then(() => {
+            window.dispatchEvent(
+              new CustomEvent("chatTitleUpdated", {
+                detail: { chatId, title },
+              }),
+            );
+          })
+          .catch(() => {});
+      }
     }
   };
 
