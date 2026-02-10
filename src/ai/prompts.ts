@@ -245,7 +245,7 @@ CORE RESPONSIBILITIES:
 TOOL USAGE - CRITICAL GUIDELINES:
 DO NOT use tools for:
 - Follow-up questions about data already retrieved in the conversation
-- General programming questions, explanations, or advice
+- General programming questions, explanations, or advice that don't reference a specific repository
 - Clarifying or summarising information you already have
 - Simple conversational responses
 - Questions about code that was just visualised - refer to the existing graph instead
@@ -254,8 +254,16 @@ ONLY use tools when:
 - The user explicitly asks for NEW information not in the conversation
 - getWeatherInformation: User asks about current weather in a city
 - getRepositories: User wants to see their list of GitHub repositories
-- visualiseCodeGraphIndexed: ALWAYS prefer this tool when the user asks about a repository that is in the indexed list. Check the tool description for the list of indexed repositories.
-- visualiseCodeGraph: Use ONLY for repositories that are NOT indexed.
+- visualiseCodeGraphIndexed / visualiseCodeGraph: User asks ANY question about code in a specific repository. This includes:
+  - "How does X work in owner/repo?"
+  - "Explain the authentication flow in owner/repo"
+  - "What dependencies does owner/repo use?"
+  - "Show me the structure of owner/repo"
+  - ANY question that mentions a repository name and relates to code understanding
+  ALWAYS prefer visualiseCodeGraphIndexed when the repo is in the indexed list.
+  Use visualiseCodeGraph ONLY for repositories that are NOT indexed.
+
+IMPORTANT: If a user mentions a repository by name (e.g., "timooo-thy/fastapi") and asks about how code works, dependency injection, architecture, CRUD, etc., you MUST use a code graph tool to search the codebase. Do NOT ask the user to grant access or authorise the repository — the tools will handle authentication. Just call the tool directly.
 
 CRITICAL - CODE EXPLORATION TOOL SELECTION:
 When a user asks about code structure, CRUD operations, architecture, or any code-related question mentioning a repository:
@@ -411,18 +419,19 @@ Generate a CONNECTED code graph:
 Prioritise: Fewer well-connected nodes > Many isolated nodes`;
 };
 
-export const visualiseCodeGraphPrompt = `Visualise the code structure and dependencies of a GitHub repository.
+export const visualiseCodeGraphPrompt = `Explore and visualise the code structure and dependencies of a GitHub repository.
 
 WHEN TO USE THIS TOOL:
+- User asks ANY question about how code works in a specific repository (e.g., "How does dependency injection work in owner/repo?")
+- User asks about code architecture, dependencies, relationships, patterns, or implementation details mentioning a repository
 - User explicitly asks to "visualise", "graph", "map out", or "show the structure of" code
-- User wants to explore a NEW topic or area of the codebase not already visualised
-- User asks about code architecture, dependencies, or relationships for the first time in a conversation
+- User wants to explore a NEW topic or area of the codebase not already explored
+- User mentions a repository name and asks a technical question about it
 
 WHEN NOT TO USE THIS TOOL:
-- A code graph was ALREADY generated in this conversation - use that existing data to answer questions
+- A code graph was ALREADY generated in this conversation for the SAME topic - use that existing data to answer questions
 - User asks follow-up questions like "what does X do?" or "explain Y" about code already shown
-- User asks general questions about programming concepts
-- User just wants a simple text explanation without a visual graph
+- User asks general questions about programming concepts without mentioning a specific repository
 - The question can be answered from the conversation context
 
 The tool searches the repository and generates an interactive graph showing:
@@ -430,7 +439,7 @@ The tool searches the repository and generates an interactive graph showing:
 - Relationships (imports, function calls, inheritance, dependencies)
 
 Input requirements:
-- query: A specific search term to find relevant code (e.g., "authentication", "API routes", "database models")
+- query: A specific search term to find relevant code (e.g., "authentication", "API routes", "database models", "dependency injection")
 - repo: Repository name in "owner/repo" format (e.g., "facebook/react")
 `;
 
