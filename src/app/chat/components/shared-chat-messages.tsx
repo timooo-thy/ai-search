@@ -8,10 +8,12 @@ import { MemoizedMarkdown } from "./memoized-markdown";
 import { cn } from "@/lib/utils";
 import { Weather } from "./weather";
 import { CodeGraph } from "./code-graph/code-graph";
+import { Terminal } from "lucide-react";
 
 type SharedChatMessagesProps = {
   messages: MyUIMessage[];
   chatEndRef: React.RefObject<HTMLDivElement | null>;
+  ownerName: string;
 };
 
 /**
@@ -19,11 +21,13 @@ type SharedChatMessagesProps = {
  *
  * @param messages - Array of UI messages to render
  * @param chatEndRef - Ref attached to the end marker element
+ * @param ownerName - Name of the chat owner
  * @returns A React element that displays the rendered chat conversation
  */
 export function SharedChatMessages({
   messages,
   chatEndRef,
+  ownerName,
 }: SharedChatMessagesProps) {
   return (
     <div className="h-full overflow-y-auto">
@@ -36,15 +40,14 @@ export function SharedChatMessages({
               }`}
             >
               {msg.role === "assistant" && (
-                <Avatar className="bg-muted text-muted-foreground flex justify-center items-center">
-                  <span className="text-sm sm:text-lg">AI</span>
+                <Avatar className="flex text-primary-foreground bg-primary justify-center items-center shrink-0 h-8 w-8 sm:h-10 sm:w-10 rounded-full">
+                  <Terminal className="w-4 h-4 rounded-full" />
                 </Avatar>
               )}
               <div
                 className={cn(
-                  "flex flex-col w-full",
+                  "flex flex-col w-full mb-6 sm:mb-10",
                   "max-w-[85%]",
-                  msg.role === "user" && "mb-6 sm:mb-10",
                 )}
               >
                 <Card
@@ -116,7 +119,9 @@ export function SharedChatMessages({
               </div>
               {msg.role === "user" && (
                 <Avatar className="bg-muted text-muted-foreground flex justify-center items-center shrink-0 h-8 w-8 sm:h-10 sm:w-10">
-                  <span className="text-sm sm:text-lg">U</span>
+                  <span className="text-sm sm:text-lg">
+                    {ownerName.charAt(0).toUpperCase()}
+                  </span>
                 </Avatar>
               )}
             </div>

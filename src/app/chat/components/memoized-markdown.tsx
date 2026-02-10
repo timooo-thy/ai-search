@@ -73,7 +73,7 @@ function CodeBlock({
   );
 }
 
-const markdownComponents: Components = {
+export const markdownComponents: Components = {
   a: ({ href, children }) => (
     <a
       href={href}

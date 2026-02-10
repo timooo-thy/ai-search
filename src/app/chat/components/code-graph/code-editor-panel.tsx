@@ -26,6 +26,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import * as Sentry from "@sentry/nextjs";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { markdownComponents } from "../memoized-markdown";
 import {
   CodeBlock,
   CodeBlockBody,
@@ -95,12 +98,12 @@ const getLanguageFromPath = (path: string): BundledLanguage => {
 
 export function CodeEditorPanel({ sources, children }: CodeEditorPanelProps) {
   const [selectedSourceIndex, setSelectedSourceIndex] = useState<number | null>(
-    null
+    null,
   );
   const [copied, setCopied] = useState(false);
 
   const sourcesWithContent = sources.filter(
-    (s) => s.content && s.content.trim().length > 0
+    (s) => s.content && s.content.trim().length > 0,
   );
   const selectedSource =
     selectedSourceIndex !== null
@@ -194,11 +197,11 @@ export function CodeEditorPanel({ sources, children }: CodeEditorPanelProps) {
                                   "h-7 px-2.5 text-xs shrink-0 gap-1.5 font-mono border transition-colors",
                                   isSelected
                                     ? "bg-primary/10 text-primary border-primary/30 hover:bg-primary/20"
-                                    : "bg-muted/50 text-muted-foreground border-transparent hover:text-foreground hover:bg-muted hover:border-border/50"
+                                    : "bg-muted/50 text-muted-foreground border-transparent hover:text-foreground hover:bg-muted hover:border-border/50",
                                 )}
                                 onClick={() => {
                                   setSelectedSourceIndex(
-                                    isSelected ? null : index
+                                    isSelected ? null : index,
                                   );
                                   Sentry.startSpan(
                                     {
@@ -208,10 +211,10 @@ export function CodeEditorPanel({ sources, children }: CodeEditorPanelProps) {
                                     (span) => {
                                       span?.setAttribute(
                                         "source.path",
-                                        source.path
+                                        source.path,
                                       );
                                       span?.setAttribute("source.index", index);
-                                    }
+                                    },
                                   );
                                 }}
                               >
@@ -341,33 +344,49 @@ export function CodeEditorPanel({ sources, children }: CodeEditorPanelProps) {
                   <div className="flex-1 min-h-0 min-w-0 relative">
                     <div className="absolute inset-0 overflow-auto">
                       {selectedSource?.content ? (
-                        <CodeBlock
-                          key={`${selectedSource.path}-${language}`}
-                          data={[
-                            {
-                              language,
-                              filename: fileName,
-                              code: selectedSource.content,
-                            },
-                          ]}
-                          defaultValue={language}
-                          className="h-auto overflow-visible border-0 rounded-none"
-                        >
-                          <CodeBlockBody className="overflow-visible">
-                            {(item) => (
-                              <CodeBlockItem
-                                key={`${selectedSource.path}-${item.language}`}
-                                value={item.language}
-                              >
-                                <CodeBlockContent
-                                  language={item.language as BundledLanguage}
+                        language === "md" || language === "mdx" ? (
+                          <div className="max-w-none p-4 text-sm leading-relaxed text-foreground">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={markdownComponents}
+                            >
+                              {selectedSource.content
+                                .split("\n")
+                                .filter(
+                                  (line) => !line.trimStart().startsWith(":::"),
+                                )
+                                .join("\n")}
+                            </ReactMarkdown>
+                          </div>
+                        ) : (
+                          <CodeBlock
+                            key={`${selectedSource.path}-${language}`}
+                            data={[
+                              {
+                                language,
+                                filename: fileName,
+                                code: selectedSource.content,
+                              },
+                            ]}
+                            defaultValue={language}
+                            className="h-auto overflow-visible border-0 rounded-none"
+                          >
+                            <CodeBlockBody className="overflow-visible">
+                              {(item) => (
+                                <CodeBlockItem
+                                  key={`${selectedSource.path}-${item.language}`}
+                                  value={item.language}
                                 >
-                                  {item.code}
-                                </CodeBlockContent>
-                              </CodeBlockItem>
-                            )}
-                          </CodeBlockBody>
-                        </CodeBlock>
+                                  <CodeBlockContent
+                                    language={item.language as BundledLanguage}
+                                  >
+                                    {item.code}
+                                  </CodeBlockContent>
+                                </CodeBlockItem>
+                              )}
+                            </CodeBlockBody>
+                          </CodeBlock>
+                        )
                       ) : (
                         <div className="flex items-center justify-center h-full text-muted-foreground">
                           <p className="text-sm">No code content available</p>

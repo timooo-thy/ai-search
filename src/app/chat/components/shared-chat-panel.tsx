@@ -29,7 +29,11 @@ export default function SharedChatPanel({
   return (
     <div className="flex flex-col h-full">
       <ChatHeader isReadOnly chatTitle={chatTitle} ownerName={ownerName} />
-      <SharedChatMessages messages={messages} chatEndRef={chatEndRef} />
+      <SharedChatMessages
+        messages={messages}
+        chatEndRef={chatEndRef}
+        ownerName={ownerName}
+      />
       <div className="p-4 border-t bg-muted/50">
         <p className="text-center text-sm text-muted-foreground">
           This is a shared chat. You are viewing it in read-only mode.
