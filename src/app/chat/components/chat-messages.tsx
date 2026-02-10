@@ -5,6 +5,7 @@ import { MyUIMessage } from "@/types/ui-message-type";
 import { ChatStatus } from "ai";
 import { MemoizedMarkdown } from "./memoized-markdown";
 import { MessageBottomBar } from "./message-bottom-bar";
+import { UserCopyButton } from "./user-copy-button";
 import { PulseLoader } from "react-spinners";
 import { toast } from "sonner";
 import { usePathname } from "next/navigation";
@@ -13,6 +14,7 @@ import { Weather } from "./weather";
 import Repositories from "./repositories";
 import Link from "next/link";
 import { CodeGraph } from "./code-graph/code-graph";
+import { Terminal } from "lucide-react";
 
 type ChatMessagesProps = {
   messages: MyUIMessage[];
@@ -23,6 +25,7 @@ type ChatMessagesProps = {
   onSubmit: (message: string) => Promise<void>;
   hasValidGithubPAT: boolean;
   userName: string;
+  userProfilePicture?: string;
 };
 
 /**
@@ -36,6 +39,7 @@ type ChatMessagesProps = {
  * @param onSubmit - Async callback invoked by child repository UI to submit a message; receives the message string.
  * @param hasValidGithubPAT - Flag indicating whether the user has a valid GitHub Personal Access Token.
  * @param userName - The name of the user.
+ * @param userProfilePicture - Optional URL of the user's profile picture, used for displaying the user's avatar.
  * @returns A React element that displays the rendered chat conversation with interactive parts and controls.
  */
 export function ChatMessages({
@@ -47,6 +51,7 @@ export function ChatMessages({
   onSubmit,
   hasValidGithubPAT,
   userName,
+  userProfilePicture,
 }: ChatMessagesProps) {
   const pathname = usePathname();
 
@@ -54,29 +59,23 @@ export function ChatMessages({
     <div className="h-full">
       <div className="p-4 sm:p-6 sm:space-y-4">
         {messages?.map((msg) => (
-          <div key={msg.id} className={msg.role === "assistant" ? "group" : ""}>
+          <div key={msg.id} className="group">
             <div
               className={`flex items-start gap-3 ${
                 msg.role === "user" ? "justify-end" : "justify-start"
               }`}
             >
               {msg.role === "assistant" && (
-                <Avatar className="bg-muted text-muted-foreground flex justify-center items-center">
-                  <span className="text-sm sm:text-lg">AI</span>
+                <Avatar className="flex text-primary-foreground bg-primary justify-center items-center shrink-0 h-8 w-8 sm:h-10 sm:w-10 rounded-full">
+                  <Terminal className="w-4 h-4 rounded-full" />
                 </Avatar>
               )}
-              <div
-                className={cn(
-                  "flex flex-col w-full",
-                  "max-w-[85%]",
-                  msg.role === "user" && "mb-6 sm:mb-10"
-                )}
-              >
+              <div className={cn("flex flex-col w-full", "max-w-[85%]")}>
                 <Card
                   className={cn(
                     "bg-card text-card-foreground px-3 py-2 sm:px-4 sm:py-2 rounded-lg shadow min-h-12 sm:min-h-14",
                     "wrap-break-word overflow-hidden",
-                    msg.role === "user" && "ml-auto"
+                    msg.role === "user" && "ml-auto",
                   )}
                 >
                   {msg.parts.length > 0 &&
@@ -199,9 +198,9 @@ export function ChatMessages({
                         navigator.clipboard.writeText(
                           msg.parts
                             .map((part) =>
-                              part.type === "text" ? part.text : ""
+                              part.type === "text" ? part.text : "",
                             )
-                            .join("\n\n")
+                            .join("\n\n"),
                         );
                         toast.success("Message copied to clipboard");
                       }}
@@ -210,11 +209,27 @@ export function ChatMessages({
                     />
                   </div>
                 )}
+                {msg.role === "user" && (
+                  <div className="mt-2 flex justify-end">
+                    <UserCopyButton
+                      text={msg.parts
+                        .map((part) => (part.type === "text" ? part.text : ""))
+                        .join("\n\n")}
+                    />
+                  </div>
+                )}
               </div>
               {msg.role === "user" && (
                 <Avatar className="bg-muted text-muted-foreground flex justify-center items-center shrink-0 h-8 w-8 sm:h-10 sm:w-10">
                   <span className="text-sm sm:text-lg">
-                    {(userName?.slice(0, 1) || "U").toUpperCase()}
+                    {(userProfilePicture && (
+                      <img
+                        src={userProfilePicture}
+                        alt={userName}
+                        className="h-8 w-8 sm:h-10 sm:w-10 rounded-full"
+                      />
+                    )) ||
+                      userName.charAt(0).toUpperCase()}
                   </span>
                 </Avatar>
               )}

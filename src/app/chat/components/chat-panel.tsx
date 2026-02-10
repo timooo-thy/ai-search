@@ -12,12 +12,15 @@ import {
 import { ChatHeader } from "./chat-header";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
+import { updateChatTitle } from "@/actions/ui-message-actions";
+import * as Sentry from "@sentry/nextjs";
 
 type ChatPanelProps = {
   chatId: string;
   previousMessages: MyUIMessage[];
   hasValidGithubPAT: boolean;
   userName: string;
+  userProfilePicture?: string;
 };
 
 /**
@@ -29,6 +32,7 @@ type ChatPanelProps = {
  * @param previousMessages - Initial messages to populate the chat view
  * @param hasValidGithubPAT - Flag indicating if the user has a valid GitHub Personal Access Token
  * @param userName - The name of the user
+ * @param userProfilePicture - Optional URL of the user's profile picture
  * @returns The chat panel element containing the header, messages list, and input controls
  */
 export default function ChatPanel({
@@ -36,6 +40,7 @@ export default function ChatPanel({
   previousMessages,
   hasValidGithubPAT,
   userName,
+  userProfilePicture,
 }: ChatPanelProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -45,6 +50,7 @@ export default function ChatPanel({
   const [input, setInput] = useState("");
   const [selectedRepo, setSelectedRepo] = useState<string>("");
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const hasTitleBeenUpdatedRef = useRef(previousMessages.length > 0);
 
   const { messages, sendMessage, status, stop } = useChat({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
@@ -67,7 +73,7 @@ export default function ChatPanel({
     }),
     onError: (error) => {
       toast.error(
-        error?.message || "An error occurred. Please try again later."
+        error?.message || "An error occurred. Please try again later.",
       );
     },
     messages: previousMessages,
@@ -85,15 +91,37 @@ export default function ChatPanel({
           }),
         },
       }),
-    [sendMessage]
+    [sendMessage],
   );
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (input.trim()) {
-      sendText(input);
+      const messageText = input.trim();
+      sendText(messageText);
       setInput("");
+
+      if (!hasTitleBeenUpdatedRef.current) {
+        hasTitleBeenUpdatedRef.current = true;
+        const title =
+          messageText.length > 80
+            ? messageText.slice(0, 80) + "…"
+            : messageText;
+        updateChatTitle(chatId, title)
+          .then(() => {
+            window.dispatchEvent(
+              new CustomEvent("chatTitleUpdated", {
+                detail: { chatId, title },
+              }),
+            );
+          })
+          .catch((error) => {
+            Sentry.captureException(error, {
+              tags: { context: "update_chat_title_failure" },
+            });
+          });
+      }
     }
   };
 
@@ -136,6 +164,7 @@ export default function ChatPanel({
         setSelectedRepo={setSelectedRepo}
         onSubmit={handleUISend}
         userName={userName}
+        userProfilePicture={userProfilePicture}
       />
       <ChatInput
         input={input}
