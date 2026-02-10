@@ -3,7 +3,7 @@
 import {
   ChevronUp,
   MoreHorizontal,
-  ActivityIcon,
+  Terminal,
   User,
   Settings,
   Plus,
@@ -208,12 +208,17 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <div className="flex items-center gap-2">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <ActivityIcon className="size-4" />
+                <div className="relative flex aspect-square size-8 items-center justify-center bg-primary text-primary-foreground">
+                  <div className="absolute -top-0.5 -left-0.5 w-1.5 h-1.5 bg-primary" />
+                  <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-primary" />
+                  <div className="absolute -bottom-0.5 -left-0.5 w-1.5 h-1.5 bg-primary" />
+                  <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 bg-primary" />
+                  <Terminal className="size-4" />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">CodeOrient</span>
-                  <span className="truncate text-xs">AI Assistant</span>
+                <div className="grid flex-1 text-left">
+                  <span className="truncate font-bold tracking-wider">
+                    CODEORIENT
+                  </span>
                 </div>
               </div>
             </SidebarMenuButton>

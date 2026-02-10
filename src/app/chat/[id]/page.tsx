@@ -25,6 +25,7 @@ export default async function ChatPage(props: {
             previousMessages={previousMessages}
             hasValidGithubPAT={hasValidGithubPAT}
             userName={user.name}
+            userProfilePicture={user.image || undefined}
           />
         </SidebarInset>
       </SidebarProvider>

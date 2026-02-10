@@ -19,6 +19,7 @@ type ChatPanelProps = {
   previousMessages: MyUIMessage[];
   hasValidGithubPAT: boolean;
   userName: string;
+  userProfilePicture?: string;
 };
 
 /**
@@ -30,6 +31,7 @@ type ChatPanelProps = {
  * @param previousMessages - Initial messages to populate the chat view
  * @param hasValidGithubPAT - Flag indicating if the user has a valid GitHub Personal Access Token
  * @param userName - The name of the user
+ * @param userProfilePicture - Optional URL of the user's profile picture
  * @returns The chat panel element containing the header, messages list, and input controls
  */
 export default function ChatPanel({
@@ -37,6 +39,7 @@ export default function ChatPanel({
   previousMessages,
   hasValidGithubPAT,
   userName,
+  userProfilePicture,
 }: ChatPanelProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -156,6 +159,7 @@ export default function ChatPanel({
         setSelectedRepo={setSelectedRepo}
         onSubmit={handleUISend}
         userName={userName}
+        userProfilePicture={userProfilePicture}
       />
       <ChatInput
         input={input}

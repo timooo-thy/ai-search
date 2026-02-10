@@ -14,6 +14,7 @@ import { Weather } from "./weather";
 import Repositories from "./repositories";
 import Link from "next/link";
 import { CodeGraph } from "./code-graph/code-graph";
+import { Terminal } from "lucide-react";
 
 type ChatMessagesProps = {
   messages: MyUIMessage[];
@@ -24,6 +25,7 @@ type ChatMessagesProps = {
   onSubmit: (message: string) => Promise<void>;
   hasValidGithubPAT: boolean;
   userName: string;
+  userProfilePicture?: string;
 };
 
 /**
@@ -37,6 +39,7 @@ type ChatMessagesProps = {
  * @param onSubmit - Async callback invoked by child repository UI to submit a message; receives the message string.
  * @param hasValidGithubPAT - Flag indicating whether the user has a valid GitHub Personal Access Token.
  * @param userName - The name of the user.
+ * @param userProfilePicture - Optional URL of the user's profile picture, used for displaying the user's avatar.
  * @returns A React element that displays the rendered chat conversation with interactive parts and controls.
  */
 export function ChatMessages({
@@ -48,6 +51,7 @@ export function ChatMessages({
   onSubmit,
   hasValidGithubPAT,
   userName,
+  userProfilePicture,
 }: ChatMessagesProps) {
   const pathname = usePathname();
 
@@ -62,8 +66,8 @@ export function ChatMessages({
               }`}
             >
               {msg.role === "assistant" && (
-                <Avatar className="bg-muted text-muted-foreground flex justify-center items-center">
-                  <span className="text-sm sm:text-lg">AI</span>
+                <Avatar className="flex text-primary-foreground bg-primary justify-center items-center shrink-0 h-8 w-8 sm:h-10 sm:w-10 rounded-full">
+                  <Terminal className="w-4 h-4 rounded-full" />
                 </Avatar>
               )}
               <div className={cn("flex flex-col w-full", "max-w-[85%]")}>
@@ -218,7 +222,14 @@ export function ChatMessages({
               {msg.role === "user" && (
                 <Avatar className="bg-muted text-muted-foreground flex justify-center items-center shrink-0 h-8 w-8 sm:h-10 sm:w-10">
                   <span className="text-sm sm:text-lg">
-                    {(userName?.slice(0, 1) || "U").toUpperCase()}
+                    {(userProfilePicture && (
+                      <img
+                        src={userProfilePicture}
+                        alt={userName}
+                        className="h-8 w-8 sm:h-10 sm:w-10 rounded-full"
+                      />
+                    )) ||
+                      userName.charAt(0).toUpperCase()}
                   </span>
                 </Avatar>
               )}
