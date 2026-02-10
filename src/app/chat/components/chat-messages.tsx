@@ -5,6 +5,7 @@ import { MyUIMessage } from "@/types/ui-message-type";
 import { ChatStatus } from "ai";
 import { MemoizedMarkdown } from "./memoized-markdown";
 import { MessageBottomBar } from "./message-bottom-bar";
+import { UserCopyButton } from "./user-copy-button";
 import { PulseLoader } from "react-spinners";
 import { toast } from "sonner";
 import { usePathname } from "next/navigation";
@@ -54,7 +55,7 @@ export function ChatMessages({
     <div className="h-full">
       <div className="p-4 sm:p-6 sm:space-y-4">
         {messages?.map((msg) => (
-          <div key={msg.id} className={msg.role === "assistant" ? "group" : ""}>
+          <div key={msg.id} className="group">
             <div
               className={`flex items-start gap-3 ${
                 msg.role === "user" ? "justify-end" : "justify-start"
@@ -69,14 +70,14 @@ export function ChatMessages({
                 className={cn(
                   "flex flex-col w-full",
                   "max-w-[85%]",
-                  msg.role === "user" && "mb-6 sm:mb-10"
+                  msg.role === "user" && "mb-6 sm:mb-10",
                 )}
               >
                 <Card
                   className={cn(
                     "bg-card text-card-foreground px-3 py-2 sm:px-4 sm:py-2 rounded-lg shadow min-h-12 sm:min-h-14",
                     "wrap-break-word overflow-hidden",
-                    msg.role === "user" && "ml-auto"
+                    msg.role === "user" && "ml-auto",
                   )}
                 >
                   {msg.parts.length > 0 &&
@@ -199,14 +200,23 @@ export function ChatMessages({
                         navigator.clipboard.writeText(
                           msg.parts
                             .map((part) =>
-                              part.type === "text" ? part.text : ""
+                              part.type === "text" ? part.text : "",
                             )
-                            .join("\n\n")
+                            .join("\n\n"),
                         );
                         toast.success("Message copied to clipboard");
                       }}
                       onRewrite={() => console.log("Rewrite clicked")}
                       modelDetails={process.env.NEXT_PUBLIC_OPENAI_CHAT_MODEL!}
+                    />
+                  </div>
+                )}
+                {msg.role === "user" && (
+                  <div className="mt-2 flex justify-end">
+                    <UserCopyButton
+                      text={msg.parts
+                        .map((part) => (part.type === "text" ? part.text : ""))
+                        .join("\n\n")}
                     />
                   </div>
                 )}
