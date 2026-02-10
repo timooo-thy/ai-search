@@ -160,6 +160,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
       setRecentConversationTitles((prev) =>
         prev.map((c) => (c.id === chatId ? { ...c, title } : c)),
       );
+      setBookmarkedChats((prev) =>
+        prev.map((c) => (c.id === chatId ? { ...c, title } : c)),
+      );
     };
     window.addEventListener("chatTitleUpdated", handleTitleUpdate);
     return () =>

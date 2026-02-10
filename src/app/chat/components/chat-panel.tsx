@@ -13,6 +13,7 @@ import { ChatHeader } from "./chat-header";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { updateChatTitle } from "@/actions/ui-message-actions";
+import * as Sentry from "@sentry/nextjs";
 
 type ChatPanelProps = {
   chatId: string;
@@ -115,7 +116,11 @@ export default function ChatPanel({
               }),
             );
           })
-          .catch(() => {});
+          .catch((error) => {
+            Sentry.captureException(error, {
+              tags: { context: "update_chat_title_failure" },
+            });
+          });
       }
     }
   };

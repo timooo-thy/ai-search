@@ -40,10 +40,17 @@ export async function updateChatTitle(chatId: string, title: string) {
     throw new Error("You must be logged in to update a chat.");
   }
 
-  await prisma.chat.update({
-    where: { id: chatId, userId: session.user.id },
-    data: { title },
-  });
+  try {
+    await prisma.chat.update({
+      where: { id: chatId, userId: session.user.id },
+      data: { title },
+    });
+  } catch (error) {
+    Sentry.captureException(error, {
+      tags: { context: "update_chat_title_failure" },
+    });
+    throw error;
+  }
 }
 
 /**
