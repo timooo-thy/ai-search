@@ -14,11 +14,12 @@ import {
 } from "ai";
 import { headers } from "next/headers";
 import { tools } from "@/ai/tools";
-import { chatSystemPrompt } from "@/ai/prompts";
+import { chatSystemPrompt, selectedRepoPromptSuffix } from "@/ai/prompts";
 import * as Sentry from "@sentry/nextjs";
 import { streamCachedMessage } from "@/lib/cache-stream-utils";
 import { redis } from "@/lib/redis";
 import { getIndexedRepositories } from "@/services/repo-indexer";
+import prisma from "@/lib/prisma";
 
 /**
  * Handles POST requests for AI chat responses with caching and streaming.
@@ -27,7 +28,7 @@ import { getIndexedRepositories } from "@/services/repo-indexer";
  * and either streams a cached response or generates a new one using OpenAI with tool support.
  * All responses are streamed as UI messages and persisted to the database.
  *
- * @param req - Request with JSON body `{ message: MyUIMessage, id: string }`
+ * @param req - Request with JSON body `{ message: MyUIMessage, id: string, selectedRepo?: string }`
  * @returns Streaming response with UI messages, or 401/500 on auth/error
  */
 
@@ -35,7 +36,11 @@ export async function POST(req: Request) {
   const { logger } = Sentry;
   const startTime = Date.now();
 
-  const { message, id }: { message: MyUIMessage; id: string } =
+  const {
+    message,
+    id,
+    selectedRepo: bodySelectedRepo,
+  }: { message: MyUIMessage; id: string; selectedRepo?: string } =
     await req.json();
 
   // Authenticate the user
@@ -185,6 +190,38 @@ export async function POST(req: Request) {
       .filter((repo) => repo.status === "COMPLETED")
       .map((repo) => repo.repoFullName);
 
+    // Resolve the selected repo: prefer DB value, fall back to body value
+    const chat = await prisma.chat.findFirst({
+      where: { id, userId: session.user.id },
+      select: { selectedRepo: true },
+    });
+
+    let resolvedSelectedRepo = chat?.selectedRepo ?? null;
+
+    // If the chat has no selectedRepo yet but the client sent one, validate and persist it
+    if (
+      !resolvedSelectedRepo &&
+      bodySelectedRepo &&
+      indexedRepoNames.includes(bodySelectedRepo)
+    ) {
+      resolvedSelectedRepo = bodySelectedRepo;
+      try {
+        await prisma.chat.updateMany({
+          where: { id, userId: session.user.id, selectedRepo: null },
+          data: { selectedRepo: bodySelectedRepo },
+        });
+      } catch (error) {
+        Sentry.captureException(error, {
+          tags: { context: "set_selected_repo_failure" },
+        });
+      }
+    }
+
+    // Build the system prompt, appending the repo context if a repo is pre-selected
+    const systemPrompt = resolvedSelectedRepo
+      ? chatSystemPrompt + selectedRepoPromptSuffix(resolvedSelectedRepo)
+      : chatSystemPrompt;
+
     // Stream a new AI-generated response
     const stream = createUIMessageStream({
       execute: ({ writer }) => {
@@ -216,7 +253,7 @@ export async function POST(req: Request) {
 
         const result = streamText({
           model: openai(process.env.OPENAI_CHAT_MODEL || "gpt-4.1"),
-          system: chatSystemPrompt,
+          system: systemPrompt,
           messages: convertToModelMessages(validatedMessages),
           stopWhen: stepCountIs(2),
           tools: tools(writer, session.user.id, indexedRepoNames),

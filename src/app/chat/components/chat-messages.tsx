@@ -118,65 +118,6 @@ export function ChatMessages({
                               graph={part.data}
                             />
                           );
-                        // case "tool-getRepositories":
-                        //   return (
-                        //     <details
-                        //       key={`tool-${part.toolCallId}`}
-                        //       className="relative p-2 rounded-lg bg-background group w-full"
-                        //     >
-                        //       <summary className="list-none cursor-pointer select-none flex justify-between items-center pr-2">
-                        //         <span className="inline-flex items-center px-1 py-0.5 text-xs font-medium rounded-md font-mono text-zinc-900 truncate flex-1">
-                        //           {getToolName(part)}
-                        //         </span>
-                        //         {part.state === "output-available" ? (
-                        //           <span className="text-xs text-zinc-500 ml-2 shrink-0">
-                        //             Click to expand
-                        //           </span>
-                        //         ) : (
-                        //           <span className="text-xs text-zinc-400 animate-pulse ml-2 shrink-0">
-                        //             calling...
-                        //           </span>
-                        //         )}
-                        //       </summary>
-                        //       {part.state === "output-available" ? (
-                        //         <div className="mt-4 bg-zinc-50 p-2 rounded overflow-x-auto">
-                        //           <pre className="font-mono text-xs whitespace-pre-wrap break-words">
-                        //             {JSON.stringify(part.output, null, 2)}
-                        //           </pre>
-                        //         </div>
-                        //       ) : null}
-                        //     </details>
-                        //   );
-                        // case "tool-getWeatherInformation":
-                        //   return (
-                        //     <details
-                        //       key={`tool-${part.toolCallId}`}
-                        //       className="relative p-2 rounded-lg bg-background group w-full"
-                        //     >
-                        //       <summary className="list-none cursor-pointer select-none flex justify-between items-center pr-2">
-                        //         <span className="inline-flex items-center px-1 py-0.5 text-xs font-medium rounded-md font-mono text-zinc-900 truncate flex-1">
-                        //           {getToolName(part)}
-                        //         </span>
-                        //         {part.state === "output-available" ? (
-                        //           <span className="text-xs text-zinc-500 ml-2 shrink-0">
-                        //             Click to expand
-                        //           </span>
-                        //         ) : (
-                        //           <span className="text-xs text-zinc-400 animate-pulse ml-2 shrink-0">
-                        //             calling...
-                        //           </span>
-                        //         )}
-                        //       </summary>
-                        //       {part.state === "output-available" ? (
-                        //         <div className="mt-4 bg-zinc-50 p-2 rounded overflow-x-auto">
-                        //           <pre className="font-mono text-xs whitespace-pre-wrap break-words">
-                        //             {JSON.stringify(part.output, null, 2)}
-                        //           </pre>
-                        //         </div>
-                        //       ) : null}
-                        //     </details>
-                        //   );
-
                         default:
                           return null;
                       }

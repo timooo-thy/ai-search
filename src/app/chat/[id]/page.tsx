@@ -1,7 +1,11 @@
 import { AppSidebar } from "@/app/chat/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getSession } from "@/hooks/use-session";
-import { loadChat } from "@/actions/ui-message-actions";
+import {
+  loadChat,
+  getChatSelectedRepo,
+  getCompletedIndexedRepos,
+} from "@/actions/ui-message-actions";
 import ChatPanel from "../components/chat-panel";
 import { notFound } from "next/navigation";
 import { checkUserGithubPAT } from "@/actions/github-actions";
@@ -15,7 +19,12 @@ export default async function ChatPage(props: {
   const hasValidGithubPAT = await checkUserGithubPAT();
 
   try {
-    const previousMessages = await loadChat(id);
+    const [previousMessages, selectedRepo, indexedRepos] = await Promise.all([
+      loadChat(id),
+      getChatSelectedRepo(id),
+      getCompletedIndexedRepos(),
+    ]);
+
     return (
       <SidebarProvider>
         <AppSidebar user={user} />
@@ -26,6 +35,8 @@ export default async function ChatPage(props: {
             hasValidGithubPAT={hasValidGithubPAT}
             userName={user.name}
             userProfilePicture={user.image || undefined}
+            initialSelectedRepo={selectedRepo}
+            indexedRepos={indexedRepos}
           />
         </SidebarInset>
       </SidebarProvider>

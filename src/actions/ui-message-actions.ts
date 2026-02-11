@@ -13,7 +13,7 @@ import * as Sentry from "@sentry/nextjs";
 import { randomBytes } from "crypto";
 
 // Create a new chat
-export async function createChat(title: string) {
+export async function createChat(title: string, selectedRepo?: string) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -26,8 +26,55 @@ export async function createChat(title: string) {
     data: {
       userId: session.user.id,
       title,
+      selectedRepo: selectedRepo || null,
     },
   });
+}
+
+/**
+ * Get the selectedRepo for a specific chat.
+ *
+ * @param chatId - The chat to query
+ * @returns The selectedRepo string or null
+ */
+export async function getChatSelectedRepo(chatId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in.");
+  }
+
+  const chat = await prisma.chat.findFirst({
+    where: { id: chatId, userId: session.user.id },
+    select: { selectedRepo: true },
+  });
+
+  return chat?.selectedRepo ?? null;
+}
+
+/**
+ * Get the user's completed indexed repositories for the repo selection dropdown.
+ *
+ * @returns Array of `{ repoFullName }` for repos with COMPLETED indexing status
+ */
+export async function getCompletedIndexedRepos() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("You must be logged in.");
+  }
+
+  const repos = await prisma.indexedRepository.findMany({
+    where: { userId: session.user.id, status: "COMPLETED" },
+    select: { repoFullName: true },
+    orderBy: { updatedAt: "desc" },
+  });
+
+  return repos;
 }
 
 // Update the title of a chat

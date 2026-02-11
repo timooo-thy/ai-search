@@ -60,36 +60,6 @@ GUIDELINES:
 - Every node should ideally have at least one edge
 `;
 
-export const queryCodeGraphSystemPrompt = `
-You are an expert at generating concise, targeted search queries to explore codebases in GitHub repositories.
-OBJECTIVE:
-Given a user's high-level query, generate 3 non-overlapping, highly targeted search queries that will find the most relevant code entities and relationships.
-You will be given the tree structure of the repository to help you understand the codebase layout.
-
-QUERY GENERATION STRATEGY:
-1. FIRST QUERY - Entry Points: Target the main entry points, API routes, or primary interfaces related to the user's query
-2. SECOND QUERY - Core Logic: Target the core business logic, services, or utility functions that implement the functionality
-3. THIRD QUERY - Data & Types: Target data models, type definitions, schemas, or configuration related to the query
-
-REQUIREMENTS:
-- Each query should be 2-4 words, using actual terms likely to appear in the code
-- Use specific technical terms (e.g., "auth middleware", "user schema", "api handler")
-- Avoid generic terms like "main", "index", "utils" unless combined with specific functionality
-- Consider file naming conventions visible in the repository structure
-- Each query must explore a distinctly different layer/aspect of the codebase
-
-OUTPUT FORMAT:
-Return a JSON object with queries and reasoning:
-{
-  "query_1": "specific search term",
-  "query_1_rationale": "Brief explanation of what this targets",
-  "query_2": "specific search term", 
-  "query_2_rationale": "Brief explanation of what this targets",
-  "query_3": "specific search term",
-  "query_3_rationale": "Brief explanation of what this targets"
-}
-`;
-
 export const planningSystemPrompt = `
 You are an expert code analyst planning a code exploration task.
 Given a user's query about a codebase, create a clear execution plan with specific search tasks.
@@ -307,14 +277,30 @@ COMMUNICATION STYLE:
 - Adapt your level of detail based on the user's questions
 - When showing code relationships, emphasise practical implications for development`;
 
-export const queryCodeGraphUserPrompt = (
-  userQuery: string,
-  repoStructure: string,
-) =>
-  `Generate the queries based on the user's query "${userQuery}", focusing on different aspects to explore the codebase effectively.
-Repository Structure:
-${repoStructure}
-`;
+/** Pattern for valid GitHub repository names in "owner/repo" format. */
+const REPO_NAME_PATTERN = /^[\w.-]+\/[\w.-]+$/;
+
+/**
+ * Generate an additional system prompt suffix when a user has pre-selected an indexed repository for the chat.
+ *
+ * @param repoFullName - Repository in "owner/repo" format
+ * @returns A string to append to the system prompt, or empty string if the name is invalid
+ */
+export const selectedRepoPromptSuffix = (repoFullName: string) => {
+  if (!REPO_NAME_PATTERN.test(repoFullName)) {
+    return "";
+  }
+
+  return `\n\nREPOSITORY CONTEXT — PRE-SELECTED REPO (HIGHEST PRIORITY):
+The user has pre-selected the repository "${repoFullName}" for this chat session.
+
+OVERRIDE ALL PREVIOUS TOOL USAGE RULES:
+- Treat EVERY question as a question about "${repoFullName}" unless the user is clearly asking about something completely unrelated to code (e.g., weather).
+- When the user asks "how does X work?", "explain X", "what is X?", or any similar question, ALWAYS assume they are asking about "${repoFullName}" and use the visualiseCodeGraphIndexed tool with repo="${repoFullName}".
+- Do NOT answer from general knowledge. ALWAYS search the repository first using visualiseCodeGraphIndexed.
+- Do NOT ask the user which repository to search — always default to "${repoFullName}".
+- If the user explicitly asks about a DIFFERENT repository by name, you may use the appropriate tool for that other repo.`;
+};
 
 export const planningUserPrompt = (userQuery: string, repoStructure: string) =>
   `Create an execution plan to explore the codebase for the user's query: "${userQuery}"
@@ -427,12 +413,13 @@ WHEN TO USE THIS TOOL:
 - User explicitly asks to "visualise", "graph", "map out", or "show the structure of" code
 - User wants to explore a NEW topic or area of the codebase not already explored
 - User mentions a repository name and asks a technical question about it
+- A repository has been PRE-SELECTED for this chat — in that case, use this tool for ANY code-related question even if the user does not mention the repo by name
 
 WHEN NOT TO USE THIS TOOL:
 - A code graph was ALREADY generated in this conversation for the SAME topic - use that existing data to answer questions
 - User asks follow-up questions like "what does X do?" or "explain Y" about code already shown
-- User asks general questions about programming concepts without mentioning a specific repository
 - The question can be answered from the conversation context
+- User asks about something completely unrelated to code (e.g., weather)
 
 The tool searches the repository and generates an interactive graph showing:
 - Code entities (files, functions, classes, components)
