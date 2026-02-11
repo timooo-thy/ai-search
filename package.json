@@ -80,6 +80,7 @@
     "baseline-browser-mapping": "^2.9.19",
     "eslint": "^9",
     "eslint-config-next": "15.5.0",
+    "playwright": "^1.58.2",
     "prisma": "^6.16.2",
     "shadcn": "^3.2.1",
     "tailwindcss": "^4",
