@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { Database, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { StockData, TimeData, WeatherData } from "@/types/widget-types";
@@ -11,14 +11,26 @@ import { useRouter } from "next/navigation";
 import { createChat } from "@/actions/ui-message-actions";
 import Link from "next/link";
 import * as Sentry from "@sentry/nextjs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type NewChatInterfaceProps = {
   hasValidGithubPAT: boolean;
+  indexedRepos: { repoFullName: string }[];
 };
 
-export function NewChatInterface({ hasValidGithubPAT }: NewChatInterfaceProps) {
+export function NewChatInterface({
+  hasValidGithubPAT,
+  indexedRepos,
+}: NewChatInterfaceProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedIndexedRepo, setSelectedIndexedRepo] = useState("");
   const [timeData, setTimeData] = useState<TimeData | null>(null);
   const [stockData, setStockData] = useState<StockData | null>(null);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
@@ -33,7 +45,10 @@ export function NewChatInterface({ hasValidGithubPAT }: NewChatInterfaceProps) {
       return;
     }
     try {
-      const chat = await createChat(searchQuery);
+      const chat = await createChat(
+        searchQuery,
+        selectedIndexedRepo || undefined,
+      );
       router.push(`/chat/${chat.id}?query=${encodeURIComponent(searchQuery)}`);
     } catch (error) {
       Sentry.captureException(error, {
@@ -168,28 +183,65 @@ export function NewChatInterface({ hasValidGithubPAT }: NewChatInterfaceProps) {
         </h1>
 
         <div className="flex justify-center">
-          <div className="w-full flex-col flex max-w-2xl">
-            <Textarea
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSearch();
-                }
-              }}
-              placeholder="Ask anything. Start simple with your Github Repository."
-              className="w-full resize-none pl-4 pr-20 bg-card border-border rounded-xl shadow-lg focus:ring-2 focus:ring-primary"
-            />
-            <div className="flex justify-end -mt-10 mr-2">
-              <Button
-                onClick={handleSearch}
-                size="sm"
-                className="h-8 w-8 rounded-full bg-primary hover:bg-primary/90"
-                disabled={!searchQuery.trim()}
-              >
-                <Send className="h-4 w-4" />
-              </Button>
+          <div className="w-full flex-col flex max-w-2xl gap-3">
+            <div className="relative">
+              <Textarea
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSearch();
+                  }
+                }}
+                placeholder="Ask anything. Start simple with your Github Repository."
+                className="w-full resize-none pl-4 pr-20 pb-14 bg-card border-border rounded-xl shadow-lg focus:ring-2 focus:ring-primary"
+              />
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                <div className="pointer-events-auto">
+                  {indexedRepos.length > 0 && (
+                    <Select
+                      value={selectedIndexedRepo || "__all__"}
+                      onValueChange={(value) =>
+                        setSelectedIndexedRepo(
+                          value === "__all__" ? "" : value,
+                        )
+                      }
+                    >
+                      <SelectTrigger
+                        size="sm"
+                        className="h-8 w-auto max-w-[220px] rounded-lg border-none bg-muted/60 shadow-none text-xs hover:bg-muted"
+                      >
+                        <Database className="h-3 w-3 mr-1" />
+                        <SelectValue placeholder="Select repo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__all__">
+                          All repositories
+                        </SelectItem>
+                        {indexedRepos.map((repo) => (
+                          <SelectItem
+                            key={repo.repoFullName}
+                            value={repo.repoFullName}
+                          >
+                            {repo.repoFullName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+                <div className="pointer-events-auto">
+                  <Button
+                    onClick={handleSearch}
+                    size="sm"
+                    className="h-8 w-8 rounded-full bg-primary hover:bg-primary/90"
+                    disabled={!searchQuery.trim()}
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

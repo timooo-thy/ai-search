@@ -8,7 +8,10 @@ import {
   getIndexingStatus,
   deleteIndexedRepository,
 } from "@/services/repo-indexer";
+import prisma from "@/lib/prisma";
 import * as Sentry from "@sentry/nextjs";
+
+const MAX_INDEXED_REPOS = 5;
 
 export const runtime = "nodejs";
 export const maxDuration = 300; // 5 minutes max for indexing
@@ -70,8 +73,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if already indexing
+    // Enforce repo limit (count non-FAILED repos)
     const existing = await getIndexingStatus(repoFullName, session.user.id);
+    const isNewRepo = !existing || existing.status === "FAILED";
+
+    if (isNewRepo) {
+      const activeCount = await prisma.indexedRepository.count({
+        where: {
+          userId: session.user.id,
+          status: { not: "FAILED" },
+        },
+      });
+
+      if (activeCount >= MAX_INDEXED_REPOS) {
+        return NextResponse.json(
+          {
+            error: `Repository limit reached (${MAX_INDEXED_REPOS}/${MAX_INDEXED_REPOS}). Delete a repo to index a new one.`,
+          },
+          { status: 403 },
+        );
+      }
+    }
+
+    // Check if already indexing
     if (
       existing?.status === "CLONING" ||
       existing?.status === "PARSING" ||

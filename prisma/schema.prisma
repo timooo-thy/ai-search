@@ -84,6 +84,7 @@ model Chat {
   isBookmarked Boolean   @default(false)
   isShared     Boolean   @default(false)
   shareToken   String?   @unique
+  selectedRepo String?   // "owner/repo" format — locked after first message
 
   @@unique([id, userId], map: "chat_id_user_id_key")
   @@index([userId], map: "chat_user_id_idx")

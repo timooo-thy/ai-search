@@ -271,6 +271,69 @@ export async function searchUserRepoWithContent(
   );
 }
 
+/**
+ * Search public GitHub repositories by query string.
+ * @param query - Search query (e.g. "react", "facebook/react")
+ * @returns Array of matching repositories with metadata
+ */
+export async function searchGitHubRepos(query: string): Promise<
+  Array<{
+    fullName: string;
+    description: string | null;
+    stars: number;
+    language: string | null;
+    owner: { login: string; avatarUrl: string };
+  }>
+> {
+  if (!query || query.trim().length < 2) {
+    return [];
+  }
+
+  let githubPAT: string | null;
+
+  try {
+    githubPAT = await getUserGithubPAT();
+  } catch {
+    return [];
+  }
+
+  if (!githubPAT) {
+    return [];
+  }
+
+  const octokit = new Octokit({
+    auth: githubPAT,
+    request: {
+      headers: { "X-GitHub-Api-Version": "2022-11-28" },
+    },
+  });
+
+  try {
+    const { data } = await octokit.rest.search.repos({
+      q: query,
+      per_page: 10,
+      sort: "stars",
+      order: "desc",
+    });
+
+    return data.items.map((repo) => ({
+      fullName: repo.full_name,
+      description: repo.description,
+      stars: repo.stargazers_count,
+      language: repo.language,
+      owner: {
+        login: repo.owner?.login ?? "",
+        avatarUrl: repo.owner?.avatar_url ?? "",
+      },
+    }));
+  } catch (error) {
+    Sentry.captureException(error, {
+      tags: { context: "github_search_repos" },
+    });
+    return [];
+  }
+}
+
 export async function getRepoStructure(repo: string) {
   return Sentry.startSpan(
     {

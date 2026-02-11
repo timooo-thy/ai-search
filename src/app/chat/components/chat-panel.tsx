@@ -21,6 +21,8 @@ type ChatPanelProps = {
   hasValidGithubPAT: boolean;
   userName: string;
   userProfilePicture?: string;
+  initialSelectedRepo: string | null;
+  indexedRepos: { repoFullName: string }[];
 };
 
 /**
@@ -33,6 +35,8 @@ type ChatPanelProps = {
  * @param hasValidGithubPAT - Flag indicating if the user has a valid GitHub Personal Access Token
  * @param userName - The name of the user
  * @param userProfilePicture - Optional URL of the user's profile picture
+ * @param initialSelectedRepo - The repo pre-selected for this chat (from DB), or null
+ * @param indexedRepos - The user's completed indexed repositories for the dropdown
  * @returns The chat panel element containing the header, messages list, and input controls
  */
 export default function ChatPanel({
@@ -41,6 +45,8 @@ export default function ChatPanel({
   hasValidGithubPAT,
   userName,
   userProfilePicture,
+  initialSelectedRepo,
+  indexedRepos,
 }: ChatPanelProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -49,8 +55,22 @@ export default function ChatPanel({
 
   const [input, setInput] = useState("");
   const [selectedRepo, setSelectedRepo] = useState<string>("");
+  const [selectedIndexedRepo, setSelectedIndexedRepo] = useState<string>(
+    initialSelectedRepo || "",
+  );
   const chatEndRef = useRef<HTMLDivElement>(null);
   const hasTitleBeenUpdatedRef = useRef(previousMessages.length > 0);
+
+  // The dropdown is locked once the chat already had a persisted repo or messages have been sent
+  const isRepoLocked =
+    initialSelectedRepo !== null || previousMessages.length > 0;
+
+  // Use a ref so the transport closure always reads the latest value
+  const selectedIndexedRepoRef = useRef(selectedIndexedRepo);
+  selectedIndexedRepoRef.current = selectedIndexedRepo;
+
+  // Track whether the selected repo has already been persisted to avoid sending it on every request
+  const hasPersistedRepoRef = useRef(initialSelectedRepo !== null);
 
   const { messages, sendMessage, status, stop } = useChat({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
@@ -63,10 +83,20 @@ export default function ChatPanel({
     transport: new DefaultChatTransport({
       api: "/api/chat",
       prepareSendMessagesRequest({ messages, id }) {
+        // Only include selectedRepo when it hasn't been persisted yet
+        const shouldSendRepo =
+          !hasPersistedRepoRef.current && !!selectedIndexedRepoRef.current;
+        if (shouldSendRepo) {
+          hasPersistedRepoRef.current = true;
+        }
+
         return {
           body: {
             message: messages[messages.length - 1],
             id,
+            selectedRepo: shouldSendRepo
+              ? selectedIndexedRepoRef.current
+              : undefined,
           },
         };
       },
@@ -152,6 +182,10 @@ export default function ChatPanel({
     chatEndRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages]);
 
+  // After the first user message is sent in this session, the dropdown locks
+  const hasUserSentMessage = messages.length > previousMessages.length;
+  const isDropdownDisabled = isRepoLocked || hasUserSentMessage;
+
   return (
     <div className="flex flex-col h-full">
       <ChatHeader />
@@ -173,6 +207,10 @@ export default function ChatPanel({
         onSubmit={handleSend}
         onStop={stop}
         disableChatInput={status !== "ready" || !hasValidGithubPAT}
+        indexedRepos={indexedRepos}
+        selectedIndexedRepo={selectedIndexedRepo}
+        onSelectedIndexedRepoChange={setSelectedIndexedRepo}
+        isDropdownDisabled={isDropdownDisabled}
       />
     </div>
   );

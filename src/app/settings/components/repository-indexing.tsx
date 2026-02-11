@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,13 +11,19 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+} from "@/components/ui/popover";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,9 +44,15 @@ import {
   Loader2,
   FolderGit2,
   AlertCircle,
+  Search,
+  Star,
 } from "lucide-react";
 import { toast } from "sonner";
 import * as Sentry from "@sentry/nextjs";
+import { searchGitHubRepos } from "@/actions/github-actions";
+import { useDebounce } from "@/hooks/use-debounce";
+
+const MAX_INDEXED_REPOS = 5;
 
 type IndexedRepository = {
   id: string;
@@ -69,6 +81,14 @@ type UserRepo = {
   url: string;
 };
 
+type SearchResult = {
+  fullName: string;
+  description: string | null;
+  stars: number;
+  language: string | null;
+  owner: { login: string; avatarUrl: string };
+};
+
 type RepositoryIndexingProps = {
   repositories: UserRepo[];
 };
@@ -82,11 +102,50 @@ const statusConfig = {
   FAILED: { label: "Failed", color: "bg-red-500", icon: XCircle },
 };
 
+/**
+ * Formats a star count for display (e.g. 1200 -> "1.2k").
+ * @param count - The raw star count
+ * @returns Formatted string
+ */
+function formatStars(count: number): string {
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1).replace(/\.0$/, "")}k`;
+  }
+  return count.toString();
+}
+
 export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
   const [indexedRepos, setIndexedRepos] = useState<IndexedRepository[]>([]);
-  const [selectedRepo, setSelectedRepo] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const debouncedQuery = useDebounce(searchQuery, 400);
+
+  // Computed values
+  const activeCount = indexedRepos.filter(
+    (r) => r.status !== "FAILED",
+  ).length;
+  const atLimit = activeCount >= MAX_INDEXED_REPOS;
+
+  // User's own repos not already indexed (shown when search is empty)
+  const availableUserRepos = repositories
+    .map((repo) => {
+      const fullName = repo.url.replace("https://github.com/", "");
+      return { ...repo, fullName };
+    })
+    .filter(
+      (repo) =>
+        !indexedRepos.some(
+          (indexed) =>
+            indexed.repoFullName === repo.fullName &&
+            indexed.status !== "FAILED",
+        ),
+    );
 
   // Fetch indexed repositories
   const fetchIndexedRepos = useCallback(async () => {
@@ -121,18 +180,51 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
     }
   }, [indexedRepos, fetchIndexedRepos]);
 
-  const handleStartIndexing = async () => {
-    if (!selectedRepo) {
-      toast.error("Please select a repository to index");
+  // Search GitHub repos when debounced query changes
+  useEffect(() => {
+    if (!debouncedQuery || debouncedQuery.trim().length < 2) {
+      setSearchResults([]);
       return;
     }
 
+    let cancelled = false;
+
+    const doSearch = async () => {
+      setIsSearching(true);
+      try {
+        const results = await searchGitHubRepos(debouncedQuery);
+        if (!cancelled) {
+          setSearchResults(results);
+        }
+      } catch (error) {
+        Sentry.captureException(error);
+        if (!cancelled) {
+          setSearchResults([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsSearching(false);
+        }
+      }
+    };
+
+    doSearch();
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedQuery]);
+
+  const handleIndexRepo = async (repoFullName: string) => {
+    setIsOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
     setIsLoading(true);
+
     try {
       const response = await fetch("/api/indexing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoFullName: selectedRepo }),
+        body: JSON.stringify({ repoFullName }),
       });
 
       const data = await response.json();
@@ -140,6 +232,10 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
       if (!response.ok) {
         if (response.status === 409) {
           toast.error("Repository is already being indexed");
+        } else if (response.status === 403) {
+          toast.error(
+            data.error || "Repository limit reached. Delete a repo to index a new one.",
+          );
         } else {
           toast.error(data.error || "Failed to start indexing");
         }
@@ -147,7 +243,6 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
       }
 
       toast.success("Indexing started! This may take a few minutes.");
-      setSelectedRepo("");
       await fetchIndexedRepos();
     } catch (error) {
       Sentry.captureException(error);
@@ -205,14 +300,12 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
     }
   };
 
-  // Get repos that aren't already indexed
-  const availableRepos = repositories.filter((repo) => {
-    const repoFullName = repo.url.replace("https://github.com/", "");
-    return !indexedRepos.some(
-      (indexed) =>
-        indexed.repoFullName === repoFullName && indexed.status !== "FAILED",
-    );
-  });
+  // Determine what to show in the dropdown
+  const hasQuery = debouncedQuery.trim().length >= 2;
+  const showSearchResults = hasQuery && searchResults.length > 0;
+  const showUserRepos = !hasQuery && availableUserRepos.length > 0;
+  const showEmpty =
+    hasQuery && !isSearching && searchResults.length === 0;
 
   return (
     <Card>
@@ -222,58 +315,183 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
             <Database className="h-5 w-5 text-primary" />
             <CardTitle>Repository Indexing</CardTitle>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-          >
-            <RefreshCw
-              className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-            />
-          </Button>
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-bold tracking-wider">
+              {activeCount}/{MAX_INDEXED_REPOS} INDEXED
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+              />
+            </Button>
+          </div>
         </div>
         <CardDescription>
-          Index your repositories for faster and more accurate code exploration.
-          Indexed repos use semantic search instead of GitHub&apos;s API.
+          Search and index any public GitHub repository for faster semantic code
+          search.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Add new repository */}
-        <div className="flex gap-2">
-          <Select value={selectedRepo} onValueChange={setSelectedRepo}>
-            <SelectTrigger className="flex-1">
-              <SelectValue placeholder="Select a repository to index" />
-            </SelectTrigger>
-            <SelectContent>
-              {availableRepos.length === 0 ? (
-                <SelectItem value="none" disabled>
-                  {repositories.length === 0
-                    ? "No repositories found. Add a GitHub PAT first."
-                    : "All repositories are indexed"}
-                </SelectItem>
-              ) : (
-                availableRepos.map((repo) => (
-                  <SelectItem
-                    key={repo.url.replace("https://github.com/", "")}
-                    value={repo.url.replace("https://github.com/", "")}
-                  >
-                    <div className="flex items-center gap-2">
-                      <FolderGit2 className="h-4 w-4" />
-                      <span>{repo.name}</span>
-                    </div>
-                  </SelectItem>
-                ))
+        {/* Search input with combobox dropdown */}
+        <Popover open={isOpen && !atLimit} onOpenChange={setIsOpen} modal={false}>
+          <PopoverAnchor asChild>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
+                ref={inputRef}
+                placeholder={
+                  atLimit
+                    ? "LIMIT REACHED — Delete a repo to index"
+                    : "Search repositories... (e.g. facebook/react)"
+                }
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  if (!isOpen) setIsOpen(true);
+                }}
+                onFocus={() => {
+                  if (!atLimit) setIsOpen(true);
+                }}
+                disabled={atLimit || isLoading}
+                className="pl-9 pr-9 border-2 border-border focus:border-primary"
+              />
+              {isSearching && (
+                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
               )}
-            </SelectContent>
-          </Select>
-          <Button
-            onClick={handleStartIndexing}
-            disabled={!selectedRepo || isLoading}
+            </div>
+          </PopoverAnchor>
+          <PopoverContent
+            className="p-0 border-2 border-border"
+            align="start"
+            sideOffset={4}
+            onOpenAutoFocus={(e) => e.preventDefault()}
+            style={{
+              width: "var(--radix-popover-trigger-width)",
+            }}
           >
-            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Index"}
-          </Button>
-        </div>
+            <Command shouldFilter={false}>
+              <CommandList>
+                {/* Search results */}
+                {showSearchResults && (
+                  <CommandGroup heading="SEARCH RESULTS">
+                    {searchResults.map((repo) => {
+                      const alreadyIndexed = indexedRepos.some(
+                        (indexed) =>
+                          indexed.repoFullName === repo.fullName &&
+                          indexed.status !== "FAILED",
+                      );
+                      return (
+                        <CommandItem
+                          key={repo.fullName}
+                          value={repo.fullName}
+                          onSelect={() => handleIndexRepo(repo.fullName)}
+                          disabled={alreadyIndexed}
+                          className="cursor-pointer"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={repo.owner.avatarUrl}
+                            alt={repo.owner.login}
+                            className="h-5 w-5 border border-border"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm truncate">
+                                {repo.fullName}
+                              </span>
+                              {alreadyIndexed && (
+                                <span className="text-xs text-muted-foreground">
+                                  (indexed)
+                                </span>
+                              )}
+                            </div>
+                            {repo.description && (
+                              <p className="text-xs text-muted-foreground truncate">
+                                {repo.description}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground shrink-0">
+                            {repo.language && (
+                              <span className="flex items-center gap-1">
+                                <div className="w-1.5 h-1.5 bg-primary" />
+                                {repo.language}
+                              </span>
+                            )}
+                            <span className="flex items-center gap-0.5">
+                              <Star className="h-3 w-3" />
+                              {formatStars(repo.stars)}
+                            </span>
+                          </div>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                )}
+
+                {/* User's own repos when search is empty */}
+                {showUserRepos && (
+                  <CommandGroup heading="YOUR REPOS">
+                    {availableUserRepos.map((repo) => (
+                      <CommandItem
+                        key={repo.fullName}
+                        value={repo.fullName}
+                        onSelect={() => handleIndexRepo(repo.fullName)}
+                        className="cursor-pointer"
+                      >
+                        <FolderGit2 className="h-4 w-4 text-primary" />
+                        <div className="flex-1 min-w-0">
+                          <span className="font-medium text-sm truncate">
+                            {repo.fullName}
+                          </span>
+                          {repo.description && (
+                            <p className="text-xs text-muted-foreground truncate">
+                              {repo.description}
+                            </p>
+                          )}
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+
+                {/* Loading state */}
+                {isSearching && (
+                  <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Searching...
+                  </div>
+                )}
+
+                {/* Empty states */}
+                {showEmpty && (
+                  <CommandEmpty>
+                    No repositories found for &quot;{debouncedQuery}&quot;
+                  </CommandEmpty>
+                )}
+
+                {!hasQuery && availableUserRepos.length === 0 && (
+                  <div className="py-4 text-center text-xs text-muted-foreground">
+                    Type to search any public GitHub repository
+                  </div>
+                )}
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+
+        {/* Limit warning */}
+        {atLimit && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 border-2 border-primary/30 text-xs font-bold text-primary tracking-wider">
+            <AlertCircle className="h-3 w-3 shrink-0" />
+            LIMIT REACHED — DELETE A REPO TO INDEX A NEW ONE
+          </div>
+        )}
 
         {/* Indexed repositories list */}
         {indexedRepos.length > 0 && (
@@ -333,7 +551,7 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
                         {repo.lastIndexedAt && (
                           <>
                             {" "}
-                            • Last indexed:{" "}
+                            &bull; Last indexed:{" "}
                             {new Date(repo.lastIndexedAt).toLocaleDateString()}
                           </>
                         )}
@@ -406,7 +624,7 @@ export function RepositoryIndexing({ repositories }: RepositoryIndexingProps) {
             <Database className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No repositories indexed yet</p>
             <p className="text-xs mt-1">
-              Index a repository to enable faster semantic code search
+              Search for a repository above to enable semantic code search
             </p>
           </div>
         )}
