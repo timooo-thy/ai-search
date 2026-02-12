@@ -72,7 +72,7 @@ export async function getUserRepos() {
 export async function searchUserRepoWithContent(
   query: string,
   repo: string,
-  maxResults: number = 6
+  maxResults: number = 6,
 ): Promise<
   Array<{ name: string; path: string; url: string; content: string }>
 > {
@@ -134,7 +134,6 @@ export async function searchUserRepoWithContent(
         for (const term of searchTerms) {
           try {
             const searchQuery = `${term} repo:${repo}`;
-
             const { data } = await octokit.rest.search.code({
               q: searchQuery,
               per_page: maxResults,
@@ -169,7 +168,7 @@ export async function searchUserRepoWithContent(
                   if ("content" in fileData && fileData.content) {
                     const decodedContent = Buffer.from(
                       fileData.content,
-                      "base64"
+                      "base64",
                     ).toString("utf-8");
 
                     return {
@@ -205,7 +204,7 @@ export async function searchUserRepoWithContent(
                       } else {
                         Sentry.logger.warn(
                           Sentry.logger
-                            .fmt`Failed to fetch ${item.path}: ${response.status} ${response.statusText}`
+                            .fmt`Failed to fetch ${item.path}: ${response.status} ${response.statusText}`,
                         );
                       }
                     } catch (fetchError) {
@@ -221,7 +220,7 @@ export async function searchUserRepoWithContent(
 
                   Sentry.logger.warn(
                     Sentry.logger
-                      .fmt`File content not available for ${item.path}`
+                      .fmt`File content not available for ${item.path}`,
                   );
 
                   return null;
@@ -232,7 +231,7 @@ export async function searchUserRepoWithContent(
                   });
                   return null;
                 }
-              })
+              }),
             );
 
             resultsWithContent.forEach((result) => {
@@ -255,7 +254,7 @@ export async function searchUserRepoWithContent(
 
         const finalResults = Array.from(allResults.values()).slice(
           0,
-          maxResults
+          maxResults,
         );
 
         span.setAttribute("search.results_count", finalResults.length);
@@ -267,7 +266,7 @@ export async function searchUserRepoWithContent(
         });
         return [];
       }
-    }
+    },
   );
 }
 
@@ -338,7 +337,7 @@ export async function getRepoStructure(repo: string) {
   return Sentry.startSpan(
     {
       op: "github.api",
-      name: "Get Repository Tree Structure",
+      name: "Get Repository Tree Structure (2 Layers)",
     },
     async (span) => {
       let githubPAT: string | null;
@@ -349,9 +348,7 @@ export async function getRepoStructure(repo: string) {
         return null;
       }
 
-      if (!githubPAT) {
-        return null;
-      }
+      if (!githubPAT) return null;
 
       const octokit = new Octokit({
         auth: githubPAT,
@@ -361,46 +358,67 @@ export async function getRepoStructure(repo: string) {
       });
 
       try {
-        const repoParts = repo.split("/");
-        if (repoParts.length !== 2 || !repoParts[0] || !repoParts[1]) {
-          Sentry.captureMessage("Invalid repository format", {
-            level: "error",
-            tags: { context: "github_fetch_repo_structure" },
-          });
-          return null;
-        }
-
-        const [owner, repoName] = repoParts;
-
-        span.setAttribute("repo.owner", owner);
-        span.setAttribute("repo.name", repoName);
+        const [owner, repoName] = repo.split("/");
+        if (!owner || !repoName) return null;
 
         const { data: repoData } = await octokit.rest.repos.get({
           owner,
           repo: repoName,
         });
 
-        // Get the full tree recursively
-        const { data: treeData } = await octokit.rest.git.getTree({
+        // 1. Get Layer 1 (Root) - Remove recursive: "true"
+        const { data: rootTree } = await octokit.rest.git.getTree({
           owner,
           repo: repoName,
           tree_sha: repoData.default_branch,
-          recursive: "true",
         });
 
-        span.setAttribute("tree.item_count", treeData.tree.length);
+        const allPaths: string[] = [];
 
-        const paths = treeData.tree
-          .filter((item) => item.type === "blob")
-          .map((item) => item.path);
+        // 2. Separate blobs (files) and trees (folders) in Layer 1
+        const layer1Files = rootTree.tree.filter(
+          (item) => item.type === "blob",
+        );
+        const layer1Folders = rootTree.tree.filter(
+          (item) => item.type === "tree",
+        );
 
-        return formatTreeStructure(paths);
+        // Add root files to paths
+        layer1Files.forEach((file) => {
+          if (file.path) allPaths.push(file.path);
+        });
+
+        // 3. Fetch Layer 2 for each folder found in Layer 1
+        const layer2Promises = layer1Folders.map(async (folder) => {
+          try {
+            const { data: subTree } = await octokit.rest.git.getTree({
+              owner,
+              repo: repoName,
+              tree_sha: folder.sha!, // Use folder SHA to get sub-items
+            });
+
+            return subTree.tree
+              .filter((item) => item.type === "blob")
+              .map((item) => `${folder.path}/${item.path}`);
+          } catch (err) {
+            console.error(`Failed to fetch layer 2 for ${folder.path}`, err);
+            return [];
+          }
+        });
+
+        const layer2Results = await Promise.all(layer2Promises);
+        const flattenedLayer2 = layer2Results.flat();
+
+        const finalPaths = [...allPaths, ...flattenedLayer2];
+        span.setAttribute("tree.item_count", finalPaths.length);
+
+        return formatTreeStructure(finalPaths);
       } catch (error) {
         Sentry.captureException(error, {
           tags: { context: "github_fetch_repo_structure" },
         });
         return null;
       }
-    }
+    },
   );
 }
