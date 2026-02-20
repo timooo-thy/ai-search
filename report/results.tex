@@ -5,7 +5,7 @@ The quantitative evaluation results are summarised in Table~\ref{tab:evaluation_
 
 \begin{table}[htbp]
 \centering
-\resizebox{\textwidth}{!}{%
+\resizebox{\textwidth}{!}{
 \begin{tabular}{lccc}
 \toprule
 \textbf{Metric} & \textbf{CodeOrient (Full RAG)} & \textbf{GitHub + Agent (Ablation)} & \textbf{GitHub Search (Baseline)} \\ 
@@ -18,7 +18,7 @@ Faithfulness    & 98.43\%                        & 98.33\%                      
 Graph Recall    & 93.61\%                        & 69.72\%                            & -                                 \\
 CTD             & 0.07                           & 0.03                               & 5.27                              \\ 
 \bottomrule
-\end{tabular}%
+\end{tabular}
 }
 \caption{Average Evaluation Metrics Across 30 Queries}
 \label{tab:evaluation_results}
@@ -44,27 +44,45 @@ Instances of ``Emergent Inference" was observed, where the system identified imp
 The high Faithfulness score of 98.43\% is a direct result of the citation grounding mechanism. By forcing the LLM to provide inline citations for every claim, the system effectively mitigated the hallucination issues mentioned in the literature review. This is particularly important in the context of code retrieval, where inaccurate information can lead to confusion and inefficiency for developers.
 \section{Case Studies}
 Three case studies based on specific queries from the evaluation dataset are presented to highlight the strengths and limitations of CodeOrient.
-\subsection{Case Study 1: "How does the system resolve and inject dependencies?"}
+\subsection{Case Study 1: ``How does the system resolve and inject dependencies?"}
 \label{Case_Study_1}
 This query represents a more complex architectural query, where the system only managed to achieve a Recall@System of 50\%. While CodeOrient managed to locate the primary dependency utility file in (\texttt{utils.py}), it was observed that the system failed to retrieve the underlying implementation. 
 
-This highlights a classic "multi-hop" challenge in code retrieval, where the recursive nature of dependencies are spread across multiple files. This suggests that while semantic search is excellent in retrieving the logically relevant files, there is still a gap in understanding the execution depth of the codebase, which requires a more sophisticated graph traversal to ensure that all relevant files are retrieved. 
+This highlights a classic ``multi-hop" challenge in code retrieval, where the recursive nature of dependencies are spread across multiple files. This suggests that while semantic search is excellent in retrieving the logically relevant files, there is still a gap in understanding the execution depth of the codebase, which requires a more sophisticated graph traversal to ensure that all relevant files are retrieved. 
 
-This also ties into the graph recall performance, where the system achieved a graph recall of 80\% for this query, which indicates that while the primary nodes were retrieved, some of the secondary nodes (e.g., files containing the underlying implementation) were missed. This case study highlights an area for future improvement in CodeOrient, which is to enhance the multi-hop retrieval capabilities to ensure that all relevant files across multiple levels of dependencies are retrieved effectively.
+This also ties into the graph recall performance, where the system achieved a graph recall of 50\% for this query, which indicates that while the primary nodes were retrieved, some of the secondary nodes (e.g., files containing the underlying implementation) were missed. This case study highlights an area for future improvement in CodeOrient, which is to enhance the multi-hop retrieval capabilities to ensure that all relevant files across multiple levels of dependencies are retrieved effectively.
 
-\subsection{Case Study 2: "How are the button visual variants defined?"}
+\subsection{Case Study 2: ``How are the button visual variants defined?"}
 This query demonstrates a scenario where even though the system only achieved a Recall@System of 50\%, the generated graph visualisation achieved a graph recall of 100\%. This showcases emergent inference capabilities of the LLM when it comes to understanding import relationships in the code snippets. 
 
-In this case, CodeOrient successfully retrieved the main file defining the button variants (\texttt{button.tsx}), and through the citation grounding and multi-layered prompting, it was able to infer the relevant related file that were not directly retrieved (\texttt{utils.ts}). 
+In this case, CodeOrient successfully retrieved the main file defining the button variants (\texttt{button.tsx}), and through the citation grounding and multi-layered prompting, it was able to infer the relevant related file that were not directly retrieved (\texttt{utils.ts}). This is shown in Figure \ref{fig:case_study_2}, where the inferred node is highlighted in red.
 
 This highlights a unique strength of CodeOrient, which is its ability to leverage the reasoning capabilities of LLMs to fill in gaps in retrieval and generate more complete graph visualisations, even when some relevant files are missed in the initial retrieval step. This also suggests that while improving recall is important, enhancing the reasoning and inference capabilities of the system can also significantly contribute to better performance in terms of graph recall and overall user experience.
 
-\subsection{Case Study 3: "How is dark mode theme switching implemented?"}
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=5.5in]{fig/fig19.png}
+    \caption{\textit{Graph visualisation for Case Study 2}}
+    \label{fig:case_study_2}
+    }
+\end{figure}
+
+\subsection{Case Study 3: ``How is dark mode theme switching implemented?"}
 This query serves as a justification for the use of LLM Evaluation Loop in the system. This query required identifying three specific files: \texttt{active-theme.ts}, \texttt{theme-selector.tsx} and \texttt{mode-switcher.tsx}.
 
 CodeOrient achieved a perfect Recall@System of 100\% for this query with a Success@Turn of 3-2-1. This meant that the system refined its search across three turns which led to the successful retrieval of all three files. In contrast, the ablation model stalled at a Recall@System of 67\%. 
 
-Hence, this example highlights the system's ability to identify missing gaps based on the initial retrieval results, and then refining its search queries in the follow-up turns.
+Hence, this example highlights the system's ability to identify missing gaps based on the initial retrieval results, and then refining its search queries in the follow-up turns. This resulted in a complete graph visualisation as shown in Figure \ref{fig:case_study_3}, which accurately captured the relationships between the three files.
+
+\begin{figure}[H]
+    \centering
+    {\small
+    \includegraphics[width=5.5in]{fig/fig20.png}
+    \caption{\textit{Graph visualisation for Case Study 3}}
+    \label{fig:case_study_3}
+    }       
+\end{figure}
 
 \section{Implications for Developer Onboarding}
 The results of this evaluation showcased a reduction of CTD (Clicks to Discovery) from 5.27 with the GitHub Search baseline to 0.07 with CodeOrient. This significant reduction in CTD demonstrates how CodeOrient effectively eliminates the need for developers to manually sift through search results, which is a common pain point in traditional code search. This allows new developers to spend more time understanding the codebase and less time searching for relevant information, which can significantly enhance the onboarding experience and accelerate the time to productivity for new developers.
@@ -73,10 +91,10 @@ Futhermore, the high graph recall and faithfulness scores indicate that CodeOrie
 \section{Limitations}
 \subsection{Technical Limitations}
 \subsubsection{Multi-Hop Retrieval Challenge}
-The "multi-hop" retrieval mentioned in \autoref{Case_Study_1} showcases how the system struggles with "multi-hop" dependency retrieval. As the system is currently limited to a maximum of 3 turns in the evaluation loop, it may not be able to retrieve all relevant files for queries that require deeper levels of dependency traversal. This is a tradeoff between latency and recall, as allowing for more turns could potentially improve recall but would also increase latency. Future work could explore more sophisticated graph traversal techniques or dynamic turn limits based on the complexity of the query to address this limitation.
+The ``multi-hop" retrieval mentioned in \autoref{Case_Study_1} showcases how the system struggles with ``multi-hop" dependency retrieval. As the system is currently limited to a maximum of 3 turns in the evaluation loop, it may not be able to retrieve all relevant files for queries that require deeper levels of dependency traversal. This is a tradeoff between latency and recall, as allowing for more turns could potentially improve recall but would also increase latency. Future work could explore more sophisticated graph traversal techniques or dynamic turn limits based on the complexity of the query to address this limitation.
 
 \subsubsection{Latency}
-The average latency of the system is 62.79s (without caching). This is primarily attributed to the RAG pipeline and Evaluation Loop which requires multiple calls to the LLM and vector database before generating the final response. While caching strategies have been implemented to reduce latency for repeated queries, the cold start latency remains a concern for user experience. One solution implemented was to stream the response as it is genreated, reducing the perceived latency for users. However, further optimisations in the RAG pipeline and Evaluation Loop are necessary to reduce the overall latency of the system.
+The average latency of the system is 62.79s (without caching). This is primarily attributed to the RAG pipeline and Evaluation Loop which requires multiple calls to the LLM and vector database before generating the final response. While caching strategies have been implemented to reduce latency for repeated queries, the cold start latency remains a concern for user experience. One solution implemented was to stream the response as it is generated, reducing the perceived latency for users. However, further optimisations in the RAG pipeline and Evaluation Loop are necessary to reduce the overall latency of the system.
 
 \subsubsection{Context Window}
 For more complex queries that require retrieving a large number of relevant files, the system may struggle with the context window limitations of the LLM. If the retrieved code snippets exceed the context window, it may lead to incomplete or inaccurate responses. Future work could explore techniques such as chunking or summarisation to ensure that the most relevant information is included within the context window.
