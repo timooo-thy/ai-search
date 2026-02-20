@@ -1,0 +1,245 @@
+\appendix
+
+\chapter{Detailed Results}
+\section{Quantitative Results Table}
+
+\renewcommand{\arraystretch}{1.2}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\footnotesize
+\begin{longtable}{L{5cm} l c c c c c}
+\label{appendix:Quantitative_Results_Table} \\
+\toprule
+\textbf{Query \& Repository} & \textbf{Method} & \textbf{Recall} & \textbf{S@T} & \textbf{Lat/Cache} & \textbf{F/GR} & \textbf{CTD} \\
+\midrule
+\endfirsthead
+
+\multicolumn{7}{c}%
+{{\bfseries \tablename\ \thetable{} -- continued from previous page}} \\
+\toprule
+\textbf{Query \& Repository} & \textbf{Method} & \textbf{Recall} & \textbf{S@T} & \textbf{Lat/Cache} & \textbf{F/GR} & \textbf{CTD} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{7}{r}{{Continued on next page}} \\
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+
+% --- Repository: FastAPI ---
+\multicolumn{7}{l}{\textbf{Repository: fastapi/fastapi}} \\
+\midrule
+\multirow{3}{5cm}{1. How does the system resolve and inject dependencies?} 
+& CodeOrient & 0.50 & 1-NA & 43.3/4.7 & 1.0/0.5 & 0 \\*
+& Ablation   & 0.50 & 1-NA & 79.2/7.7 & 1.0/0.5 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 3.5 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{2. Where is the logic for generating the OpenAPI JSON schema?} 
+& CodeOrient & 1.00 & 1-2-2 & 44.6/3.9 & 1.0/1.0 & 0 \\*
+& Ablation   & 0.33 & 1-NA-NA & 102.7/5.7 & 1.0/0.3 & 0 \\*
+& Baseline   & 0.33 & - & - & - & 2.3 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{3. How are CORS headers handled in the middleware?} 
+& CodeOrient & 1.00 & 2 & 33.7/2.8 & 0.8/1.0 & 0 \\*
+& Ablation   & 1.00 & 1 & 67.9/4.6 & 1.0/1.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 4.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{4. How does FastAPI handle WebSocket handshakes?} 
+& CodeOrient & 1.00 & 1-2 & 40.4/4.1 & 1.0/0.5 & 1 \\*
+& Ablation   & 1.00 & 1-1 & 80.0/5.5 & 1.0/1.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 3.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{5. How does custom JSON encoder work?}
+& CodeOrient & 1.00 & 1 & 50.9/3.3 & 1.0/1.0 & 0 \\*
+& Ablation   & 1.00 & 1 & 91.4/4.7 & 1.0/1.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 3.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{6. How are background tasks executed?}
+& CodeOrient & 1.00 & 1 & 53.5/3.6 & 1.0/1.0 & 0 \\*
+& Ablation   & 1.00 & 1 & 94.5/4.5 & 1.0/1.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 3.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{7. How to handle extraction of credentials in password-based auth flow?} 
+& CodeOrient & 1.00 & 2 & 56.0/4.1 & 1.0/0.0 & 0 \\*
+& Ablation   & 1.00 & 2 & 82.9/5.8 & 1.0/0.0 & 0 \\*
+& Baseline   & 0.00 & -- & -- & -- & 4.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{8. How does the system validate request parameters?} 
+& CodeOrient & 0.33 & 1-NA-NA & 44.8/3.9 & 1.0/0.3 & 0 \\*
+& Ablation   & 0.33 & 2-NA-NA & 87.1/6.5 & 1.0/0.3 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 4.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{9. Where is the Swagger UI HTML logic?} 
+& CodeOrient & 1.00 & 1-1 & 43.1/2.5 & 1.0/1.0 & 0 \\*
+& Ablation   & 0.00 & NA-NA & 33.5/4.1 & 0.5/0.0 & 0 \\*
+& Baseline   & 0.50 & - & - & - & 2.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{10. How are HTTP exceptions converted to JSON?} 
+& CodeOrient & 1.00 & 2-3 & 47.8/3.1 & 1.0/1.0 & 0 \\*
+& Ablation   & 1.00 & 1-1 & 75.4/6.3 & 1.0/1.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 3.0 \\
+\cmidrule(lr){2-7}
+
+
+% --- Repository: Shadcn/UI ---
+\multicolumn{7}{l}{\textbf{Repository: shadcn-ui/ui}} \\
+\midrule
+\multirow{3}{5cm}{11. How are the button visual variants defined?} 
+& CodeOrient & 0.50 & 1-NA & 63.8/6.5 & 1.0/1.0 & 0 \\*
+& Ablation   & 0.50 & 1-NA & 61.1/3.5 & 1.0/0.5 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 7.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{12. How does Form component handle validation errors?} 
+& CodeOrient & 1.00 & 2 & 80.2/4.2 & 1.0/1.0 & 0 \\*
+& Ablation   & 0.00 & NA & 106.9/6.2 & 1.0/0.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 7.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{13. Where is the accessible dialog overlay logic?}
+& CodeOrient & 1.00 & 1 & 76.0/3.2 & 1.0/1.0 & 0 \\*
+& Ablation   & 1.00 & 1 & 97.0/4.2 & 1.0/1.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 8.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{14. How is dark mode theme switching implemented?} 
+& CodeOrient & 1.00 & 3-2-1 & 50.0/4.2 & 1.0/1.0 & 0 \\*
+& Ablation   & 0.67 & 1-NA-1 & 115.9/7.0 & 1.0/0.7 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 5.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{15. How can I create custom tables with filtering and pagination?}
+& CodeOrient & 1.00 & 1-1-1-2 & 69.1/5.8 & 1.0/1.0 & 0 \\*
+& Ablation   & 0.25 & 2-NA-NA-NA & 70.4/6.6 & 1.0/0.5 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 9.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{16. How does the Calendar component manage date selection?} 
+& CodeOrient & 1.00 & 1-1 & 87.5/7.3 & 0.8/1.0 & 0 \\*
+& Ablation   & 0.50 & 1-NA & 59.7/3.1 & 1.0/1.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 6.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{17. What is the configuration for the CLI's init command?} 
+& CodeOrient & 0.67 & 1-NA-1 & 79.6/3.7 & 1.0/1.0 & 0 \\*
+& Ablation   & 0.67 & 1-NA-1 & 114.5/5.4 & 1.0/0.7 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 6.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{18. How are popover positioning styles calculated?} 
+& CodeOrient & 1.00 & 1-3 & 99.4/7.4 & 1.0/1.0 & 0 \\*
+& Ablation   & 0.50 & 1-NA & 55.9/2.9 & 1.0/0.5 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 7.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{19. How does the framework synchronise Tailwind CSS theme configurations?} 
+& CodeOrient & 1.00 & 1-1-1-1 & 95.2/5.8 & 1.0/1.0 & 0 \\*
+& Ablation   & 0.50 & NA-NA-1-3 & 67.2/5.7 & 1.0/0.5 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 6.25 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{20. How is the component registry structured for CLI mapping?} 
+& CodeOrient & 1.00 & 1-1 & 89.7/7.5 & 1.0/1.0 & 0 \\*
+& Ablation   & 0.00 & NA-NA & 89.7/7.5 & 1.0/0.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 5.5 \\
+\cmidrule(lr){2-7}
+
+
+% --- Repository: LangChain ---
+\multicolumn{7}{l}{\textbf{Repository: langchain-ai/langchain}} \\
+\midrule
+\multirow{3}{5cm}{21. What is the base class for all LLM implementations?} 
+& CodeOrient & 1.00 & 1 & 57.4/3.2 & 1.0/1.0 & 0 \\*
+& Ablation   & 1.00 & 2 & 57.9/3.2 & 1.0/1.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 6.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{22. How does "RetrievalQA" chain combine docs?} 
+& CodeOrient & 1.00 & 1-1 & 55.1/4.6 & 1.0/1.0 & 0 \\*
+& Ablation   & 1.00 & 1-1 & 72.7/5.1 & 1.0/1.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 7.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{23. What is the logic for the RecursiveCharacterTextSplitter?} 
+& CodeOrient & 1.00 & 1-1 & 40.5/5.2 & 1.0/1.0 & 0 \\*
+& Ablation   & 1.00 & 2-1 & 50.7/4.2 & 1.0/1.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 5.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{24. How can I inject variables into chat prompt templates?} 
+& CodeOrient & 1.00 & 1-1-1 & 57.7/5.2 & 1.0/1.0 & 0 \\*
+& Ablation   & 0.33 & NA-1-NA & 49.1/4.8 & 1.0/0.3 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 6.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{25. What is the core implementation to store vectors for semantic search?} 
+& CodeOrient & 1.00 & 1-1 & 56.7/4.0 & 1.0/1.0 & 0 \\*
+& Ablation   & 1.00 & 2-1 & 95.1/2.0 & 1.0/1.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 5.5 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{26. How does the framework abstract differences between LLM providers?} 
+& CodeOrient & 1.00 & 1-1-1 & 76.6/7.2 & 1.0/1.0 & 0 \\*
+& Ablation   & 0.67 & NA-2-1 & 77.1/7.2 & 1.0/0.7 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 6.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{27. How does 'AgentExecutor' manage the loop?} 
+& CodeOrient & 1.00 & 1-1 & 50.7/4.3 & 1.0/1.0 & 0 \\*
+& Ablation   & 1.00 & 1-1 & 57.3/3.5 & 1.0/1.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 6.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{28. How does BaseChatMemory handle pruning of message history?} 
+& CodeOrient & 1.00 & 1-1-2-1 & 61.7/6.3 & 1.0/1.0 & 0 \\*
+& Ablation   & 1.00 & 1-1-1-3 & 101.1/3.2 & 1.0/1.0 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 6.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{29. How are callback managers propagated through nested Runnables?} 
+& CodeOrient & 0.75 & 1-1-1-NA & 111.1/8.2 & 1.0/0.8 & 1 \\*
+& Ablation   & 0.50 & NA-1-NA-1 & 73.5/5.6 & 1.0/0.8 & 1 \\*
+& Baseline   & 0.00 & - & - & - & 6.0 \\
+\cmidrule(lr){2-7}
+
+\multirow{3}{5cm}{30. How are tools created and converted into JSON schemas?} 
+& CodeOrient & 1.00 & 1-1-1 & 67.5/6.4 & 1.0/1.0 & 0 \\*
+& Ablation   & 0.67 & 1-1-NA & 67.3/6.3 & 1.0/0.7 & 0 \\*
+& Baseline   & 0.00 & - & - & - & 6.0 \\
+\cmidrule(lr){2-7}
+\caption{Complete Quantitative Results by Query} \label{tab:full_appendix} \\
+
+\end{longtable}
+
+\vspace{-1em}
+\noindent \small \textbf{Legend:} \textbf{Recall}: Recall@System, \textbf{S@T}: Success@Turn (e.g., 1-2 means success at turn 2 for file 2, NA means that the file was not found after 3 turns), \textbf{Lat/Cache}: Latency / Latency (Cache) in seconds, \textbf{F/GR}: Faithfulness / Graph Recall (1.0 = 100\%), \textbf{CTD}: Clicks to Discovery.
+
+% \section{User Feedback Summary}
+% \section{Performance Metrics by Repository}
+
+% \chapter{Code Snippets and Implementation Details}
+% \section{Key Algorithm Implementations}
+% \section{API Endpoint Specifications}
+% \section{Database Schema SQL}
+% \section{Frontend Component Code}
+% \section{RAG Pipeline Code}
+
+% \chapter{System Architecture Diagrams}
+% \section{High-Level System Architecture}
+% \section{Data Flow Diagrams}
+% \section{Component Interaction Diagram}
+% \section{Deployment Architecture}
+
+% ============================================================================

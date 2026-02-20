@@ -1,30 +1,61 @@
 \chapter{Evaluation Methodology}
-
+This chapter outlines the methodology used to evaluate the performance, accuracy and efficiency of CodeOrient. The evaluation consists of both quantitative metrics and comparative analysis against baseline methods. 
 \section{Evaluation Framework}
+The primary goal of the evaluation is to assess how well CodeOrient helps developers understand and navigate complex codebases compared to traditional search methods and ablation models thorugh retrieval, faithfulness, and graph recall performance.
 \subsection{Research Questions}
-\subsection{Hypotheses}
-\subsection{Evaluation Metrics}
+To guide the evaluation, the following research questions are formulated:
+\begin{itemize}
+    \item \textbf{RQ1 (Retrieval Accuracy):} How does CodeOrient's retrieval performance compare to a baseline GitHub search and an ablation model without RAG?
+    \item \textbf{RQ2 (Generation Quality):} How does CodeOrient mitigate hallucination and ensure the faithfulness of generated explanations and code snippets?
+    \item \textbf{RQ3 (Visual Accuracy):} How accurately does CodeOrient's graph visualisation represent the relevant code entities and their relationships?
+    \item \textbf{RQ4 (Efficiency and User Experience):} How easy and efficient is it for developers to use CodeOrient compared to manual code navigation?
+\end{itemize}
 
-\section{User Study Design}
-\subsection{Participant Selection}
-\subsection{Study Protocol}
-\subsection{Task Design}
+\subsection{Hypotheses}
+Based on the research questions, the following hypotheses are proposed:
+\begin{itemize}
+    \item \textbf{H1:} CodeOrient will achieve significantly higher recall rate and factual faithfulness than the GitHub search baseline.
+    \item \textbf{H2:} CodeOrient will result in a significantly higher recall rate, factual faithfulness, graph recall and overall latency compared to the ablation model.
+    \item \textbf{H3:} CodeOrient will drastically reduce manual user effort (measured in Clicks-to-Destination) compared to baseline manual navigation.
+\end{itemize}
+
+
+
+\section{Experimental Setup}
+To test the hypotheses rigourously, an evaluation pipeline is created to simulate real-world developer queries and measure the performance of CodeOrient against baselines.
+\subsection{Dataset}
+The evaluation dataset consists of 30 distinct natural language queries across 3 open source projects based on varying codebase sizes (\href{https://github.com/fastapi/fastapi}{\texttt{fastapi/fastapi}}, \href{https://github.com/shadcn-ui/ui}{\texttt{shadcn-ui/ui}}, \href{https://github.com/langchain-ai/langchain}{\texttt{langchain-ai/langchain}}). The queries are designed to reflect real-world intents, which ranges from simple component location (e.g., "Where is the accessible dialog overlay logic?") to more complex architectural questions (e.g., "How does the system resolve and inject dependencies?"). Each query was executed across all evaluated methods to establish a direct comparison. The full list of queries is provided in \autoref{appendix:Quantitative_Results_Table}.
 \subsection{Baseline Comparisons}
+CodeOrient's performance is compared against two baselines:
+\begin{itemize}
+    \item \textbf{GitHub Search Baseline:} This baseline uses GitHub's native code search functionality to retrieve relevant code snippets based on the same natural language queries. This represents the traditional manual search that developers usually perform.
+    \item \textbf{Ablation Model (GitHub + Agent):} This model uses the same search mechanism as CodeOrient but replaces the RAG pipeline with GitHub's Search API directly. This allows us to evaluate on the contribution of the RAG pipeline to the overall performance of CodeOrient.
+\end{itemize}
 
 \section{Quantitative Metrics}
-\subsection{Time-to-First-Commit}
-\subsection{Time to Complete Onboarding Tasks}
-\subsection{Code Search Precision and Recall}
-\subsection{Graph Visualisation Quality}
-\subsection{Citation Accuracy and Hallucination Rate}
+\subsection{Recall@System}
+This metric measures the recall rate of the retrieved code snippets, which is the proportion of relevant code snippets that were successfully retrieved by CodeOrient compared to the total number of relevant snippets based on ground truths. 
+\subsection{Success@Turn}
+This metric measures the average number of turns required for CodeOrient to retrieve the correct code files based on the query. A turn is defined as a search and retrival cycle, where the maximum threshold is set to 3 turns for each query. A lower Success@Turn indicates a more efficient retrieval process. If the system fails to retrieve the correct code files within the threshold, a penalty score of $Max + 1$ (4 in this case) is assigned to reflect the failure in retrieval.
+\subsection{Graph Recall}
+Graph Recall measures the completeness of the generated graph visualisations. It assesses whether the system successfully rendered all relevant nodes based on the query.
+\subsection{Faithfulness (Hallucination Rate)}
+Faithfulness measures the factual alignment of the generated explanations and code snippets with the actual codebase. A lower hallucination rate indicates that the system relied strictly on the retrieved snippets, rather than its prior knowledge.
+\subsection{Latency and Caching Efficiency}
+Latency measures the time taken from the moment a query is submitted to when the full response is generated. Furthermore, the efficiency of caching is evaluated by measuring the latency of repeated queries in the same session that should benefit from cached results.
+\subsection{Clicks to Destination (CTD)}
+CTD measures the number of interactions (clicks) required for a user to navigate the relevant code snippets based on ground truths. A lower CTD indicates a more efficient search and navigation experience.
 
-\section{Qualitative Metrics}
-\subsection{User Satisfaction Survey}
-\subsection{Usability Assessment}
-\subsection{Cognitive Load Measurement}
-\subsection{User Feedback and Interviews}
 
-\section{Baseline Comparisons}
-\subsection{Traditional Code Search (GitHub Search)}
-\subsection{Existing AI Code Assistants}
-\subsection{Manual Code Navigation}
+% \subsection{Evaluation Metrics}
+% \section{User Study Design}
+% \subsection{Participant Selection}
+% \subsection{Study Protocol}
+% \subsection{Task Design}
+% \subsection{Baseline Comparisons}
+
+% \section{Qualitative Metrics}
+% \subsection{User Satisfaction Survey}
+% \subsection{Usability Assessment}
+% \subsection{Cognitive Load Measurement}
+% \subsection{User Feedback and Interviews}

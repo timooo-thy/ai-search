@@ -35,8 +35,8 @@
       \strng{authornamehash}{000ea00a0113798d167ac8dfa03fe388}
       \strng{authorfullhash}{000ea00a0113798d167ac8dfa03fe388}
       \strng{authorfullhashraw}{000ea00a0113798d167ac8dfa03fe388}
-      \field{sortinit}{4}
-      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{IEEE Transactions on Software Engineering}
@@ -67,8 +67,8 @@
       \strng{authornamehash}{9d390526f755d74dc0232c0a116cdc5d}
       \strng{authorfullhash}{9d390526f755d74dc0232c0a116cdc5d}
       \strng{authorfullhashraw}{9d390526f755d74dc0232c0a116cdc5d}
-      \field{sortinit}{6}
-      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{IEEE Transactions on Software Engineering}
@@ -119,8 +119,8 @@
       \strng{authornamehash}{a26868c240db164a9298372b7d74701c}
       \strng{authorfullhash}{31eed9593801b2a2bc6ab78fe48dd216}
       \strng{authorfullhashraw}{31eed9593801b2a2bc6ab78fe48dd216}
-      \field{sortinit}{7}
-      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{eprinttype}{arXiv}
