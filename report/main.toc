@@ -57,11 +57,11 @@
 \contentsline {section}{\numberline {4.1}Development Methodology}{26}{section.4.1}%
 \contentsline {subsection}{\numberline {4.1.1}Iterative Development Process}{26}{subsection.4.1.1}%
 \contentsline {subsection}{\numberline {4.1.2}Version Control and Branching Strategy}{27}{subsection.4.1.2}%
-\contentsline {section}{\numberline {4.2}Core Implementation Components}{28}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Search Module}{28}{subsection.4.2.1}%
-\contentsline {subsubsection}{BM25 Sparse Retrieval}{28}{subsection.4.2.1}%
+\contentsline {section}{\numberline {4.2}Core Implementation Components}{29}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Search Module}{29}{subsection.4.2.1}%
+\contentsline {subsubsection}{BM25 Sparse Retrieval}{29}{subsection.4.2.1}%
 \contentsline {subsubsection}{Dense Embedding Retrieval}{29}{subsection.4.2.1}%
-\contentsline {subsubsection}{Hybrid Search Integration}{29}{subsection.4.2.1}%
+\contentsline {subsubsection}{Hybrid Search Integration}{30}{subsection.4.2.1}%
 \contentsline {subsection}{\numberline {4.2.2}Code Graph Analysis}{30}{subsection.4.2.2}%
 \contentsline {subsubsection}{Dependency Extraction}{30}{subsection.4.2.2}%
 \contentsline {subsubsection}{Graph Construction Algorithm}{31}{algocf.1}%

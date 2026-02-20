@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2026.1.23)  20 FEB 2026 12:31
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2026.1.23)  20 FEB 2026 12:34
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1384,11 +1384,11 @@ Overfull \hbox (21.05502pt too wide) in paragraph at lines 12--13
 [26
 
 ]
-<fig/fig9.png, id=856, 616.3025pt x 334.24875pt>
+<fig/fig9.png, id=856, 511.9125pt x 511.9125pt>
 File: fig/fig9.png Graphic file (type png)
 <use fig/fig9.png>
 Package pdftex.def Info: fig/fig9.png  used on input line 27.
-(pdftex.def)             Requested size: 433.62pt x 235.17618pt.
+(pdftex.def)             Requested size: 433.62pt x 433.62013pt.
 
 Overfull \hbox (21.05502pt too wide) in paragraph at lines 27--28
  [][] 
@@ -1406,10 +1406,10 @@ Overfull \hbox (21.05502pt too wide) in paragraph at lines 27--28
 \pydata@fh@_FAD58DE7366495DB4650CFEFAC2FCD61.data.minted=\write11
 \openout11 = `_FAD58DE7366495DB4650CFEFAC2FCD61.data.minted'.
 
-runsystem(latexminted config  --timestamp 20260220123155 FAD58DE7366495DB4650CFEFAC2FCD61)...executed safely (allowed).
+runsystem(latexminted config  --timestamp 20260220123454 FAD58DE7366495DB4650CFEFAC2FCD61)...executed safely (allowed).
 
  (./_FAD58DE7366495DB4650CFEFAC2FCD61.config.minted)
-runsystem(latexminted cleanconfig  --timestamp 20260220123155 FAD58DE7366495DB4650CFEFAC2FCD61)...executed safely (allowed).
+runsystem(latexminted cleanconfig  --timestamp 20260220123454 FAD58DE7366495DB4650CFEFAC2FCD61)...executed safely (allowed).
 
  (./_minted/default.style.minted) (./_minted/1BB3299737FCA696E0AD59FFC25808A8.highlight.minted
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
@@ -1719,7 +1719,7 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  80i,13n,117p,1259b,1819s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/tex-gyre/qtmr.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/txfonts/txbtt.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txexs.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txsys.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/txfonts/txtt.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/txfonts/txtt.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/ztmr.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on main.pdf (74 pages, 3384995 bytes).
+Output written on main.pdf (74 pages, 3433872 bytes).
 PDF statistics:
  1201 PDF objects out of 1440 (max. 8388607)
  1051 compressed objects within 11 object streams
