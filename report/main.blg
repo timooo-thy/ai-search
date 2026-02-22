@@ -1,15 +1,15 @@
 [0] Config.pm:308> INFO - This is Biber 2.20
 [0] Config.pm:311> INFO - Logfile is 'main.blg'
-[25] biber-darwin:340> INFO - === Fri Feb 20, 2026, 11:06:00
+[25] biber-darwin:340> INFO - === Sun Feb 22, 2026, 17:15:19
 [31] Biber.pm:420> INFO - Reading 'main.bcf'
 [58] Biber.pm:994> INFO - Found 12 citekeys in bib section 0
-[64] Biber.pm:4463> INFO - Processing section 0
-[68] Biber.pm:4654> INFO - Looking for bibtex file 'bib.bib' for section 0
-[69] bibtex.pm:1713> INFO - LaTeX decoding ...
-[73] bibtex.pm:1519> INFO - Found BibTeX data source 'bib.bib'
-[112] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[112] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[112] Biber.pm:4283> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'en-US'
-[112] Biber.pm:4289> INFO - No sort tailoring available for locale 'en-US'
+[63] Biber.pm:4463> INFO - Processing section 0
+[67] Biber.pm:4654> INFO - Looking for bibtex file 'bib.bib' for section 0
+[67] bibtex.pm:1713> INFO - LaTeX decoding ...
+[71] bibtex.pm:1519> INFO - Found BibTeX data source 'bib.bib'
+[111] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[111] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[111] Biber.pm:4283> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'en-US'
+[111] Biber.pm:4289> INFO - No sort tailoring available for locale 'en-US'
 [117] bbl.pm:676> INFO - Writing 'main.bbl' with encoding 'UTF-8'
 [119] bbl.pm:779> INFO - Output to main.bbl

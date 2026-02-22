@@ -1,9 +1,30 @@
 \chapter{Conclusion}
-
 \section{Summary of Contributions}
+This project has successfully developed CodeOrient, an autonomous AI Search tool to accelerate developer onboarding. The key contributions of this work include:
+\begin{enumerate}
+    \item The design and implementation of CodeOrient that integrates semantic code search, graph visualisation and generative user interfaces.
+    \item The development of a multi-stage retrieval and ranking pipeline that utilises retrieval-augmented generation (RAG) with source grounding to eliminate hallucination inherent in AI code assistants.
+    \item The creation of generative user interfaces such as graph visualisation cards to render parts of a codebase dynamically, tailored to user queries and context.
+    \item The development of Search Architect, Gap Analyser and Graph Architect agents to automate multi-turn exploration of codebases and generate context-aware feature cards.
+\end{enumerate}
 
 \section{Key Takeaways}
+The key takeaaways from this project include:
+\begin{enumerate}
+    \item Quantitative evaluation of CodeOrient's RAG framework on real-world open source codebases has demonstrated a 92.5\% Recall@System, which is a significant improvement over the 2.78\% recall rate of traditional keyword-based GitHub search.
+    \item CodeOrient's platform reduced the Clicks to Discovery metric from 5.27 to 0.07, proving that AI search tool can assist developers in finding relevant code snippets within a single click.
+    \item CodeOrient's graph visualisation was found to acheive a 93.61\% recall rate in rendering the correct nodes relevant to the user query, where it outperformed its own recall rate by inferring imported relationships that werre not explicitly retrieved in the initial search results.
+    \item 98.43\% of the claims made by the system were grounded in the source code, which is effective in eliminating hallucinations and any possible ``slopsquatting'' or risks associated with AI generated code.
+\end{enumerate}
 
 \section{Future Work}
+The proof-of-concept implementation of CodeOrient has shown promising results, but there are several areas of improvement and future work to explore:
+\begin{enumerate}
+    \item Future iterations could address the multi-hop retrieval problem by focusing on graph traversal techniques to discover code snippets that are deeply connected but not directly retrieved in the initial search results.
+    \item More exploration of latency optimisation techniques such as caching and parallelisation is needed to ensure that CodeOrient can provide faster responses during cold starts and when handling larger codebases.
+    \item Although LLMs have a large context window, further work is needed to manage context effectively and avoid degradation in performance as context size increases.
+    \item Expanding the platform to support code discovery directly from IDEs and integrating with popular code hosting platforms like GitHub could further enhance the accessibility and usability of CodeOrient for developers.
+\end{enumerate}
 
 \section{Final Remarks}
+As software systems and architectures continue to grow in complexity, there is an increasing need for tools to facilitate deeper understanding of codebases. CodeOrient represents a significant step forward in this direction by externalising a developer's mental model of a codebase through interactive and citation-backed graph visualisations. This research has demonstrated the potential of AI to go beyond code generation and assist developers in navigating the intricate systems they work with, ultimately accelerating onboarding and improving productivity.

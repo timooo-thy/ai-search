@@ -71,7 +71,7 @@ where:
     \item $(\mu + 3\sigma)$ represents the maximum value (upper tail of the distribution).
 \end{itemize}
 This approach takes into account the distribution of scores which is more sensitive to variation in score ranges from the different retrieval methods.
-% Insert code snippet here %
+
 \subsection{Code Graph Analysis}
 This section details the transformation of the code chunks into an interactive graph.
 \subsubsection{Dependency Extraction}
@@ -84,19 +84,23 @@ Rather than using AST for traversal, the system utilise a recursive language awa
 \KwOut{List of Semantic Chunks $K$}
 
 $K \gets \emptyset$\;
-$Language \gets$ \text{MapExtensionToLanguage}($E$)\;
+$Language \gets \text{MapExtensionToLanguage}(E)$\;
+
 \If{$Language$ is supported}{
-    $Splitter \gets$ \text{InitialiseLangChainSplitter}($Language, S, O$)\;
+    $Splitter \gets \text{InitialiseLangChainSplitter}(Language, S, O)$\;
 }
 \Else{
-    $Separators \gets \{ \texttt{"\char`\\ nclass "}, \texttt{"\char`\\ ndef "}, \texttt{"\char`\\ n\char`\\ n"}, \texttt{"\char`\\ n"}, \texttt{" "} \}$\;
-    $Splitter \gets$ \text{InitialiseRecursiveSplitter}($Separators, S, O$)\;
+    $Separators \gets \{ \texttt{"\textbackslash nclass "}, \texttt{"\textbackslash ndef "}, \texttt{"\textbackslash n\textbackslash n"}, \texttt{"\textbackslash n"}, \texttt{" "} \}$\;
+    $Splitter \gets \text{InitialiseRecursiveSplitter}(Separators, S, O)$\;
 }
-$Documents \gets Splitter.\text{createDocuments}(C)$\;
+
+$Documents \gets Splitter.\text{splitText}(C)$\;
+
 \ForEach{$Doc$ in $Documents$}{
     $Chunk \gets \text{ExtractContentAndMetadata}(Doc)$\;
     Add $Chunk$ to $K$\;
 }
+
 \Return{$K$}\;
 \caption{Language-Aware Recursive Code Splitting Algorithm}
 \label{alg:recursive_splitting}

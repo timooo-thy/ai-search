@@ -124,7 +124,7 @@
 \contentsline {chapter}{\numberline {7}Conclusion}{58}{chapter.7}%
 \contentsline {section}{\numberline {7.1}Summary of Contributions}{58}{section.7.1}%
 \contentsline {section}{\numberline {7.2}Key Takeaways}{58}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Future Work}{58}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Final Remarks}{58}{section.7.4}%
-\contentsline {chapter}{\numberline {A}Detailed Results}{59}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Quantitative Results Table}{59}{section.A.1}%
+\contentsline {section}{\numberline {7.3}Future Work}{59}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Final Remarks}{60}{section.7.4}%
+\contentsline {chapter}{\numberline {A}Detailed Results}{61}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Quantitative Results Table}{61}{section.A.1}%

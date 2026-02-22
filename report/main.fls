@@ -492,7 +492,9 @@ INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/newtx/txex-bar.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/vf/public/newtx/ntx-Regular-tlf-ot1.vf
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/newtx/txmiaX.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/newtx/ntx-Regular-tlf-ot1r.tfm
+INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/txfonts/txtt.tfm
+INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmsy9.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/txfonts/txtt.tfm
 OUTPUT _FAD58DE7366495DB4650CFEFAC2FCD61.data.minted
 INPUT ./_FAD58DE7366495DB4650CFEFAC2FCD61.config.minted
@@ -665,6 +667,7 @@ INPUT main.run.xml
 OUTPUT main.run.xml
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI7.pfb
+INPUT /usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/type1/public/tex-gyre/qtmr.pfb
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/type1/public/txfonts/txbtt.pfb
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/type1/public/newtx/txexs.pfb
