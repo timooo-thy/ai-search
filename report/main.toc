@@ -42,15 +42,15 @@
 \contentsline {subsection}{\numberline {3.2.1}Technology Stack}{18}{subsection.3.2.1}%
 \contentsline {subsection}{\numberline {3.2.2}User Interface Design}{19}{subsection.3.2.2}%
 \contentsline {subsection}{\numberline {3.2.3}Interactive Graph Visualisation with React Flow}{20}{subsection.3.2.3}%
-\contentsline {subsection}{\numberline {3.2.4}Generative UI Card Components}{20}{subsection.3.2.4}%
+\contentsline {subsection}{\numberline {3.2.4}Generative UI Card Components}{21}{subsection.3.2.4}%
 \contentsline {section}{\numberline {3.3}Backend Architecture}{21}{section.3.3}%
 \contentsline {subsection}{\numberline {3.3.1}API Design}{21}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}Code Search Engine}{21}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.2}Code Search Engine}{22}{subsection.3.3.2}%
 \contentsline {subsection}{\numberline {3.3.3}LLM Integration and RAG Pipeline}{22}{subsection.3.3.3}%
-\contentsline {section}{\numberline {3.4}Data Pipeline}{22}{section.3.4}%
+\contentsline {section}{\numberline {3.4}Data Pipeline}{23}{section.3.4}%
 \contentsline {subsection}{\numberline {3.4.1}Repository Ingestion}{23}{subsection.3.4.1}%
 \contentsline {subsection}{\numberline {3.4.2}Chunking Strategy}{23}{subsection.3.4.2}%
-\contentsline {subsection}{\numberline {3.4.3}Metadata Extraction}{23}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.3}Metadata Extraction}{24}{subsection.3.4.3}%
 \contentsline {subsection}{\numberline {3.4.4}Storage of Code Chunks}{24}{subsection.3.4.4}%
 \contentsline {section}{\numberline {3.5}Technical Stack Summary}{25}{section.3.5}%
 \contentsline {chapter}{\numberline {4}Implementation Details}{26}{chapter.4}%
@@ -116,15 +116,14 @@
 \contentsline {subsection}{\numberline {6.6.1}Technical Limitations}{55}{subsection.6.6.1}%
 \contentsline {subsubsection}{Multi-Hop Retrieval Challenge}{55}{subsection.6.6.1}%
 \contentsline {subsubsection}{Latency}{55}{subsection.6.6.1}%
-\contentsline {subsubsection}{Context Window}{56}{subsection.6.6.1}%
-\contentsline {subsection}{\numberline {6.6.2}Threats to Validity}{56}{subsection.6.6.2}%
-\contentsline {subsubsection}{Internal Validity}{56}{subsection.6.6.2}%
+\contentsline {subsubsection}{Context Window}{55}{subsection.6.6.1}%
+\contentsline {subsection}{\numberline {6.6.2}Threats to Validity}{55}{subsection.6.6.2}%
+\contentsline {subsubsection}{Internal Validity}{55}{subsection.6.6.2}%
 \contentsline {subsubsection}{External Validity}{56}{subsection.6.6.2}%
 \contentsline {subsubsection}{Construct Validity}{56}{subsection.6.6.2}%
-\contentsline {chapter}{\numberline {7}Conclusion}{58}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Summary of Contributions}{58}{section.7.1}%
-\contentsline {section}{\numberline {7.2}Key Takeaways}{58}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Future Work}{59}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Final Remarks}{60}{section.7.4}%
-\contentsline {chapter}{\numberline {A}Detailed Results}{61}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Quantitative Results Table}{61}{section.A.1}%
+\contentsline {chapter}{\numberline {7}Conclusion}{57}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Summary of Contributions}{57}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Key Takeaways}{57}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Future Work}{58}{section.7.3}%
+\contentsline {chapter}{\numberline {A}Detailed Results}{60}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Quantitative Results Table}{60}{section.A.1}%

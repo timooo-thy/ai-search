@@ -1,8 +1,8 @@
 \chapter{Literature Review}
 
-New developers often struggle with understanding new and unfamiliar codebases, leading to prolonged onboarding times and reduced productivity. Various strategies have been proposed to address this challenge such as improved documentation practices. However, these methods often fall short in providing comprehensive and efficient solutions for code comprehension. With the increasing adoption of AI-assisted tools, new challenges have emerged. Often, these tools hallucinate information that is not grounded in actual source code. Furthermore, large codebases make it harder for AI to comprehend due to its limited context window.
+New developers often struggle with understanding new and unfamiliar codebases, leading to prolonged onboarding times and reduced productivity. Various strategies have been proposed to address this challenge such as improved documentation practices. However, these methods often fall short in providing comprehensive and efficient solutions for code comprehension. The rise in adoption of AI-assisted tools has introduced new challenges. One key challenge is that these tools hallucinate information that is often not grounded in actual source code. Furthermore, large codebases make it harder for LLMs to comprehend due to its limited context window.
 
-This literature review examines five interrelated research domains critical to the proposed AI Search Tool - CodeOrient:
+This literature review examines five interrelated research domains critical to CodeOrient, an AI Search Tool for code comprehension:
 
 \begin{enumerate}
     \item Software Complexity Metrics and Code Quality Measurements
@@ -11,7 +11,7 @@ This literature review examines five interrelated research domains critical to t
     \item Code Visualisation and Dependency Analysis
     \item Generative User Interfaces
 \end{enumerate}
-The combination of these areas provides the theoretical foundation for building an AI application that reduces developer onboarding time while maintaining citation accuracy and reliability. 
+The combination of these areas provides the theoretical foundation for building an AI application that reduces developer onboarding time while ensuring the generated explanations are accurate and grounded in the actual codebase.
 
 \section{Software Complexity Metrics and Code Quality Measurements}
 
@@ -98,7 +98,7 @@ The broader principle emerging from hallucination research is Retrieval-Augmente
 To understand the real structure of a codebase, dependency graphs are essential. Using entities as nodes and relationships as edges, code graphs provide a visual representation of how different components interact with each other \cite{jit2025}. The lack of visualisation makes it difficult for developers to grasp the complex relationship that are present in modern software architectures. This motivates CodeOrient's code graph visualisation feature to help developers trace data flows across multiple modules, functions, and files. 
 
 \subsection{Interactive Visualisation Tools}
-Among many code visualisation libraries, React Flow stands out for its interactivity and ease of integration with React applications \cite{jovanov2025}. React Flow allows developers to explore the relationships between entities. Rather than traditional large static diagrams, developers can pan and hover over nodes to reveal additional information, which is cruicial for understanding  complex codebases.
+Among many code visualisation libraries, React Flow stands out for its interactivity and ease of integration with React applications \cite{jovanov2025}. React Flow allows developers to create interactive visualisations of code relationships. Rather than traditional large static diagrams, developers can pan and hover over nodes to reveal additional information, which is crucial for understanding complex codebases.
 
 \section{Generative User Interface (UI)}
 
@@ -106,7 +106,7 @@ Among many code visualisation libraries, React Flow stands out for its interacti
 Generative UI is an emerging field research by Google that focuses on using LLMs to generate dynamic UIs \cite{leviathan2025}. This extends the capability of text-based LLMs to generate UIs using task-driven data models \cite{cao2025}. Different queries will produce different UIs at runtime, allowing for highly personalised and adaptive interfaces. Their research shifts away from generating UI code snippets towards generating UI data models that is more aligned with user intent \cite{cao2025}. This approach directly motivates the use of Generative UI by rendering UI components instead of text-based responses in CodeOrient.
 
 \section{Research Gaps and Motivation}
-The reviewed literature highlights significant advancements in respective domains such as semantic search, graph analysis, and Generative UI. However, their integration into a cohesive system for developer onboarding remains underexplored. The following research gaps motivate the development of CodeOrient:
+The reviewed literature highlights several advancements in software complexity metrics, semantic code search, hallucination mitigation, code visualisation, and Generative UI. However, there has been limited work in integrating these advancements into a cohesive system for developer onboarding. The following research gaps motivate the development of CodeOrient:
 
 \subsection{Bridging Semantic and Structural Code Search}
 Current tools typically favour either semantic search (finding code that looks right) or structural analysis (finding code that is connected). As noted by Limpanukorn et al. (2025), structural search outperforms semantic baselines, yet most AI tools like GitHub Copilot still relies primarily on text-based RAG. There is a lack of research into how Generative UI can bridge this gap by dynamically synthesising a visual graph that represents both the user's natural language intent and the codebase's physical architecture.

@@ -1,7 +1,7 @@
 \chapter{Results and Discussions}
 
 \section{Quantitative Results}
-The quantitative evaluation results are summarised in Table~\ref{tab:evaluation_results}, which presents the average metrics across all 30 queries for CodeOrient, the ablation model, and the GitHub Search baseline.
+The evaluation of CodeOrient was conducted across 30 queries spanning three modern and well-maintained repositories. The metrics and results across CodeOrient, the ablation model, and the GitHub Search baseline are summarised in Table~\ref{tab:evaluation_results}.
 
 \begin{table}[htbp]
 \centering
@@ -41,16 +41,16 @@ With a Recall@System of 92.50\%, CodeOrient successfully bridges the gap between
 Instances of ``Emergent Inference" was observed, where the system identified imported relationships that were not explicitly retrieved, allowing the system to maintain an accurate graph visualisation even when some relevant files were missed in the initial retrieval step. This is evident where the average Graph Recall (93.61\%) is higher than the average Recall@System (92.50\%), which suggests that the system was able to infer some relationships between code snippets that were not directly retrieved.
 
 \subsection{Effectiveness of Citation Grounding}
-The high Faithfulness score of 98.43\% is a direct result of the citation grounding mechanism. By forcing the LLM to provide inline citations for every claim, the system effectively mitigated the hallucination issues mentioned in the literature review. This is particularly important in the context of code retrieval, where inaccurate information can lead to confusion and inefficiency for developers.
+The high Faithfulness score of 98.43\% is a direct result of the citation grounding mechanism. Prompting the LLM to provide inline citations when generating responses ensures that the information provided is directly traceable to specific code snippets, which significantly reduces the likelihood of hallucination.
 \section{Case Studies}
-Three case studies based on specific queries from the evaluation dataset are presented to highlight the strengths and limitations of CodeOrient.
+Across the 30 queries, there were several interesting cases that highlighted the strengths and limitations of CodeOrient.
 \subsection{Case Study 1: ``How does the system resolve and inject dependencies?"}
 \label{Case_Study_1}
-This query represents a more complex architectural query, where the system only managed to achieve a Recall@System of 50\%. While CodeOrient managed to locate the primary dependency utility file in (\texttt{utils.py}), it was observed that the system failed to retrieve the underlying implementation. 
+CodeOrient only managed to achieve a Recall@System of 50\% for this complex architectural query. While CodeOrient managed to locate the primary dependency utility file in (\texttt{utils.py}), it was observed that it failed to retrieve the underlying implementation. 
 
-This highlights a classic ``multi-hop" challenge in code retrieval, where the recursive nature of dependencies are spread across multiple files. This suggests that while semantic search is excellent in retrieving the logically relevant files, there is still a gap in understanding the execution depth of the codebase, which requires a more sophisticated graph traversal to ensure that all relevant files are retrieved. 
+This highlights a classic ``multi-hop" challenge in code retrieval, where the recursive nature of dependencies are spread across multiple files. This suggests a gap in the system's ability to effectively traverse deeper levels of dependencies, which is crucial for queries that require understanding the full execution flow of a codebase.
 
-This also ties into the graph recall performance, where the system achieved a graph recall of 50\% for this query, which indicates that while the primary nodes were retrieved, some of the secondary nodes (e.g., files containing the underlying implementation) were missed. This case study highlights an area for future improvement in CodeOrient, which is to enhance the multi-hop retrieval capabilities to ensure that all relevant files across multiple levels of dependencies are retrieved effectively.
+This directly impacts the graph recall performance, where the system achieved a graph recall of 50\% for this query. This indicates that while the primary nodes were retrieved, some of the secondary nodes (e.g., files containing the underlying implementation) were missed. This case study highlights an area for future improvement in CodeOrient, which is to enhance the multi-hop retrieval capabilities to ensure that all relevant files across multiple levels of dependencies are retrieved effectively.
 
 \subsection{Case Study 2: ``How are the button visual variants defined?"}
 This query demonstrates a scenario where even though the system only achieved a Recall@System of 50\%, the generated graph visualisation achieved a graph recall of 100\%. This showcases emergent inference capabilities of the LLM when it comes to understanding import relationships in the code snippets. 
@@ -85,27 +85,27 @@ Hence, this example highlights the system's ability to identify missing gaps bas
 \end{figure}
 
 \section{Implications for Developer Onboarding}
-The results of this evaluation showcased a reduction of CTD (Clicks to Discovery) from 5.27 with the GitHub Search baseline to 0.07 with CodeOrient. This significant reduction in CTD demonstrates how CodeOrient effectively eliminates the need for developers to manually sift through search results, which is a common pain point in traditional code search. This allows new developers to spend more time understanding the codebase and less time searching for relevant information, which can significantly enhance the onboarding experience and accelerate the time to productivity for new developers.
+The results of this evaluation showcased a reduction of CTD (Clicks to Discovery) from 5.27 with the GitHub Search baseline to 0.07 with CodeOrient. This significant reduction in CTD demonstrates how CodeOrient effectively eliminates the need for developers to manually sift through search results, which is a common pain point in traditional code search. A lower CTD suggests that deveopers can spend more time understanding and working with the code rather than searching for it, which can significantly enhance productivity and reduce the time taken for onboarding.
 
-Futhermore, the high graph recall and faithfulness scores indicate that CodeOrient not only retrieves relevant code snippets but also provides accurate architectural visualisations that can help new developers understand the relationships between different components in the codebase. This can be particularly beneficial for onboarding, as it allows new developers to quickly grasp the overall structure of the codebase and how different files and components interact with each other. Overall, the results suggest that CodeOrient has the potential to significantly improve the developer onboarding experience by providing more efficient and effective code retrieval, as well as accurate architectural visualisations that can aid in understanding the codebase.
+In addition, the high graph recall and faithfulness scores demonstrate that CodeOrient can provide accurate graph visualisations to assist new developers in understanding the relationships between different components in the codebase. This can be particularly beneficial for onboarding, as it allows new developers to quickly grasp the overall structure of the codebase and how the different components interact with each other. 
 \section{Limitations}
 \subsection{Technical Limitations}
 \subsubsection{Multi-Hop Retrieval Challenge}
-The ``multi-hop" retrieval mentioned in \autoref{Case_Study_1} showcases how the system struggles with ``multi-hop" dependency retrieval. As the system is currently limited to a maximum of 3 turns in the evaluation loop, it may not be able to retrieve all relevant files for queries that require deeper levels of dependency traversal. This is a tradeoff between latency and recall, as allowing for more turns could potentially improve recall but would also increase latency. Future work could explore more sophisticated graph traversal techniques or dynamic turn limits based on the complexity of the query to address this limitation.
+The ``multi-hop" retrieval mentioned in \autoref{Case_Study_1} showcases how the system struggles with ``multi-hop" dependency retrieval. As the system is currently limited to a maximum of 3 turns in the evaluation loop, it may not be able to retrieve all relevant files. This is a common tradeoff between latency and recall, as allowing for more turns could potentially improve recall rate but would also increase latency.
 
 \subsubsection{Latency}
-The average latency of the system is 62.79s (without caching). This is primarily attributed to the RAG pipeline and Evaluation Loop which requires multiple calls to the LLM and vector database before generating the final response. While caching strategies have been implemented to reduce latency for repeated queries, the cold start latency remains a concern for user experience. One solution implemented was to stream the response as it is generated, reducing the perceived latency for users. However, further optimisations in the RAG pipeline and Evaluation Loop are necessary to reduce the overall latency of the system.
+Without caching, the average latency of the system is rather high, at 62.79s. The RAG pipeline and Evaluation Loop which requires multiple calls to the LLM and vector database, are the main contributors to this latency. Although caching strategies have been implemented to reduce latency for repeated queries, the cold start latency remains a concern for user experience. One solution implemented was to stream the response as it is generated, reducing the perceived latency for users.
 
 \subsubsection{Context Window}
-For more complex queries that require retrieving a large number of relevant files, the system may struggle with the context window limitations of the LLM. If the retrieved code snippets exceed the context window, it may lead to incomplete or inaccurate responses. Future work could explore techniques such as chunking or summarisation to ensure that the most relevant information is included within the context window.
+Current LLMs have a limited context window, which can pose challenges for queries that require retrieving a large number of relevant files. If the retrieved code snippets exceed the context window, it may lead to incomplete or inaccurate responses.
 
 \subsection{Threats to Validity}
-\subsubsection{Internal Validity}
-The stochastic nature of LLMs can lead to variability in the results, which may affect the internal validity of the evaluation. To mitigate this, a temperature of 0.0 was used for all LLM calls to ensure a more deterministic output. 
+\subsubsection{Internal Validity} 
+As LLMs are inherently stochastic, there is a possibility that the results may vary across different runs of the evaluation. This could potentially affect the internal validity of the evaluation. To mitigate this, a temperature of 0.0 was used for all LLM calls to ensure a more deterministic output.
 
-The scoring of the evaluation metrics, particularly for faithfulness and graph recall, may also introduce subjectivity. To address this, clear guidelines and criteria were established for scoring.
+Additionally, it is important to acknowledge that the evaluation of faithfulness and graph recall involves some level of subjectivity. To address this, clear guidelines and criteria were established for scoring these metrics to ensure consistency and reduce bias. 
 \subsubsection{External Validity}
-The evaluation was conducted on a specific set of 30 queries across three modern and well maintained repositories. While these queries were designed to be representative of common developer information needs, they may not cover the full spectrum of queries that developers may have in real-world scenarios. Additionally, the repositories chosen for evaluation may not be representative of all types of codebases, such as legacy codebases or those with less documentation. Therefore, the generalisability of the results to other queries and repositories may be limited.
+The evaluation was conducted on a golden set of 30 queries across three modern and well-maintained repositories. The queries were designed to be representative of common developer information needs, but they may not cover the full spectrum of queries that developers may have in real-world scenarios. Additionally, the repositories chosen for evaluation may not be representative of all types of codebases, such as legacy codebases or those with less documentation. Therefore, the generalisability of the results to other queries and repositories may be limited.
 
 \subsubsection{Construct Validity}
 While Clicks to Discovery (CTD) measures the speed of finding information, it does not necessarily measure the depth of a developer's understanding. However, the high faithfulness and graph recall scores suggest that the information provided by CodeOrient is not only quickly discoverable but also accurate and comprehensive, which can contribute to a deeper understanding of the codebase.

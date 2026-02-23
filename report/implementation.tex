@@ -377,7 +377,7 @@ This interface allows users to customise their experience. As illustrated in Fig
 
 \section{Challenges and Solutions}
 \subsection{Handling Large Codebases}
-To overcome GitHub API rate limits, the system implements a \textbf{Streaming Tarball Strategy}. By fetching a single compressed \texttt{.tar.gz} archive, the system reduces network calls by over 90\% and processes repository data entirely in-memory.
+As GitHub API has strict rate limits, retrieving large codebases can be time-consuming. To address this challenge, the system implements a \textbf{Streaming Tarball Strategy}. Instead of making multiple API calls, the system fetches a single compressed \texttt{.tar.gz} archive, reducing network calls by over 90\% and processing repository data entirely in-memory.
 
 \subsection{Real-Time Graph Updates}
-The system utilises Server-Sent Events (SSE) to stream the graph data for a smoother user experience. This allows React Flow to render an empty canvas initially and progressively add nodes and edges after the search has completed.
+LLMs can take several seconds to generate responses, which can lead to a suboptimal user experience. Hence, Server-Sent Events (SSE) is used to stream the graph data incrementally which allows React Flow to render an empty canvas initially and progressively add nodes and edges after the generation has completed.

@@ -22,9 +22,6 @@ The proof-of-concept implementation of CodeOrient has shown promising results, b
 \begin{enumerate}
     \item Future iterations could address the multi-hop retrieval problem by focusing on graph traversal techniques to discover code snippets that are deeply connected but not directly retrieved in the initial search results.
     \item More exploration of latency optimisation techniques such as caching and parallelisation is needed to ensure that CodeOrient can provide faster responses during cold starts and when handling larger codebases.
-    \item Although LLMs have a large context window, further work is needed to manage context effectively and avoid degradation in performance as context size increases.
-    \item Expanding the platform to support code discovery directly from IDEs and integrating with popular code hosting platforms like GitHub could further enhance the accessibility and usability of CodeOrient for developers.
+    \item Further work is needed to manage context effectively and avoid degradation in performance as context length increases, such as implementing context window management strategies or summarisation techniques.
+    \item Integrating the platform directly into IDEs to enhance the accessibility and usability of CodeOrient for developers, allowing them to search without leaving their development environment.
 \end{enumerate}
-
-\section{Final Remarks}
-As software systems and architectures continue to grow in complexity, there is an increasing need for tools to facilitate deeper understanding of codebases. CodeOrient represents a significant step forward in this direction by externalising a developer's mental model of a codebase through interactive and citation-backed graph visualisations. This research has demonstrated the potential of AI to go beyond code generation and assist developers in navigating the intricate systems they work with, ultimately accelerating onboarding and improving productivity.

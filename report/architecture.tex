@@ -61,11 +61,7 @@ Even as a monorepo, the backend logic is divided into specialised services that 
 \section{Frontend Architecture}
 \subsection{Technology Stack}
 \begin{itemize}
-    \item \textbf{Framework:} The framework of choice is Next.js App Router with Typescript. This framework allows to mix Server Components (RSC) and Client Components seamlessly, optimising for performance and developer experience.
-    \begin{itemize}
-        \item \textbf{Server Components:} Used for static content that does not require interactivity, such as the landing page and documentation pages. This reduces the amount of JavaScript sent to the client, improving load times.
-        \item \textbf{Client Components:} Used for interactive elements such as the chat interface and graph visualisation. These components can leverage React hooks and state management libraries. To create a Client Component in Next.js, the file must include the directive \texttt{"use client"} at the top.
-    \end{itemize}
+    \item \textbf{Framework:} The framework used for development is Next.js App Router with Typescript. This framework allows the mix of Server Components (RSC) and Client Components to optimise for performance and developer experience. Server Components are used for static content that does not require interactivity, while Client Components are used for interactive elements such as the chat interface and graph visualisation. This separation allows for faster load times and improved performance by reducing the amount of JavaScript sent to the client.
     \item \textbf{Styling:} Tailwind CSS \& Shadcn UI are used for the application's design system, providing a consistent and responsive user interface.
 \end{itemize}
 
@@ -74,7 +70,7 @@ This section discusses the key design principles and layout of the chat page of 
 \begin{figure}[H]
     \centering
     {\small
-    \includegraphics[width=6in]{fig/fig7.png}
+    \includegraphics[width=5.5in]{fig/fig7.png}
     \caption{\textit{CodeOrient Chat Page Layout}}
     \label{fig:chat_page_layout}
     }
@@ -92,9 +88,17 @@ The main components of the chat page layout include:
 Static architecture diagrams are often high-level and extremely abstracted, making it difficult for users to scope in on a specific module. To address this, CodeOrient integrates LLMs and React Flow to visualise a subset of the code repository as an interactive graph. The core components of a graph visualisation include:
 
 \begin{itemize}
-    \item \textbf{Nodes as Entities:} Nodes represent high-level code entities such as files, functions, classes, and components. Each node includes metadata about the entity type, file path, code snippet and description.
-    \item \textbf{Edges as Relationships:} Dependencies are presented as directed edges between nodes, illustrating how data and logic flow between different parts of the codebase. Common relationship types include imports, calls, extends, and uses. For example, Component X importing Function Y would be represented as an edge from Node X to Node Y.
-    \item \textbf{Interactive Features:} To improve code understanding and navigation within the codebase, users can interact with the graph by panning, zooming, or hovering over nodes to reveal additional information such as code snippets, code language, file path and description.
+    \item \textbf{Nodes as Entities:} Nodes represent high-level code entities such as files, functions, classes, and components. Each node contains metadata about the entity type, file path, code snippet and description.
+    \item \textbf{Edges as Relationships:} Dependencies are represented as directed edges between nodes, illustrating how data and logic flow between different parts of the codebase where common relationship types include imports, calls, extends, and uses. For example, Component A importing a Function B would be represented as an edge from Node A to Node B.
+    \item \textbf{Interactive Features:} Additional interactive features such as panning, zooming, or hovering over nodes are implemented to improve code understanding and navigation within the codebase. In Figure \ref{fig:graph_visualisation}, hovering over a node displays a tooltip containing more information about the node.
+    \begin{figure}[H]
+        \centering
+        {\small
+        \includegraphics[width=5.5in]{fig/fig21.png}
+        \caption{\textit{Graph Visualisation with Interactive Tooltips}}
+        \label{fig:graph_visualisation}
+        }
+    \end{figure}
 \end{itemize}
 
 \subsection{Generative UI Card Components}
@@ -131,31 +135,31 @@ Creating an autonomous RAG pipeline allows the LLM to move beyond simple search 
 \section{Data Pipeline}
 This section details the four stage data pipline that transforms code repositories into a structured knowledge base.
 \subsection{Repository Ingestion}
-The system uses an efficient streaming ingestion strategy to bypass GitHub API rate limits. The key optimisations include:
+The system uses an efficient streaming ingestion strategy to bypass GitHub API rate limits. The key optimisations are as follows:
 \begin{enumerate}
-    \item \textbf{Tarball Archive:} The system fetches the entire repository as a compressed \texttt{.tar.gz} archive in a single request using Octokit.
-    \item \textbf{In-memory Extraction:} The system utilises LangChain to extract code chunks from the archive without writing to disk, speeding up the ingestion process.
-    \item \textbf{Filtered Indexing:} A whitelist containing indexable file types (e.g., \texttt{.ts}, \texttt{.py}, \texttt{.go}) is used to filter out non-essential files (e.g., DockerFile) during ingestion.
+    \item The system fetches the entire repository as a compressed \texttt{.tar.gz} archive in a single request using GitHub's Octokit.
+    \item The system utilises LangChain to extract code chunks from the archive in memory to speed up the ingestion process.
+    \item During ingestion, a whitelist containing indexable file types (e.g., \texttt{.ts}, \texttt{.py}, \texttt{.go}) is used to filter out non-essential files (e.g., DockerFile).
 \end{enumerate}
 \subsection{Chunking Strategy}
 Instead of indexing one file as a single document, the engine splits each code file into smaller ``logical" chunks while ensuring that each chunk maintains coherence during retrieval.
 \begin{enumerate}
-    \item \textbf{Language Parsers:} The system uses \texttt{RecursiveCharacterTextSplitter} with its \texttt{.fromLanguage()} method to parse code files based on their programming langauge. The advantage of this approach is that it prioritises splitting at language specific boundaries (e.g., functions, classes) rather than arbitrary character limits.
-    \item \textbf{Optimised Chunk Size:} Each chunk is limited to a maximum of 1,500 tokens with a chunk overlap of 200 tokens. This overlap is key to maintain context across chunk boundaries, ensuring that related code segments are not lost during retrieval.
+    \item The system uses \texttt{RecursiveCharacterTextSplitter} with its \texttt{.fromLanguage()} method to parse code files based on their programming langauge. The advantage of this approach is that it prioritises splitting at language specific boundaries (e.g., functions, classes) rather than arbitrary character limits.
+    \item Each chunk is limited to a maximum of 1,500 tokens with a chunk overlap of 200 tokens. This overlap is key to maintain context across chunk boundaries, ensuring that related code segments are not lost during retrieval.
 \end{enumerate}
 
 \subsection{Metadata Extraction}
-To provide richer context during retrieval, each code chunk contains additional metadata fields:
+To provide richer context during retrieval, each code chunk contains additional metadata fields that are extracted during the parsing stage.
 \begin{enumerate}
-    \item \textbf{Docstring Extraction:} The parser scans for docstrings or comments preceding code entities. These high-level summaries provide semantic context during retrieval, improving the relevance of search results.
-    \item \textbf{Source Attribution:} To provide accurate citations during response generation, each chunk is tagged with its \texttt{filePath}, \texttt{repoFullName}, specific \texttt{startLine} and \texttt{endLine}.
+    \item The parser is utilised to scan for docstrings or comments preceding code entities. These high-level summaries provide semantic context during retrieval, improving the relevance of search results.
+    \item To provide accurate citations during response generation, each chunk is tagged with its \texttt{filePath}, \texttt{repoFullName}, specific \texttt{startLine} and \texttt{endLine}.
 \end{enumerate}
 
 \subsection{Storage of Code Chunks}
 The final stage involves storing the processed code chunks for low-latency retrieval during query time.
 \begin{enumerate}
-    \item \textbf{Indexing Status:} The system uses Prisma ORM and PostgereSQL to track the real-time progress of the indexing lifecycle of each repository to the user (e.g., \texttt{CLONING}~$\rightarrow$~\texttt{PARSING}~$\rightarrow$~\texttt{INDEXING}~$\rightarrow$~\texttt{COMPLETED}). In the case of a network interruption, this serves as a checkpoint to resume indexing.
-    \item \textbf{Batch Upsert:} To optimise throughput, code chunks in batches of 100 are converted into embeddings using \texttt{bge-large-en-v1.5} model and upserted into Upstash Vector.
+    \item The system uses Prisma ORM and PostgereSQL to track the real-time progress of the indexing lifecycle of each repository to the user (e.g., \texttt{CLONING}~$\rightarrow$~\texttt{PARSING}~$\rightarrow$ \allowbreak \texttt{INDEXING}~$\rightarrow$~\texttt{COMPLETED}). In the case of a network interruption, this serves as a checkpoint to resume indexing.
+    \item To optimise throughput, code chunks in batches of 100 are converted into embeddings using \texttt{bge-large-en-v1.5} model and upserted into Upstash Vector.
 \end{enumerate}
 
 \section{Technical Stack Summary}
