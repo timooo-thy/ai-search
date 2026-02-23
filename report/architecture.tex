@@ -13,7 +13,7 @@ The design of CodeOrient is composed of four main components:
 \end{itemize}
 
 \subsection{Data Flow Architecture}
-A multi-stage pipeline optimised for speed and quality of responses is built to handle user interactions. Figure \ref{fig:data_flow_architecture} illustrates the data flow architecture, split into two phases: \textit{Code Indexing Phase} and \textit{Query Response Phase}.
+A multi-stage pipeline optimised for speed and quality of responses is built to handle user interactions. \textit{Figure~\ref{fig:data_flow_architecture}} illustrates the data flow architecture, split into two phases: \textit{Code Indexing Phase} and \textit{Query Response Phase}.
 
 \begin{figure}[H]
     \centering
@@ -66,7 +66,7 @@ Even as a monorepo, the backend logic is divided into specialised services that 
 \end{itemize}
 
 \subsection{User Interface Design}
-This section discusses the key design principles and layout of the chat page of CodeOrient application. Figure \ref{fig:chat_page_layout} showcases the chat page layout which features a split-pane design that prioritise the chat interface with the AI assistant and the source code.
+This section discusses the key design principles and layout of the chat page of CodeOrient application. \textit{Figure~\ref{fig:chat_page_layout}} showcases the chat page layout which features a split-pane design that prioritise the chat interface with the AI assistant and the source code.
 \begin{figure}[H]
     \centering
     {\small
@@ -90,7 +90,7 @@ Static architecture diagrams are often high-level and extremely abstracted, maki
 \begin{itemize}
     \item \textbf{Nodes as Entities:} Nodes represent high-level code entities such as files, functions, classes, and components. Each node contains metadata about the entity type, file path, code snippet and description.
     \item \textbf{Edges as Relationships:} Dependencies are represented as directed edges between nodes, illustrating how data and logic flow between different parts of the codebase where common relationship types include imports, calls, extends, and uses. For example, Component A importing a Function B would be represented as an edge from Node A to Node B.
-    \item \textbf{Interactive Features:} Additional interactive features such as panning, zooming, or hovering over nodes are implemented to improve code understanding and navigation within the codebase. In Figure \ref{fig:graph_visualisation}, hovering over a node displays a tooltip containing more information about the node.
+    \item \textbf{Interactive Features:} Additional interactive features such as panning, zooming, or hovering over nodes are implemented to improve code understanding and navigation within the codebase. In \textit{Figure~\ref{fig:graph_visualisation}}, hovering over a node displays a tooltip containing more information about the node.
     \begin{figure}[H]
         \centering
         {\small
@@ -104,7 +104,7 @@ Static architecture diagrams are often high-level and extremely abstracted, maki
 \subsection{Generative UI Card Components}
 Standard LLM responses are limited to text or markdown outputs. Often, this is insufficient to convey complex code structures or relationships. To address this, CodeOrient adopted a Generative UI architecture where the LLM is able to generate structured JSON objects that renders as functional React components. 
 
-Based on the user's query, the LLM automonously decides which component to generate. For example, if the user asks about their list of repositories, the LLM would generate a ``Repository Card" component. To simulate a smoother user experience, the component data is streamed into the UI, allowing the card to populate incrementally, thereby reducing perceived latency.
+Based on the user's query, the LLM autonomously decides which component to generate. For example, if the user asks about their list of repositories, the LLM would generate a ``Repository Card" component. To simulate a smoother user experience, the component data is streamed into the UI, allowing the card to populate incrementally, thereby reducing perceived latency.
 
 \section{Backend Architecture}
 \subsection{API Design}
@@ -122,7 +122,7 @@ Traditional keyword-based or fuzzy search methods fail to capture the intent beh
     \item \textbf{GitHub Octokit:} The engine uses GitHub's Octokit library to fetch private repository contents from the user's account. This allows the system to access up-to-date codebases for indexing.
     \item \textbf{Hybrid Retrieval Strategy:} The engine utilises \texttt{bge-large-en-v1.5}, an embedding model to perform semantic search in Upstash Vector. Furthermore, it conducts a sparse search to find documents based on keyword frequency and term importance. 
     \item \textbf{Filter Mechanism:} To prevent cross-project contamination, the vector database is partitioned by repository and user ID. To further refine search results, the engine supports metadata filtering such as file type or entity type.
-    \item \textbf{Ranking Mechanism:} To balance between spase and dense retrievals, retrieved code snippets are ranked using Distributed-Based Score Fusion (DBSF).
+    \item \textbf{Ranking Mechanism:} To balance between sparse and dense retrievals, retrieved code snippets are ranked using Distributed-Based Score Fusion (DBSF).
 \end{enumerate}
 \subsection{LLM Integration and RAG Pipeline}
 Creating an autonomous RAG pipeline allows the LLM to move beyond simple search and retrieval patterns. Instead, the LLM follows a more complex reasoning process:
@@ -133,7 +133,7 @@ Creating an autonomous RAG pipeline allows the LLM to move beyond simple search 
 \end{enumerate}
 
 \section{Data Pipeline}
-This section details the four stage data pipline that transforms code repositories into a structured knowledge base.
+This section details the four stage data pipeline that transforms code repositories into a structured knowledge base.
 \subsection{Repository Ingestion}
 The system uses an efficient streaming ingestion strategy to bypass GitHub API rate limits. The key optimisations are as follows:
 \begin{enumerate}
@@ -186,6 +186,6 @@ The final stage involves storing the processed code chunks for low-latency retri
         \textbf{Analytics} & Sentry & Provides real-time error and log monitoring, and performance tracking in different environments. \\
         \bottomrule
     \end{tabular}
-    \caption{Summary of Technical Stack and Rationale}
+    \caption{\textit{Summary of Technical Stack and Rationale}}
     \label{tab:tech_stack_rationale}
 \end{table}

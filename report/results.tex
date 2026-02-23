@@ -1,7 +1,7 @@
 \chapter{Results and Discussions}
 
 \section{Quantitative Results}
-The evaluation of CodeOrient was conducted across 30 queries spanning three modern and well-maintained repositories. The metrics and results across CodeOrient, the ablation model, and the GitHub Search baseline are summarised in Table~\ref{tab:evaluation_results}.
+The evaluation of CodeOrient was conducted across 30 queries spanning three modern and well-maintained repositories. The metrics and results across CodeOrient, the ablation model, and the GitHub Search baseline are summarised in \textit{Table~\ref{tab:evaluation_results}}.
 
 \begin{table}[htbp]
 \centering
@@ -20,7 +20,7 @@ CTD             & 0.07                           & 0.03                         
 \bottomrule
 \end{tabular}
 }
-\caption{Average Evaluation Metrics Across 30 Queries}
+\caption{\textit{Average Evaluation Metrics Across 30 Queries}}
 \label{tab:evaluation_results}
 \end{table}
 
@@ -55,7 +55,7 @@ This directly impacts the graph recall performance, where the system achieved a 
 \subsection{Case Study 2: ``How are the button visual variants defined?"}
 This query demonstrates a scenario where even though the system only achieved a Recall@System of 50\%, the generated graph visualisation achieved a graph recall of 100\%. This showcases emergent inference capabilities of the LLM when it comes to understanding import relationships in the code snippets. 
 
-In this case, CodeOrient successfully retrieved the main file defining the button variants (\texttt{button.tsx}), and through the citation grounding and multi-layered prompting, it was able to infer the relevant related file that were not directly retrieved (\texttt{utils.ts}). This is shown in Figure \ref{fig:case_study_2}, where the inferred node is highlighted in red.
+In this case, CodeOrient successfully retrieved the main file defining the button variants (\texttt{button.tsx}), and through the citation grounding and multi-layered prompting, it was able to infer the relevant related file that were not directly retrieved (\texttt{utils.ts}). This is shown in \textit{Figure~\ref{fig:case_study_2}}, where the inferred node is highlighted in red.
 
 This highlights a unique strength of CodeOrient, which is its ability to leverage the reasoning capabilities of LLMs to fill in gaps in retrieval and generate more complete graph visualisations, even when some relevant files are missed in the initial retrieval step. This also suggests that while improving recall is important, enhancing the reasoning and inference capabilities of the system can also significantly contribute to better performance in terms of graph recall and overall user experience.
 
@@ -73,7 +73,7 @@ This query serves as a justification for the use of LLM Evaluation Loop in the s
 
 CodeOrient achieved a perfect Recall@System of 100\% for this query with a Success@Turn of 3-2-1. This meant that the system refined its search across three turns which led to the successful retrieval of all three files. In contrast, the ablation model stalled at a Recall@System of 67\%. 
 
-Hence, this example highlights the system's ability to identify missing gaps based on the initial retrieval results, and then refining its search queries in the follow-up turns. This resulted in a complete graph visualisation as shown in Figure \ref{fig:case_study_3}, which accurately captured the relationships between the three files.
+Hence, this example highlights the system's ability to identify missing gaps based on the initial retrieval results, and then refining its search queries in the follow-up turns. This resulted in a complete graph visualisation as shown in \textit{Figure~\ref{fig:case_study_3}}, which accurately captured the relationships between the three files.
 
 \begin{figure}[H]
     \centering
@@ -85,7 +85,7 @@ Hence, this example highlights the system's ability to identify missing gaps bas
 \end{figure}
 
 \section{Implications for Developer Onboarding}
-The results of this evaluation showcased a reduction of CTD (Clicks to Discovery) from 5.27 with the GitHub Search baseline to 0.07 with CodeOrient. This significant reduction in CTD demonstrates how CodeOrient effectively eliminates the need for developers to manually sift through search results, which is a common pain point in traditional code search. A lower CTD suggests that deveopers can spend more time understanding and working with the code rather than searching for it, which can significantly enhance productivity and reduce the time taken for onboarding.
+The results of this evaluation showcased a reduction of CTD (Clicks to Discovery) from 5.27 with the GitHub Search baseline to 0.07 with CodeOrient. This significant reduction in CTD demonstrates how CodeOrient effectively eliminates the need for developers to manually sift through search results, which is a common pain point in traditional code search. A lower CTD suggests that developers can spend more time understanding and working with the code rather than searching for it, which can significantly enhance productivity and reduce the time taken for onboarding.
 
 In addition, the high graph recall and faithfulness scores demonstrate that CodeOrient can provide accurate graph visualisations to assist new developers in understanding the relationships between different components in the codebase. This can be particularly beneficial for onboarding, as it allows new developers to quickly grasp the overall structure of the codebase and how the different components interact with each other. 
 \section{Limitations}

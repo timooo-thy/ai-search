@@ -16,7 +16,7 @@ The combination of these areas provides the theoretical foundation for building 
 \section{Software Complexity Metrics and Code Quality Measurements}
 
 \subsection{Cyclomatic Complexity as Foundation}
-Thomas J.McCabe introduced cyclomatic complexity, a quantitative measure of program complexity based on control graph flow analysis \cite{mccabe1976}. His work established that cyclomatic complexity directly correlates with code maintainability and testing.  The formula $M=E-N+2P$, where $E$ represents edges, $N$ represents nodes, and $P$ represents the number of connected components in a control flow graph, represents the complexity as the number of linearly independent paths through a program’s source code \cite{mccabe1976}. As shown in Fig.1, a simple control flow graph of a function below yields a complexity of 2, where $P=1$.
+Thomas J.McCabe introduced cyclomatic complexity, a quantitative measure of program complexity based on control graph flow analysis \cite{mccabe1976}. His work established that cyclomatic complexity directly correlates with code maintainability and testing. The formula $M=E-N+2P$, where $E$ represents edges, $N$ represents nodes, and $P$ represents the number of connected components in a control flow graph, represents the complexity as the number of linearly independent paths through a program’s source code \cite{mccabe1976}. As shown in \textit{Figure~\ref{fig:control_flow_graph}}, a simple control flow graph of a function below yields a complexity of 2, where $P=1$.
 
 \begin{figure}[H]
     \centering
@@ -35,14 +35,13 @@ Kafura's recent reflection on McCabe's work in 2025 acknowledges that cyclomatic
 \section{Code Search and Natural Language Query Processing}
 
 \subsection{Semantic Code Search Through Embeddings}
-Code search has evolved from simple keyword matching to more sophisticated semantic search techniques. Cambronero et al. explored the use of neural embeddings for semantic code search \cite{cambronero2019}. Their approach involves training models  to transform both code snippets and natural language queries into a shared vector space \cite{cambronero2019}. Similar code snippets can be retrieved by calculating the soine similarity between their embedding vectors. The cosine similarity formula is given by:
-Cambronero et al. demonstrated that the use of neural embeddings could bridge the semantic gap between natural language queries and code snippets \cite{cambronero2019}. By transforming both code and queries into a shared vector space, and code snippets relevant to the query can be retrieved by calculating the cosine similarity between their embedding vectors, given by the formula:
+Code search has evolved from simple keyword matching to more sophisticated semantic search techniques. Cambronero et al. explored the use of neural embeddings for semantic code search \cite{cambronero2019}. Their approach involves training models to transform both code snippets and natural language queries into a shared vector space \cite{cambronero2019}. Similar code snippets can be retrieved by calculating the cosine similarity between their embedding vectors. Cambronero et al. demonstrated that the use of neural embeddings could bridge the semantic gap between natural language queries and code snippets \cite{cambronero2019}. By transforming both code and queries into a shared vector space, code snippets relevant to the query can be retrieved by calculating the cosine similarity between their embedding vectors, given by the formula:
 \[
 \text{cosine\_similarity}(\vec{a}, \vec{b}) = \frac{\vec{a} \cdot \vec{b}}{\|\vec{a}\| \|\vec{b}\|}
 \]
 where $\vec{a}$ and $\vec{b}$ are the embedding vectors of the query and code snippet, respectively.
 
-The figure below showcases how a query is transformed into an embedding vector which shares the same embedding space as code snippets. Although this technique does not replace traditional code search, it complements traditional methods that often miss semantically relevant results.
+\textit{Figure~\ref{fig:semantic_code_search}} showcases how a query is transformed into an embedding vector which shares the same embedding space as code snippets. Although this technique does not replace traditional code search, it complements traditional methods that often miss semantically relevant results.
 
 \begin{figure}[H]
     \centering
@@ -54,19 +53,19 @@ The figure below showcases how a query is transformed into an embedding vector w
 \end{figure}
 
 \subsection{Structural Code Search with Domain-Specific Languages}
-Recent research conducted in 2025 explored structural code search tecniques using Domain-Specific Languages (DSLs). Limpanukorn et al. proposed translating nautral language queries into DSL queries which capture the structural relationships within a codebase, which goes beyond mere semantic similarity \cite{limpanukorn2025}. Their approach achieved a precision score of 55-70\% and outperformed semantic search baselines by up to 57\% on F1 scores \cite{limpanukorn2025}.
+Recent research conducted in 2025 explored structural code search techniques using Domain-Specific Languages (DSLs). Limpanukorn et al. proposed translating natural language queries into DSL queries which capture the structural relationships within a codebase, which goes beyond mere semantic similarity \cite{limpanukorn2025}. Their approach achieved a precision score of 55-70\% and outperformed semantic search baselines by up to 57\% on F1 scores \cite{limpanukorn2025}.
 
 This research presents a critical missing link in developer tools, such as tracing an ``authentication flow'', where the relationships between modules are more informative than the functions' names themselves. Their findings highlight the need for code graph visualisation to represent these structural relationships effectively.
 
 \subsection{Retrieval using Code Embedding Models}
-Qodo introduced specialised code embedding models (Qodo Embed-1) that achieved state-of-the-art performance (product score of 3.72/5) in Codebase Understanding Gartner{\textregistered} in 2025 \cite{tai2025}. Their approach bypasses the intermediate langauge description step. Instead, their models directly encode code semantics, resulting the models to be computationally efficient while maintaining high retrieval accuracy for code search tasks \cite{tai2025}. 
+Qodo introduced specialised code embedding models (Qodo Embed-1) that achieved state-of-the-art performance (product score of 3.72/5) in Codebase Understanding Gartner{\textregistered} in 2025 \cite{tai2025}. Their approach bypasses the intermediate language description step. Instead, their models directly encode code semantics, resulting the models to be computationally efficient while maintaining high retrieval accuracy for code search tasks \cite{tai2025}. 
 
 \section{AI Hallucination and Grounded Code Comprehension}
 
 \subsection{The Hallucination Problem in LLMs}
-With the incresed adoption of AI-assisted code generation tools like GitHub Copilot and ChatGPT, the risk of hallucination has become a critical concern. Hallucination in code generation refers to the generation of code that appears correct but is actually non-functional. In 2025, Spracklen et al. conducted a comprehensive study on hallucination in code-generating LLMs \cite{spracklen2025} and found that package hallucinations are a systemic issue across state-of-the-art code-generating models. Their research included analysing over 576,000 code samples generated by 16 different LLMs. Their findings revealed that LLMs consisitently hallucinate package names, and more worryingly, they regenerate the same false package name in 43\% of repeated prompts \cite{spracklen2025}.
+With the increased adoption of AI-assisted code generation tools like GitHub Copilot and ChatGPT, the risk of hallucination has become a critical concern. Hallucination in code generation refers to the generation of code that appears correct but is actually non-functional. In 2025, Spracklen et al. conducted a comprehensive study on hallucination in code-generating LLMs \cite{spracklen2025} and found that package hallucinations are a systemic issue across state-of-the-art code-generating models. Their research included analysing over 576,000 code samples generated by 16 different LLMs. Their findings revealed that LLMs consistently hallucinate package names, and more worryingly, they regenerate the same false package name in 43\% of repeated prompts \cite{spracklen2025}.
 
-In an agentic workflow where LLMs autonomously generate and execute code, hallucinations can be exploited by attackers via ``slopsquatting'', which is the practice of creating malicious packages with names similar to popular ones \cite{spracklen2025}. The figure below showcases how an attacker can exploit hallucinations from LLMs. This research highlights the urgent need for citation-grounded code comprehension systems that can verify all claims against actual source code.
+In an agentic workflow where LLMs autonomously generate and execute code, hallucinations can be exploited by attackers via ``slopsquatting'', which is the practice of creating malicious packages with names similar to popular ones \cite{spracklen2025}. \textit{Figure~\ref{fig:hallucination_exploit}} showcases how an attacker can exploit hallucinations from LLMs. This research highlights the urgent need for citation-grounded code comprehension systems that can verify all claims against actual source code.
 
 \begin{figure}[H]
     \centering
@@ -109,10 +108,10 @@ Generative UI is an emerging field research by Google that focuses on using LLMs
 The reviewed literature highlights several advancements in software complexity metrics, semantic code search, hallucination mitigation, code visualisation, and Generative UI. However, there has been limited work in integrating these advancements into a cohesive system for developer onboarding. The following research gaps motivate the development of CodeOrient:
 
 \subsection{Bridging Semantic and Structural Code Search}
-Current tools typically favour either semantic search (finding code that looks right) or structural analysis (finding code that is connected). As noted by Limpanukorn et al. (2025), structural search outperforms semantic baselines, yet most AI tools like GitHub Copilot still relies primarily on text-based RAG. There is a lack of research into how Generative UI can bridge this gap by dynamically synthesising a visual graph that represents both the user's natural language intent and the codebase's physical architecture.
+Current tools typically favour either semantic search (finding code that looks right) or structural analysis (finding code that is connected). As noted by Limpanukorn et al. (2025), structural search outperforms semantic baselines, yet most AI tools like GitHub Copilot still rely primarily on text-based RAG. There is a lack of research into how Generative UI can bridge this gap by dynamically synthesising a visual graph that represents both the user's natural language intent and the codebase's physical architecture.
 
 \subsection{The ``Black Box'' of Generative UI in Software Engineering}
-Research by Leviathan et al. \cite{leviathan2025} and Cao et al. \cite{cao2025} establishes the framework for task-driven UIs. However, these studies focus on general tasks such as education or shopping, as shown below. In the high-stakes domain of software engineering, it is unknown how a constantly changing, generative interface affects a developer's productivity. CodeOrient will serve as an experimental platform to explore whether Generative UI can effectively reduce cognitive load and accelerate code comprehension for developers.
+Research by Leviathan et al. \cite{leviathan2025} and Cao et al. \cite{cao2025} establishes the framework for task-driven UIs. However, these studies focus on general tasks such as education or shopping, as shown in \textit{Figure~\ref{fig:generative_ui}}. In the high-stakes domain of software engineering, it is unknown how a constantly changing, generative interface affects a developer's productivity. CodeOrient will serve as an experimental platform to explore whether Generative UI can effectively reduce cognitive load and accelerate code comprehension for developers.
 
 \begin{figure}[H]
     \centering
