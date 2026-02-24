@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeOrient - FYP Presentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&family=Roboto+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <style>
+      :root {
+        --bg-site: #e6ddc4;
+        --accent-brown: #8b4513;
+        --text-dark: #2c2c2c;
+        --text-muted: #5d5d5d;
+        --card-border: #d1c7ac;
+        --grid-line: rgba(139, 69, 19, 0.05);
+        --ai-glow: #64ffda;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: #333;
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 0;
+      }
+
+      /* Slide Core */
+      .slide-container {
+        background-color: var(--bg-site);
+        background-image:
+          linear-gradient(var(--grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 30px 30px;
+        color: var(--text-dark);
+        width: 1280px;
+        height: 720px;
+        position: relative;
+        display: none;
+        flex-direction: column;
+        padding: 60px 80px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--card-border);
+      }
+
+      .slide-container.active {
+        display: flex;
+      }
+
+      /* Navigation Controls */
+      .controls {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 20px;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 10px 20px;
+        border-radius: 50px;
+      }
+      .btn {
+        color: white;
+        cursor: pointer;
+        font-size: 20px;
+        background: none;
+        border: none;
+      }
+      .btn:hover {
+        opacity: 0.7;
+      }
+      .slide-number {
+        color: var(--ai-glow);
+        font-family: "Roboto Mono", monospace;
+        font-size: 14px;
+        margin-top: 5px;
+      }
+
+      /* Typography */
+      h1,
+      h2,
+      h3,
+      .serif {
+        font-family: "Crimson Pro", serif;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+      }
+      h1 {
+        font-size: 52px;
+        color: var(--accent-brown);
+        margin: 0;
+        line-height: 1.1;
+      }
+      h2 {
+        font-size: 34px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid var(--accent-brown);
+        padding-bottom: 8px;
+        display: inline-block;
+      }
+      p {
+        font-size: 19px;
+        line-height: 1.5;
+        color: var(--text-muted);
+      }
+      .tag {
+        display: inline-block;
+        padding: 4px 12px;
+        border: 1px solid var(--accent-brown);
+        font-size: 11px;
+        font-weight: bold;
+        margin-bottom: 12px;
+        color: var(--accent-brown);
+      }
+
+      /* UI Elements */
+      .card {
+        background: rgba(255, 255, 255, 0.4);
+        border: 1px solid var(--card-border);
+        padding: 25px;
+        border-radius: 4px;
+        position: relative;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 6px;
+        height: 6px;
+        background: var(--accent-brown);
+      }
+
+      /* Layouts */
+      .center-vh {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        height: 100%;
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+      }
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        width: 100%;
+        margin-top: 20px;
+      }
+      .metric-value {
+        font-family: "Crimson Pro", serif;
+        font-size: 64px;
+        color: var(--accent-brown);
+        line-height: 1;
+      }
+      .metric-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: bold;
+        color: var(--text-dark);
+      }
+      .metric-sub {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 5px;
+      }
+
+      /* Code-like area */
+      .code-window {
+        background: #d9d2b8;
+        border: 1px solid var(--accent-brown);
+        border-radius: 4px;
+        padding: 20px;
+        font-family: "Roboto Mono", monospace;
+        font-size: 14px;
+        box-shadow: 4px 4px 0px var(--accent-brown);
+        position: relative;
+      }
+      .code-title {
+        position: absolute;
+        top: -12px;
+        left: 20px;
+        background: var(--accent-brown);
+        color: white;
+        padding: 2px 10px;
+        font-size: 10px;
+        font-weight: bold;
+        border-radius: 2px;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .active .animate {
+        animation: fadeIn 0.8s ease forwards;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="controls">
+      <button class="btn" onclick="prevSlide()">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <div class="slide-number" id="counter">1 / 11</div>
+      <button class="btn" onclick="nextSlide()">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide-container active" id="s1">
+      <div class="center-vh">
+        <div class="tag animate">SC4079: FINAL YEAR PROJECT</div>
+        <h1 class="animate">
+          NEXT-GEN GENERATIVE SEARCH<br />ENGINE FOR CODEBASES
+        </h1>
+        <h2 class="animate" style="margin-top: 20px">CodeOrient</h2>
+        <div
+          class="animate"
+          style="
+            margin-top: 50px;
+            border-top: 1px solid var(--accent-brown);
+            padding-top: 20px;
+            text-align: center;
+          "
+        >
+          <p style="font-weight: bold; color: var(--accent-brown); margin: 0">
+            Timothy Lee Hongyi
+          </p>
+          <p style="font-size: 16px; margin-top: 5px">
+            College of Computing and Data Science | 2026
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: ABOUT THE RESEARCHER -->
+    <div class="slide-container" id="s2">
+      <div class="tag">RESEARCHER BACKGROUND</div>
+      <h2>About Me</h2>
+      <div class="grid-2 animate" style="margin-top: 10px">
+        <div>
+          <h3 class="serif" style="color: var(--accent-brown); font-size: 18px">
+            Industry Experience
+          </h3>
+          <div style="margin-bottom: 20px">
+            <p style="font-weight: bold; margin-bottom: 0; font-size: 16px">
+              TikTok, Singapore
+            </p>
+            <p style="font-size: 13px; margin: 0; font-style: italic">
+              ML Engineer Intern | Local Service Team
+            </p>
+          </div>
+          <div style="margin-bottom: 20px">
+            <p style="font-weight: bold; margin-bottom: 0; font-size: 16px">
+              Goldman Sachs, Singapore
+            </p>
+            <p style="font-size: 13px; margin: 0; font-style: italic">
+              Software Engineer Intern | Authorisation Team
+            </p>
+          </div>
+          <p
+            style="
+              font-size: 14px;
+              color: var(--accent-brown);
+              font-weight: bold;
+            "
+          >
+            <i class="fa-solid fa-arrow-right-long"></i> Upcoming: Returning to
+            TikTok (Community Health Team)
+          </p>
+        </div>
+        <div
+          class="card"
+          style="display: flex; flex-direction: column; justify-content: center"
+        >
+          <h3 class="serif">The Inspiration</h3>
+          <p
+            style="font-size: 16px; font-style: italic; color: var(--text-dark)"
+          >
+            "Navigating millions of lines of code during my internships was my
+            greatest bottleneck. CodeOrient aims to automate the mental model
+            construction for large-scale codebases."
+          </p>
+          <div
+            style="
+              margin-top: 20px;
+              padding-top: 20px;
+              border-top: 1px dashed var(--card-border);
+            "
+          >
+            <p style="font-size: 14px; margin: 0">
+              <strong>Core Pain Point:</strong> Cognitive load of tracing
+              cross-file dependencies manually in high-stakes environments.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: MOTIVATION -->
+    <div class="slide-container" id="s3">
+      <div class="tag">01 - MOTIVATION</div>
+      <h2>Technical Gaps</h2>
+      <div class="grid-2 animate" style="margin-top: 20px">
+        <div class="card">
+          <h3 class="serif" style="font-size: 16px">Hallucination Gap</h3>
+          <p style="font-size: 14px">
+            LLMs generate non-existent library calls when disconnected from
+            local codebase context.
+          </p>
+        </div>
+        <div class="card">
+          <h3 class="serif" style="font-size: 16px">Structural Blindness</h3>
+          <p style="font-size: 14px">
+            Standard RAG misses 'connective tissue' (imports/calls) that defines
+            architecture.
+          </p>
+        </div>
+        <div class="card">
+          <h3 class="serif" style="font-size: 16px">Discovery Friction</h3>
+          <p style="font-size: 14px">
+            Static docs are out-of-sync; developers spend 60% of time searching
+            rather than building.
+          </p>
+        </div>
+        <div class="card" style="background: var(--accent-brown); color: white">
+          <h3 class="serif" style="font-size: 16px; color: white">
+            The Objective
+          </h3>
+          <p style="font-size: 14px; color: rgba(255, 255, 255, 0.9)">
+            Unify semantic search with structural visualisation to create a
+            trusted comprehension layer.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: THE SOLUTION -->
+    <div class="slide-container" id="s4">
+      <div class="tag">02 - THE SOLUTION</div>
+      <h2>Introducing CodeOrient</h2>
+      <div
+        class="grid-2 animate"
+        style="margin-top: 20px; align-items: stretch"
+      >
+        <div style="display: flex; flex-direction: column; gap: 20px">
+          <div class="code-window">
+            <div class="code-title">INNOVATION_01: HYBRID_RAG</div>
+            <code style="color: var(--text-dark); font-size: 13px">
+              <span style="color: var(--accent-brown)">const</span> context =
+              <span style="color: var(--accent-brown)">await</span>
+              retriever.fuse({<br />
+              &nbsp;&nbsp;semantic:
+              <span style="color: #4a4a4a">"BGE-Large-v1.5"</span>,<br />
+              &nbsp;&nbsp;keyword:
+              <span style="color: #4a4a4a">"BM25"</span>,<br />
+              &nbsp;&nbsp;normalisation:
+              <span style="color: #4a4a4a">"DBSF"</span><br />
+              });
+            </code>
+          </div>
+          <div class="code-window">
+            <div class="code-title">INNOVATION_02: GRAPH_EXTRACTION</div>
+            <code style="color: var(--text-dark); font-size: 13px">
+              <span style="color: var(--accent-brown)">graph</span
+              >.extract({<br />
+              &nbsp;&nbsp;entities:
+              <span style="color: #4a4a4a">["class", "function"]</span>,<br />
+              &nbsp;&nbsp;relations:
+              <span style="color: #4a4a4a">["imports", "calls"]</span><br />
+              });
+            </code>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column">
+          <div class="code-window" style="height: 100%">
+            <div class="code-title">INNOVATION_03: AGENTIC_GAP_ANALYSIS</div>
+            <code style="color: var(--text-dark); font-size: 13px">
+              <span style="color: var(--accent-brown)">while</span>
+              (context.isMissingDependencies()) {<br />
+              &nbsp;&nbsp;<span style="color: var(--accent-brown)">const</span>
+              target = agent.identifyMissing();<br />
+              &nbsp;&nbsp;context.append(<span
+                style="color: var(--accent-brown)"
+                >await</span
+              >
+              search(target));<br />
+              }<br />
+              <span style="color: var(--accent-brown)">return</span>
+              generateGroundedResponse();
+            </code>
+            <p
+              style="
+                font-size: 12px;
+                margin-top: 20px;
+                border-top: 1px solid rgba(139, 69, 19, 0.2);
+                padding-top: 15px;
+                color: var(--text-muted);
+              "
+            >
+              Autonomous multi-turn exploration ensures all cross-file citations
+              are factually accurate and complete.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: SYSTEM ARCHITECTURE -->
+    <div class="slide-container" id="s5">
+      <div class="tag">03 - ARCHITECTURE</div>
+      <h2>System Pipeline</h2>
+      <div class="grid-3 animate" style="margin-top: 20px; flex-grow: 1">
+        <div
+          class="card"
+          style="
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+          "
+        >
+          <div>
+            <p
+              style="
+                font-weight: bold;
+                font-size: 16px;
+                color: var(--accent-brown);
+                margin-bottom: 15px;
+              "
+            >
+              Phase 1: Ingestion
+            </p>
+            <ul
+              style="
+                font-size: 14px;
+                line-height: 1.8;
+                padding-left: 15px;
+                color: var(--text-muted);
+              "
+            >
+              <li>Tarball fetch from GitHub.</li>
+              <li>Recursive LangChain Splitting.</li>
+              <li>Metadata-rich chunking.</li>
+              <li>BGE-Large Vector generation.</li>
+              <li>Upstash Vector storage.</li>
+            </ul>
+          </div>
+          <p
+            style="
+              font-size: 12px;
+              color: var(--accent-brown);
+              font-weight: bold;
+            "
+          >
+            [DATA_STORAGE]
+          </p>
+        </div>
+        <div
+          class="card"
+          style="
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+          "
+        >
+          <div>
+            <p
+              style="
+                font-weight: bold;
+                font-size: 16px;
+                color: var(--accent-brown);
+                margin-bottom: 15px;
+              "
+            >
+              Phase 2: Reasoning
+            </p>
+            <ul
+              style="
+                font-size: 14px;
+                line-height: 1.8;
+                padding-left: 15px;
+                color: var(--text-muted);
+              "
+            >
+              <li>Search Architect planning.</li>
+              <li>Hybrid Search (Vector+BM25).</li>
+              <li>DBSF Result Ranking.</li>
+              <li>Gap Analyser Loop (Multi-turn).</li>
+              <li>Citation grounding mechanism.</li>
+            </ul>
+          </div>
+          <p
+            style="
+              font-size: 12px;
+              color: var(--accent-brown);
+              font-weight: bold;
+            "
+          >
+            [LOGIC_ENGINE]
+          </p>
+        </div>
+        <div
+          class="card"
+          style="
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+          "
+        >
+          <div>
+            <p
+              style="
+                font-weight: bold;
+                font-size: 16px;
+                color: var(--accent-brown);
+                margin-bottom: 15px;
+              "
+            >
+              Phase 3: Render
+            </p>
+            <ul
+              style="
+                font-size: 14px;
+                line-height: 1.8;
+                padding-left: 15px;
+                color: var(--text-muted);
+              "
+            >
+              <li>Graph Architect mapping.</li>
+              <li>React Flow JSON mapping.</li>
+              <li>SSE Real-time Streaming.</li>
+              <li>Generative UI card rendering.</li>
+              <li>Interactive node previews.</li>
+            </ul>
+          </div>
+          <p
+            style="
+              font-size: 12px;
+              color: var(--accent-brown);
+              font-weight: bold;
+            "
+          >
+            [FRONTEND_UI]
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: HYBRID SEARCH -->
+    <div class="slide-container" id="s6">
+      <div class="tag">04 - IMPLEMENTATION</div>
+      <h2>Precision Retrieval</h2>
+      <div class="grid-2 animate" style="margin-top: 40px">
+        <div class="card">
+          <h3 class="serif" style="font-size: 18px">Semantic Intent (Dense)</h3>
+          <p style="font-size: 15px">
+            Captures conceptual intent (e.g., "handling user logout") using
+            bge-large-en-v1.5. Bridges terminology gaps between user and code.
+          </p>
+        </div>
+        <div class="card">
+          <h3 class="serif" style="font-size: 18px">
+            Keyword Precision (Sparse)
+          </h3>
+          <p style="font-size: 15px">
+            BM25 indexing ensures exact identifier matching (e.g.,
+            "AuthMiddleware") which semantic vectors can often dilute.
+          </p>
+        </div>
+      </div>
+      <div
+        class="card animate"
+        style="margin-top: 30px; border-style: dashed; text-align: center"
+      >
+        <p style="font-size: 15px; margin: 0">
+          Distributed-Based Score Fusion (DBSF) normalises scores across
+          disparate retrieval methods.
+        </p>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: GRAPH EXTRACTION -->
+    <div class="slide-container" id="s7">
+      <div class="tag">05 - VISUALISATION</div>
+      <h2>Structural Context</h2>
+      <div
+        class="animate"
+        style="
+          margin-top: 20px;
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
+        "
+      >
+        <div class="grid-2" style="align-items: center; margin-bottom: 30px">
+          <div>
+            <p style="font-size: 20px; color: var(--text-dark)">
+              CodeOrient transforms retrieved files into an interactive
+              <strong>Dependency Graph</strong>:
+            </p>
+            <ul
+              style="font-size: 16px; color: var(--text-muted); line-height: 2"
+            >
+              <li>
+                <strong>Nodes:</strong> Language-aware code entities
+                (Functions/Classes).
+              </li>
+              <li>
+                <strong>Edges:</strong> Real import/call relationships extracted
+                via AST.
+              </li>
+              <li>
+                <strong>Emergent Inference:</strong> Identifying hidden
+                architectural nodes via graph traversal.
+              </li>
+            </ul>
+          </div>
+          <div
+            class="card"
+            style="
+              height: 350px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: rgba(139, 69, 19, 0.05);
+              border-radius: 8px;
+            "
+          >
+            <i
+              class="fa-solid fa-diagram-project"
+              style="font-size: 120px; color: rgba(139, 69, 19, 0.2)"
+            ></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: LIVE DEMO -->
+    <div class="slide-container" id="s8">
+      <div class="center-vh">
+        <div class="tag">DEMONSTRATION</div>
+        <h1
+          class="animate"
+          style="font-size: 120px; color: var(--accent-brown)"
+        >
+          LIVE DEMO
+        </h1>
+        <div
+          style="
+            width: 150px;
+            height: 3px;
+            background: var(--accent-brown);
+            margin: 30px auto;
+          "
+          class="animate"
+        ></div>
+        <p class="animate serif" style="font-size: 24px; font-style: italic">
+          Real-time Exploration of Large Repositories
+        </p>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: QUANTITATIVE RESULTS -->
+    <div class="slide-container" id="s9">
+      <div class="tag">06 - EVALUATION</div>
+      <h2>Performance Metrics</h2>
+      <div class="metric-grid animate">
+        <div class="card">
+          <div class="metric-value">92.5%</div>
+          <div class="metric-label">Recall@System</div>
+          <p class="metric-sub">
+            Proportion of relevant code snippets successfully retrieved.
+          </p>
+        </div>
+        <div class="card">
+          <div class="metric-value">0.07</div>
+          <div class="metric-label">Clicks to Discovery</div>
+          <p class="metric-sub">
+            Average interactions to reach target snippet vs 5.27 (manual).
+          </p>
+        </div>
+        <div class="card">
+          <div class="metric-value">98.4%</div>
+          <div class="metric-label">Faithfulness</div>
+          <p class="metric-sub">
+            Factual alignment of generated response with source code.
+          </p>
+        </div>
+        <div class="card">
+          <div class="metric-value">62.8s</div>
+          <div class="metric-label">Avg. Latency</div>
+          <p class="metric-sub">
+            Processing time for autonomous multi-turn reasoning.
+          </p>
+        </div>
+        <div class="card">
+          <div class="metric-value">4.9s</div>
+          <div class="metric-label">Cache Latency</div>
+          <p class="metric-sub">
+            Redis-backed response time for recurring session queries.
+          </p>
+        </div>
+        <div class="card" style="background: var(--accent-brown); color: white">
+          <div class="metric-value" style="color: white">1.5</div>
+          <div class="metric-label" style="color: white">Success @ Turn</div>
+          <p class="metric-sub" style="color: rgba(255, 255, 255, 0.7)">
+            Turns required to retrieve the correct context.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: CONCLUSION -->
+    <div class="slide-container" id="s10">
+      <div class="tag">07 - CONCLUSION</div>
+      <h2>Contributions & Findings</h2>
+      <div class="grid-2 animate" style="margin-top: 40px">
+        <div class="card">
+          <h3 class="serif" style="font-size: 16px">Discovery Acceleration</h3>
+          <p style="font-size: 14px">
+            Reduced navigation effort from 5.27 clicks to 0.07. Successfully
+            removed the manual search bottleneck for new developers.
+          </p>
+        </div>
+        <div class="card">
+          <h3 class="serif" style="font-size: 16px">Grounded Trust</h3>
+          <p style="font-size: 14px">
+            98.4% faithfulness confirms that citation-grounding effectively
+            bridges the trust gap in AI code tools.
+          </p>
+        </div>
+        <div class="card">
+          <h3 class="serif" style="font-size: 16px">Structural Advantage</h3>
+          <p style="font-size: 14px">
+            Graph recall (93.6%) exceeding system recall (92.5%) proves that
+            structural analysis can infer context even when search falls short.
+          </p>
+        </div>
+        <div class="card">
+          <h3 class="serif" style="font-size: 16px">Final Conclusion</h3>
+          <p style="font-size: 14px">
+            CodeOrient provides a reliable, visual, and autonomous framework for
+            mastering technical complexity in minutes.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 11: THANK YOU -->
+    <div class="slide-container" id="s11">
+      <div class="center-vh">
+        <h1 class="animate">THANK YOU</h1>
+        <p
+          class="animate serif"
+          style="font-size: 28px; margin-top: 20px; color: var(--accent-brown)"
+        >
+          Questions & Discussion
+        </p>
+        <div style="margin-top: 30px; text-align: center" class="animate">
+          <img
+            src="../public/qr-code.svg"
+            alt="QR Code"
+            style="
+              width: 140px;
+              height: 140px;
+              margin-bottom: 12px;
+              border-radius: 8px;
+              border: 1px solid rgba(0, 0, 0, 0.05);
+            "
+          />
+          <div
+            style="
+              font-size: 12px;
+              color: var(--accent-brown);
+              margin-bottom: 18px;
+              font-weight: bold;
+            "
+          >
+            Scan to open CodeOrient
+          </div>
+          <div
+            style="
+              display: inline-flex;
+              gap: 60px;
+              font-weight: bold;
+              font-size: 14px;
+              align-items: center;
+            "
+          >
+            <span>LINK: CODEORIENT.VERCEL.APP</span>
+            <span>GITHUB: TIMOOO-THY/AI-SEARCH</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentSlide = 1;
+      const totalSlides = 11;
+      const apiKey = "";
+
+      function updateCounter() {
+        document.getElementById("counter").innerText =
+          `${currentSlide} / ${totalSlides}`;
+        document.getElementById("aiResult").innerText =
+          "Ready to assist with your FYP presentation prep.";
+      }
+
+      function showSlide(n) {
+        document
+          .querySelectorAll(".slide-container")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById(`s${n}`).classList.add("active");
+        currentSlide = n;
+        updateCounter();
+      }
+
+      function nextSlide() {
+        if (currentSlide < totalSlides) showSlide(currentSlide + 1);
+      }
+      function prevSlide() {
+        if (currentSlide > 1) showSlide(currentSlide - 1);
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === " ") nextSlide();
+        if (e.key === "ArrowLeft") prevSlide();
+      });
+    </script>
+  </body>
+</html>
