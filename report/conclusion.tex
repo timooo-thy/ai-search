@@ -2,26 +2,26 @@
 \section{Summary of Contributions}
 This project has successfully developed CodeOrient, an autonomous AI Search tool to accelerate developer onboarding. The key contributions of this work include:
 \begin{enumerate}
-    \item The design and implementation of CodeOrient that integrates semantic code search, graph visualisation and generative user interfaces.
+    \item The design and implementation of CodeOrient, which integrates semantic code search, graph visualisation and generative user interfaces.
     \item The development of a multi-stage retrieval and ranking pipeline that utilises retrieval-augmented generation (RAG) with source grounding to eliminate hallucination inherent in AI code assistants.
-    \item The creation of generative user interfaces such as graph visualisation cards to render parts of a codebase dynamically, tailored to user queries and context.
+    \item The creation of generative user interfaces, such as graph visualisation cards that dynamically render parts of a codebase tailored to user queries and context.
     \item The development of Search Architect, Gap Analyser and Graph Architect agents to automate multi-turn exploration of codebases and generate context-aware feature cards.
 \end{enumerate}
 
 \section{Key Takeaways}
 The key takeaways from this project include:
 \begin{enumerate}
-    \item Quantitative evaluation of CodeOrient's RAG framework on real-world open source codebases has demonstrated a 92.5\% Recall@System, which is a significant improvement over the 2.78\% recall rate of traditional keyword-based GitHub search.
-    \item CodeOrient's platform reduced the Clicks to Discovery metric from 5.27 to 0.07, proving that AI search tool can assist developers in finding relevant code snippets within a single click.
-    \item CodeOrient's graph visualisation was found to achieve a 93.61\% recall rate in rendering the correct nodes relevant to the user query, where it outperformed its own recall rate by inferring imported relationships that were not explicitly retrieved in the initial search results.
-    \item 98.43\% of the claims made by the system were grounded in the source code, which is effective in eliminating hallucinations and any possible ``slopsquatting'' or risks associated with AI generated code.
+    \item Quantitative evaluation of CodeOrient's RAG framework on real-world open-source codebases has demonstrated a 92.5\% Recall@System, which is a significant improvement over the 2.78\% recall rate of traditional keyword-based GitHub search.
+    \item CodeOrient's platform reduced the Clicks to Discovery metric from 5.27 to 0.07, demonstrating that the AI search tool can help developers find relevant code snippets with a single click.
+    \item CodeOrient’s graph visualisation achieved a 93.61\% recall rate in correctly identifying relevant nodes for the user query, outperforming its own recall by inferring imported relationships that were not explicitly retrieved in the initial search results.
+    \item 98.43\% of the claims made by the system were grounded in the source code, effectively eliminating hallucinations and any possible ``slopsquatting'' or risks associated with AI-generated code.
 \end{enumerate}
 
 \section{Future Work}
 The proof-of-concept implementation of CodeOrient has shown promising results, but there are several areas of improvement and future work to explore:
 \begin{enumerate}
     \item Future iterations could address the multi-hop retrieval problem by focusing on graph traversal techniques to discover code snippets that are deeply connected but not directly retrieved in the initial search results.
-    \item More exploration of latency optimisation techniques such as caching and parallelisation is needed to ensure that CodeOrient can provide faster responses during cold starts and when handling larger codebases.
-    \item Further work is needed to manage context effectively and avoid degradation in performance as context length increases, such as implementing context window management strategies or summarisation techniques.
-    \item Integrating the platform directly into IDEs to enhance the accessibility and usability of CodeOrient for developers, allowing them to search without leaving their development environment.
+    \item Further exploration of latency-optimisation techniques, such as caching and parallelisation, is needed to ensure CodeOrient provides faster responses during cold starts and when handling larger codebases.
+    \item Further work is needed to manage context effectively and avoid performance degradation as context length increases, such as implementing context window management strategies or summarisation techniques.
+    \item Integrating the platform directly into IDEs to enhance CodeOrient's accessibility and usability for developers, allowing them to search without leaving their development environment.
 \end{enumerate}

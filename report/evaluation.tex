@@ -1,7 +1,7 @@
 \chapter{Evaluation Methodology}
 This chapter outlines the methodology used to evaluate the performance, accuracy and efficiency of CodeOrient. The evaluation consists of both quantitative metrics and comparative analysis against baseline methods. 
 \section{Evaluation Framework}
-The primary goal of the evaluation is to assess how well CodeOrient helps developers understand and navigate complex codebases compared to traditional search methods and ablation models thorugh retrieval, faithfulness, and graph recall performance.
+The primary goal of the evaluation is to assess how well CodeOrient helps developers understand and navigate complex codebases, compared to traditional search methods and ablation models, using retrieval, faithfulness, and graph recall metrics.
 \subsection{Research Questions}
 To guide the evaluation, the following research questions are formulated:
 \begin{enumerate}
@@ -14,34 +14,34 @@ To guide the evaluation, the following research questions are formulated:
 \subsection{Hypotheses}
 Based on the research questions, the following hypotheses are proposed:
 \begin{enumerate}
-    \item \textbf{H1:} CodeOrient will achieve significantly higher recall rate and factual faithfulness than the GitHub search baseline.
-    \item \textbf{H2:} CodeOrient will result in a significantly higher recall rate, factual faithfulness, graph recall and overall latency compared to the ablation model.
+    \item \textbf{H1:} CodeOrient will achieve a significantly higher recall rate and factual faithfulness than the GitHub search baseline.
+    \item \textbf{H2:} CodeOrient will result in significantly higher recall rates, factual faithfulness, graph recall, and overall latency than the ablation model.
     \item \textbf{H3:} CodeOrient will drastically reduce manual user effort (measured in Clicks-to-Destination) compared to baseline manual navigation.
 \end{enumerate}
 
 
 
 \section{Experimental Setup}
-To test the hypotheses rigourously, an evaluation pipeline is created to simulate real-world developer queries and measure the performance of CodeOrient against baselines.
+To rigorously test the hypotheses, an evaluation pipeline is created to simulate real-world developer queries and measure the performance of CodeOrient against baselines.
 \subsection{Dataset}
-The evaluation dataset consists of 30 distinct natural language queries across 3 open source projects based on varying codebase sizes (\href{https://github.com/fastapi/fastapi}{\texttt{fastapi/fastapi}}, \href{https://github.com/shadcn-ui/ui}{\texttt{shadcn-ui/ui}}, \href{https://github.com/langchain-ai/langchain}{\texttt{langchain-ai/langchain}}). The queries are designed to reflect real-world intents, which ranges from simple component location (e.g., ``Where is the accessible dialog overlay logic?") to more complex architectural questions (e.g., ``How does the system resolve and inject dependencies?"). Each query was executed across all evaluated methods to establish a direct comparison. The full list of queries is provided in \autoref{appendix:Quantitative_Results_Table}.
+The evaluation dataset consists of 30 distinct natural language queries across 3 open-source projects with varying codebase sizes (\href{https://github.com/fastapi/fastapi}{\texttt{fastapi/fastapi}}, \href{https://github.com/shadcn-ui/ui}{\texttt{shadcn-ui/ui}}, \href{https://github.com/langchain-ai/langchain}{\texttt{langchain-ai/langchain}}). The queries are designed to reflect real-world intents, which range from simple component location (e.g., ``Where is the accessible dialog overlay logic?") to more complex architectural questions (e.g., ``How does the system resolve and inject dependencies?"). Each query was executed across all evaluated methods to establish a direct comparison. The full list of queries is provided in \autoref{appendix:Quantitative_Results_Table}.
 \subsection{Baseline Comparisons}
 CodeOrient's performance is compared against two baselines:
 \begin{itemize}
     \item \textbf{GitHub Search Baseline:} This baseline uses GitHub's native code search functionality to retrieve relevant code snippets based on the same natural language queries. This represents the traditional manual search that developers usually perform.
-    \item \textbf{Ablation Model (GitHub + Agent):} This model uses the same search mechanism as CodeOrient but replaces the RAG pipeline with GitHub's Search API directly. This allows us to evaluate on the contribution of the RAG pipeline to the overall performance of CodeOrient.
+    \item \textbf{Ablation Model (GitHub + Agent):} This model uses the same search mechanism as CodeOrient but replaces the RAG pipeline with GitHub's Search API directly. This allows us to evaluate the RAG pipeline's contribution to CodeOrient's overall performance.
 \end{itemize}
 
 \section{Quantitative Metrics}
 \subsection{Recall@System}
 This metric measures the recall rate of the retrieved code snippets, which is the proportion of relevant code snippets that were successfully retrieved by CodeOrient compared to the total number of relevant snippets based on ground truths. 
 \subsection{Success@Turn}
-This metric measures the average number of turns required for CodeOrient to retrieve the correct code files based on the query. A turn is defined as a search and retrival cycle, where the maximum threshold is set to 3 turns for each query. A lower Success@Turn indicates a more efficient retrieval process. If the system fails to retrieve the correct code files within the threshold, a penalty score of $Max + 1$ (4 in this case) is assigned to reflect the failure in retrieval.
+This metric measures the average number of turns CodeOrient takes to retrieve the correct code files for a given query. A turn is defined as a search-and-retrieval cycle, with a maximum of 3 turns per query. A lower Success@Turn indicates a more efficient retrieval process. If the system fails to retrieve the correct code files within the threshold, a penalty score of $Max + 1$ (4 in this case) is assigned to reflect the retrieval failure.
 \subsection{Graph Recall}
-Graph Recall measures the completeness of the generated graph visualisations. It assesses whether the system successfully rendered all relevant nodes based on the query.
+Graph Recall measures the completeness of the generated graph visualisations. It assesses whether the system successfully renders all relevant nodes in response to the query.
 \subsection{Faithfulness (Hallucination Rate)}
-Faithfulness measures the factual alignment of the generated explanations and code snippets with the actual codebase. A lower hallucination rate indicates that the system relied strictly on the retrieved snippets, rather than its prior knowledge.
+Faithfulness measures the factual alignment of the generated explanations and code snippets with the actual codebase. A lower hallucination rate indicates that the system relied primarily on retrieved snippets rather than its prior knowledge.
 \subsection{Latency and Caching Efficiency}
-Latency is a critical metric to evaluate the responsiveness of CodeOrient. It is measured in seconds and captures the time taken for the system to process a query and generate a response. Furthermore, the efficiency of caching is evaluated by measuring the latency of repeated queries in the same session that should benefit from cached results.
+Latency is a critical metric for evaluating CodeOrient's responsiveness. It is measured in seconds and captures the time taken for the system to process a query and generate a response. Furthermore, the efficiency of caching is evaluated by measuring the latency of repeated queries in the same session that should benefit from cached results.
 \subsection{Clicks to Destination (CTD)}
-CTD is a user-centric metric that evaluates the efficiency of the search and navigation experience provided by CodeOrient. It measures the number of interactions (clicks) required for a user to navigate from the initial query to the relevant code snippets based on ground truths. A lower CTD indicates a more efficient search and navigation experience, as it reflects fewer steps needed for users to reach their desired information.
+CTD is a user-centric metric that evaluates the efficiency of CodeOrient's search and navigation experience. It measures the number of interactions (clicks) required for a user to navigate from the initial query to the relevant code snippets based on ground truths. A lower CTD indicates a more efficient search and navigation experience, as it reflects fewer steps needed for users to reach their desired information.

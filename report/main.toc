@@ -102,8 +102,8 @@
 \contentsline {chapter}{\numberline {6}Results and Discussions}{49}{chapter.6}%
 \contentsline {section}{\numberline {6.1}Quantitative Results}{49}{section.6.1}%
 \contentsline {section}{\numberline {6.2}Comparative Analysis with Baselines}{49}{section.6.2}%
-\contentsline {subsection}{\numberline {6.2.1}Performance vs. GitHub Search}{49}{subsection.6.2.1}%
-\contentsline {subsection}{\numberline {6.2.2}Performance vs. Ablation Model}{50}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.1}Performance vs GitHub Search}{49}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Performance vs Ablation Model}{50}{subsection.6.2.2}%
 \contentsline {section}{\numberline {6.3}Key Findings}{50}{section.6.3}%
 \contentsline {subsection}{\numberline {6.3.1}Impact of Graph Visualisation and Emergent Inference}{50}{subsection.6.3.1}%
 \contentsline {subsection}{\numberline {6.3.2}Effectiveness of Citation Grounding}{51}{subsection.6.3.2}%

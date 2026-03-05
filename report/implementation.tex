@@ -4,8 +4,8 @@
 \subsection{Iterative Development Process}
 CodeOrient was developed using an iterative approach to continuously refine and integrate feedback. The key stages of the development process are outlined below:
 \begin{enumerate}
-    \item \textbf{Requirement Analysis:} The pain points of new developers navigating unfamiliar codebases were identified to gather initial requirements.
-    \item \textbf{Prototyping:} To validate core concepts, early prototypes of the search and Generative UI systems were built. For example, a simple weather card UI was created to test the Generative UI's capabilities is shown in \textit{Figure~\ref{fig:dynamic_card_generation_weather_app}}.
+    \item \textbf{Requirement Analysis:} Pain points for new developers navigating unfamiliar codebases were identified to gather initial requirements.
+    \item \textbf{Prototyping:} To validate core concepts, early prototypes of the search and Generative UI systems were built. For example, a simple weather card UI was created to test the Generative UI's capabilities, as shown in \textit{Figure~\ref{fig:dynamic_card_generation_weather_app}}.
     \begin{figure}[H]
         \centering
         {\small
@@ -13,14 +13,14 @@ CodeOrient was developed using an iterative approach to continuously refine and 
         \caption{\textit{Prototype of Dynamic Card Generation for Weather App}}
         \label{fig:dynamic_card_generation_weather_app}
         }
-        \end{figure}
-        \item \textbf{Incremental Development:} The search module, code graph analysis, and RAG pipeline were identified as priority features. Development for these features was done incrementally to gather feedback early.
-    \item \textbf{Integrating User Feedback:} Feedback from user testing was regularly incorporated to improve the user experience of CodeOrient.
-    \item \textbf{Final Testing and Optimisation:} The system underwent rigorous testing and automated deployment via CI/CD pipelines to ensure performance and reliability of production release.
+    \end{figure}
+        \item \textbf{Incremental Development:} The search module, code graph analysis, and RAG pipeline were identified as priority features. Development of these features was done incrementally to gather early feedback.
+    \item \textbf{Integrating User Feedback:} User testing feedback was regularly incorporated to improve the CodeOrient user experience.
+    \item \textbf{Final Testing and Optimisation:} The system underwent rigorous testing and automated deployment via CI/CD pipelines to ensure the performance and reliability of production release.
 \end{enumerate}
 
 \subsection{Version Control and Branching Strategy}
-This project utilised Git and GitHub for version control. Feature-branching was used to isolate the development of core features. This ensured that the main branch remained stable and protected for user testing. As for deployment, it was automated through CI/CD pipelines and was deployed to Vercel. \textit{Figure~\ref{fig:git_branching_strategy}} illustrates the branching strategy which squashed feature branches into the main branch after code reviews and testing.
+This project utilised Git and GitHub for version control. Feature-branching was used to isolate the development of core features. This ensured that the main branch remained stable and protected for user testing. As for deployment, it was automated through CI/CD pipelines and was deployed to Vercel. \textit{Figure~\ref{fig:git_branching_strategy}} illustrates the branching strategy which, squashes feature branches into the main branch after code reviews and testing.
 \begin{figure}[H]
     \centering
     {\small
@@ -49,7 +49,7 @@ where:
     \]
     where \( N \) is the total number of documents and \( n(q_i) \) is the number of documents containing term \( q_i \).
 \end{itemize}
-This retrieval method is used by CodeOrient to retrieve code snippets that match the keywords in the user query. For example, if a user searches for an exact function name, BM25 will prioritise documents containing that exact term.
+CodeOrient uses this retrieval method to find code snippets that match the keywords in the user query. For example, if a user searches for an exact function name, BM25 will prioritise documents that contain that term.
 
 \subsubsection{Dense Embedding Retrieval}
 \texttt{bge-large-en-v1.5} embedding model is used for dense retrieval. Each chunk of code is converted to a 1024-dimensional vector and stored in Upstash Vector. This allows the engine to retrieve code snippets based on semantic similarity to the user query. The similarity between the query vector \( Q \) and document vector \( D \) is computed using cosine similarity:
@@ -70,12 +70,12 @@ where:
     \item $(\mu - 3\sigma)$ represents the minimum value (lower tail of the distribution).
     \item $(\mu + 3\sigma)$ represents the maximum value (upper tail of the distribution).
 \end{itemize}
-This approach takes into account the distribution of scores which is more sensitive to variation in score ranges from the different retrieval methods.
+This approach takes into account the distribution of scores, which is more sensitive to variation in score ranges from the different retrieval methods.
 
 \subsection{Code Graph Analysis}
 This section details the transformation of the code chunks into an interactive graph.
 \subsubsection{Dependency Extraction}
-Rather than using AST for traversal, the system utilise a recursive language aware splitting strategy. This approach splits the code into smaller chunks while maintaining the programming language's nuances, syntax and structure. This strategy is outlined in \textit{Algorithm~\ref{alg:recursive_splitting}}.
+Rather than using AST for traversal, the system utilises a recursive language-aware splitting strategy. This approach splits the code into smaller chunks while maintaining the programming language's nuances, syntax and structure. This strategy is outlined in \textit{Algorithm~\ref{alg:recursive_splitting}}.
 
 \begin{algorithm}[H]
 \SetAlgoLined
@@ -150,7 +150,7 @@ External tools are integrated to enhance the LLM's capabilities. The available t
 \end{itemize}
 
 \subsubsection{Dynamic Card Generation}
-Based on the user query, the LLM intelligently selects the appropriate tool(s) to fulfill the request. It then generates a structured JSON object based on the tool(s) chosen which results in different card visualisations. It is dynamically streamed to the frontend for real-time rendering. The different visualisations supported are:
+Based on the user query, the LLM intelligently selects the appropriate tool(s) to fulfil the request. It then generates a structured JSON object based on the chosen tool(s), resulting in different card visualisations. It is dynamically streamed to the frontend for real-time rendering. The different visualisations supported are:
 \begin{itemize}
     \item \textbf{Repository Card} 
     \begin{figure}[H]
@@ -173,13 +173,13 @@ Based on the user query, the LLM intelligently selects the appropriate tool(s) t
 \end{itemize}
 
 \subsection{Large Language Model Integration}
-CodeOrient is model agnostic and can integrate with any LLM providers that support tool-calling. 
+CodeOrient is model-agnostic and can integrate with any LLM providers that support tool-calling. 
 \subsubsection{Model Selection and Justification}
 In this implementation, CodeOrient utilises OpenAI's GPT-4.1-mini model due to its advanced reasoning capabilities and large context window, which prevents "lost in the middle" degradation. Furthermore, the latency and cost-effectiveness of the mini variant make it suitable for real-time applications compared to State-Of-The-Art reasoning models.
 \subsubsection{Prompt Engineering Strategies}
 To optimise the performance of the LLM and reduce hallucinations during code exploration, a Multi-layered Prompting Strategy is employed with specialised personas for different stages of the RAG pipeline:
 \begin{itemize}
-    \item \textbf{Search Architect Persona:} This persona's responsibility is to decompose a user's query into a structured search plan. The plan entails the steps it will take before generating a graph. The most important responsibility is to break down complex queries into non-overlapping sub-queries that target different parts of the codebase. Additionally, the repository's tree is provided as context to guide the planning process. This reduces the hallucination of non-existent files or functions. In \textit{Figure~\ref{fig:planning_example}}, the step by step breakdown of the planning process is illustrated to the user.
+    \item \textbf{Search Architect Persona:} This persona's responsibility is to decompose a user's query into a structured search plan. The plan entails the steps it will take before generating a graph. The most important responsibility is to break down complex queries into non-overlapping sub-queries that target different parts of the codebase. Additionally, the repository's tree is provided as context to guide the planning process. This reduces the hallucination of non-existent files or functions. In \textit{Figure~\ref{fig:planning_example}}, the step-by-step breakdown of the planning process is illustrated to the user.
     \begin{figure}[H]
         \centering
         {\small
@@ -188,7 +188,7 @@ To optimise the performance of the LLM and reduce hallucinations during code exp
         \label{fig:planning_example}
         }
     \end{figure}
-    \item \textbf{Gap Analyser Persona:} To give the LLM autonomy in exploring the codebase, this persona acts as a quality control layer to identify gaps in the retrieved context. An additional search iteration with refined queries will be triggered if the context is deemed insufficient. This iterative process continues until the LLM can answer the user's query accurately. \textit{Figure~\ref{fig:gap_analysis_example}} illustrates an example of the LLM identifying a need for additional context.
+    \item \textbf{Gap Analyser Persona:} To give the LLM autonomy in exploring the codebase, this persona acts as a quality control layer to identify gaps in the retrieved context. An additional search iteration with refined queries will be triggered if the context is deemed insufficient. This iterative process continues until the LLM can accurately answer the user's query. \textit{Figure~\ref{fig:gap_analysis_example}} illustrates an example of the LLM identifying a need for additional context.
     \begin{figure}[H]
         \centering
         {\small
@@ -232,7 +232,7 @@ To increase the credibility of the generated answer, all sources retrieved from 
     \centering
     {\small
     \includegraphics[width=5.5in]{fig/fig14.png}
-    \caption{\textit{Example of sources retrieved from RAG pipeline}}
+    \caption{\textit{Example of sources retrieved from the RAG pipeline}}
     \label{fig:rag_sources_example}
     }
 \end{figure}
@@ -354,7 +354,7 @@ The account dashboard allows users to monitor their interaction with the platfor
 \end{figure}
 
 \subsection{Sharing of Conversations}
-To facilitate collaboration, CodeOrient supports the sharing of conversations via unique read-only links. \textit{Figure~\ref{fig:sharing_conversation_link}} illustrates the shared chat view where authorised users can view the conversation history in a read-only format.
+To facilitate collaboration, CodeOrient supports the sharing of conversations via unique read-only links. \textit{Figure~\ref{fig:sharing_conversation_link}} illustrates the shared chat view where authorised users can view the conversation history in read-only mode.
 \begin{figure}[H]
     \centering
     {\small
@@ -380,4 +380,4 @@ This interface allows users to customise their experience. As illustrated in \te
 As GitHub API has strict rate limits, retrieving large codebases can be time-consuming. To address this challenge, the system implements a \textbf{Streaming Tarball Strategy}. Instead of making multiple API calls, the system fetches a single compressed \texttt{.tar.gz} archive, reducing network calls by over 90\% and processing repository data entirely in-memory.
 
 \subsection{Real-Time Graph Updates}
-LLMs can take several seconds to generate responses, which can lead to a suboptimal user experience. Hence, Server-Sent Events (SSE) is used to stream the graph data incrementally which allows React Flow to render an empty canvas initially and progressively add nodes and edges after the generation has completed.
+LLMs can take several seconds to generate responses, leading to a suboptimal user experience. Hence, Server-Sent Events (SSE) is used to stream the graph data incrementally, which allows React Flow to render an empty canvas initially and progressively add nodes and edges after the generation has completed.

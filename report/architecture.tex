@@ -1,14 +1,14 @@
 \chapter{System Design and Architecture}
 
 \section{System Overview}
-This chapter details the system architecture of CodeOrient. It will provide the high-level overview of the core components, data flow architecture, frontend and backend design, data pipeline, and technical stack summary.
+This chapter details the system architecture of CodeOrient. It will provide a high-level overview of the core components, data flow architecture, frontend and backend design, data pipeline, and technical stack summary.
 
 \subsection{Core Components}
 The design of CodeOrient is composed of four main components:
 \begin{itemize}
-    \item \textbf{User Interface:} Built with Next.js and React Flow to provide an interactive experience between the user and AI assistant.
+    \item \textbf{User Interface:} Built with Next.js and React Flow to provide an interactive experience between the user and the AI assistant.
     \item \textbf{LLM Assistant:} Vercel AI SDK and OpenAI are utilised for natural language processing, tool calling, and response generation.
-    \item \textbf{Code Search Engine:} A hybrid search engine that combines semantic search with keyword-based retrieval to find relevant code snippets which fallbacks to GitHub Search API when necessary.
+    \item \textbf{Code Search Engine:} A hybrid search engine that combines semantic search with keyword-based retrieval to find relevant code snippets, falling back to the GitHub Search API when necessary.
     \item \textbf{Storage Solutions:} PostgreSQL is used for storing structured data, Upstash Redis for caching frequent queries, and Upstash Vector for storing vector embeddings of code chunks.
 \end{itemize}
 
@@ -25,7 +25,7 @@ A multi-stage pipeline optimised for speed and quality of responses is built to 
 \end{figure}
 
 \subsection{Code Indexing Phase}
-Code indexing is a prerequisite step that ingests the required code repository for vector-based retrieval. This phase parses the source code files, chunks them, and generates vector embeddings to be stored in a vector database. To improve the recall, docstrings and comments are extracted as well. In cases where indexing is not performed, CodeOrient falls back to searching the codebase directly via GitHub Search API during query time.
+Code indexing is a prerequisite step that ingests the required code repository for vector-based retrieval. This phase parses the source code files, chunks them, and generates vector embeddings for storage in a vector database. To improve recall, docstrings and comments are also extracted. In cases where indexing is not performed, CodeOrient falls back to searching the codebase directly via GitHub Search API during query time.
 
 \subsection{Query Response Phase}
 This phase is triggered when a user submits a query. The steps involved are as follows:
@@ -38,7 +38,7 @@ This phase is triggered when a user submits a query. The steps involved are as f
     \end{itemize}
     \item \textbf{Autonomous RAG Pipeline:} This pipeline represents the core reasoning engine of CodeOrient.
     \begin{itemize}
-        \item \textbf{Query Understanding and Planning:} The LLM first understands and rephrases the user's query. This step fixes any potential errors such as typos, ambiguous terms. If there is insufficient context, the LLM will prompt the user for more information instead. Next, the LLM generates a plan to decompose the query into sub-tasks, generating up to 3 sub-queries for retrieval.
+        \item \textbf{Query Understanding and Planning:} The LLM first understands and rephrases the user's query. This step fixes potential errors, such as typos and ambiguous terms. If there is insufficient context, the LLM will prompt the user for more information instead. Next, the LLM generates a plan to decompose the query into sub-tasks, generating up to 3 sub-queries for retrieval.
         \item \textbf{Hybrid Retrieval and Ranking:} Each sub-query is converted into embeddings before retrieving the top-K relevant code chunks from the vector database. A ranking mechanism based on Distributed-Based Score Fusion (DBSF) is applied to combine results from both semantic and sparse search. 
         \item \textbf{LLM Evaluation Loop:} This step utilises an autonomous and specialised LLM for context evaluation. If the context is deemed insufficient, the LLM will trigger additional searches in a loop until it gathers sufficient context to confidently answer the user query. 
     \end{itemize}
@@ -50,11 +50,11 @@ This phase is triggered when a user submits a query. The steps involved are as f
 CodeOrient utilises Next.js API Route Handlers to create a modular, serverless backend. This separates logical concerns while maintaining the codebase as a monorepo for quicker development cycles. Additionally, when it is deployed in a serverless environment (Vercel), each Route Handler (e.g., \texttt{/api/search} vs \texttt{/api/index}) scales independently based on traffic.
 Even as a monorepo, the backend logic is divided into specialised services that operate independently:
 \begin{itemize}
-    \item \textbf{Ingestion Service:} Handles the ingesting of code repositories from GitHub API asynchronously through background jobs, allowing the frontend to remain responsive.
-    \item \textbf{Vector Orchestration Service:} Manages the communication with the vector database which handles embedding generation and semantic search.
+    \item \textbf{Ingestion Service:} Handles the ingestion of code repositories from GitHub API asynchronously through background jobs, allowing the frontend to remain responsive.
+    \item \textbf{Vector Orchestration Service:} Manages the communication with the vector database, which handles embedding generation and semantic search.
     \item \textbf{RAG Agent:} Specialised agent that has access to various tools such as Code Search, Graph Generation, etc. It maintains the state of the search by deciding if the retrieved content is sufficient to answer the query or if more code snippets are required.
     \item \textbf{Code Search Service:} Interfaces with GitHub Search API to discover relevant code snippets based on user queries.
-    \item \textbf{Persistence and Cache Service:} Prisma, a dedicated Object Relational Mapping (ORM) service is used to interact with PostgreSQL for persistence chat history and Redis client to interact with Upstash Redis for caching frequent queries.
+    \item \textbf{Persistence and Cache Service:} Prisma, a dedicated Object Relational Mapping (ORM) service, is used to interact with PostgreSQL for persistence of chat history and a Redis client to interact with Upstash Redis for caching frequent queries.
 \end{itemize}
 
 
@@ -66,7 +66,7 @@ Even as a monorepo, the backend logic is divided into specialised services that 
 \end{itemize}
 
 \subsection{User Interface Design}
-This section discusses the key design principles and layout of the chat page of CodeOrient application. \textit{Figure~\ref{fig:chat_page_layout}} showcases the chat page layout which features a split-pane design that prioritise the chat interface with the AI assistant and the source code.
+This section discusses the key design principles and layout of the chat page of the CodeOrient application. \textit{Figure~\ref{fig:chat_page_layout}} showcases the chat page layout, which features a split-pane design that prioritises the chat interface with the AI assistant and the source code.
 \begin{figure}[H]
     \centering
     {\small
@@ -85,12 +85,12 @@ The main components of the chat page layout include:
 \end{itemize}    
 
 \subsection{Interactive Graph Visualisation with React Flow}
-Static architecture diagrams are often high-level and extremely abstracted, making it difficult for users to scope in on a specific module. To address this, CodeOrient integrates LLMs and React Flow to visualise a subset of the code repository as an interactive graph. The core components of a graph visualisation include:
+Static architecture diagrams are often high-level and extremely abstracted, making it difficult for users to zoom in on a specific module. To address this, CodeOrient integrates LLMs and React Flow to visualise a subset of the code repository as an interactive graph. The core components of a graph visualisation include:
 
 \begin{itemize}
     \item \textbf{Nodes as Entities:} Nodes represent high-level code entities such as files, functions, classes, and components. Each node contains metadata about the entity type, file path, code snippet and description.
-    \item \textbf{Edges as Relationships:} Dependencies are represented as directed edges between nodes, illustrating how data and logic flow between different parts of the codebase where common relationship types include imports, calls, extends, and uses. For example, Component A importing a Function B would be represented as an edge from Node A to Node B.
-    \item \textbf{Interactive Features:} Additional interactive features such as panning, zooming, or hovering over nodes are implemented to improve code understanding and navigation within the codebase. In \textit{Figure~\ref{fig:graph_visualisation}}, hovering over a node displays a tooltip containing more information about the node.
+    \item \textbf{Edges as Relationships:} Dependencies are represented as directed edges between nodes, illustrating how data and logic flow between different parts of the codebase, where common relationship types include imports, calls, extends, and uses. For example, Component A importing a Function B would be represented as an edge from Node A to Node B.
+    \item \textbf{Interactive Features:} Additional interactive features, such as panning, zooming, or hovering over nodes, are implemented to improve code understanding and navigation within the codebase. In \textit{Figure~\ref{fig:graph_visualisation}}, hovering over a node displays a tooltip containing more information about the node.
     \begin{figure}[H]
         \centering
         {\small
@@ -102,13 +102,13 @@ Static architecture diagrams are often high-level and extremely abstracted, maki
 \end{itemize}
 
 \subsection{Generative UI Card Components}
-Standard LLM responses are limited to text or markdown outputs. Often, this is insufficient to convey complex code structures or relationships. To address this, CodeOrient adopted a Generative UI architecture where the LLM is able to generate structured JSON objects that renders as functional React components. 
+Standard LLM responses are limited to text or markdown outputs. Often, this is insufficient to convey complex code structures or relationships. To address this, CodeOrient adopted a Generative UI architecture in which the LLM generates structured JSON objects that render as functional React components. 
 
-Based on the user's query, the LLM autonomously decides which component to generate. For example, if the user asks about their list of repositories, the LLM would generate a ``Repository Card" component. To simulate a smoother user experience, the component data is streamed into the UI, allowing the card to populate incrementally, thereby reducing perceived latency.
+Based on the user's query, the LLM autonomously decides which component to generate. For example, if the user asks about their list of repositories, the LLM would generate a ``Repository Card" component. To simulate a smoother user experience, the component data is streamed to the UI, allowing the card to populate incrementally and reducing perceived latency.
 
 \section{Backend Architecture}
 \subsection{API Design}
-A RESTful API design pattern is adopted to create a clear separation of concerns between different backend services. Each endpoint is implemented as a serverless function, allowing each service to scale independently based on demand. The API is divided into four primary services:
+A RESTful API design pattern is adopted to achieve a clear separation of concerns among backend services. Each endpoint is implemented as a serverless function, allowing each service to scale independently based on demand. The API is divided into four primary services:
 \begin{itemize}
     \item \textbf{Authentication API:} Manages user login, registration, and session management.
     \item \textbf{Ingestion API:} Manages the lifecycle of ingesting and indexing code repositories from GitHub API.
@@ -121,11 +121,11 @@ Traditional keyword-based or fuzzy search methods fail to capture the intent beh
 \begin{enumerate}
     \item \textbf{GitHub Octokit:} The engine uses GitHub's Octokit library to fetch private repository contents from the user's account. This allows the system to access up-to-date codebases for indexing.
     \item \textbf{Hybrid Retrieval Strategy:} The engine utilises \texttt{bge-large-en-v1.5}, an embedding model to perform semantic search in Upstash Vector. Furthermore, it conducts a sparse search to find documents based on keyword frequency and term importance. 
-    \item \textbf{Filter Mechanism:} To prevent cross-project contamination, the vector database is partitioned by repository and user ID. To further refine search results, the engine supports metadata filtering such as file type or entity type.
+    \item \textbf{Filter Mechanism:} To prevent cross-project contamination, the vector database is partitioned by repository and user ID. To further refine search results, the engine supports metadata filtering, such as file type or entity type.
     \item \textbf{Ranking Mechanism:} To balance between sparse and dense retrievals, retrieved code snippets are ranked using Distributed-Based Score Fusion (DBSF).
 \end{enumerate}
 \subsection{LLM Integration and RAG Pipeline}
-Creating an autonomous RAG pipeline allows the LLM to move beyond simple search and retrieval patterns. Instead, the LLM follows a more complex reasoning process:
+Creating an autonomous RAG pipeline enables the LLM to move beyond simple search-and-retrieval patterns. Instead, the LLM follows a more complex reasoning process:
 \begin{enumerate}
     \item \textbf{Query Rephrasing:} The LLM first rephrases the user's query into multiple optimised sub-queries to improve recall during retrieval.
     \item \textbf{Autonomous Reasoning Loop:} The pipeline implements a loop where the LLM will evaluate the initial search results. If a certain context is missing, the LLM will autonomously generate secondary searches before finalising the response. For example, if the LLM finds a function call but is missing the definition, the agent identifies the missing piece and triggers another search specifically for that function definition.
@@ -133,23 +133,23 @@ Creating an autonomous RAG pipeline allows the LLM to move beyond simple search 
 \end{enumerate}
 
 \section{Data Pipeline}
-This section details the four stage data pipeline that transforms code repositories into a structured knowledge base.
+This section details the four-stage data pipeline that transforms code repositories into a structured knowledge base.
 \subsection{Repository Ingestion}
 The system uses an efficient streaming ingestion strategy to bypass GitHub API rate limits. The key optimisations are as follows:
 \begin{enumerate}
     \item The system fetches the entire repository as a compressed \texttt{.tar.gz} archive in a single request using GitHub's Octokit.
-    \item The system utilises LangChain to extract code chunks from the archive in memory to speed up the ingestion process.
+    \item The system utilises LangChain to extract code chunks from the archive in memory, speeding up the ingestion process.
     \item During ingestion, a whitelist containing indexable file types (e.g., \texttt{.ts}, \texttt{.py}, \texttt{.go}) is used to filter out non-essential files (e.g., DockerFile).
 \end{enumerate}
 \subsection{Chunking Strategy}
-Instead of indexing one file as a single document, the engine splits each code file into smaller ``logical" chunks while ensuring that each chunk maintains coherence during retrieval.
+Instead of indexing a single file as a single document, the engine splits each code file into smaller ``logical" chunks, ensuring each chunk maintains coherence during retrieval.
 \begin{enumerate}
-    \item The system uses \texttt{RecursiveCharacterTextSplitter} with its \texttt{.fromLanguage()} method to parse code files based on their programming langauge. The advantage of this approach is that it prioritises splitting at language specific boundaries (e.g., functions, classes) rather than arbitrary character limits.
-    \item Each chunk is limited to a maximum of 1,500 tokens with a chunk overlap of 200 tokens. This overlap is key to maintain context across chunk boundaries, ensuring that related code segments are not lost during retrieval.
+    \item The system uses \texttt{RecursiveCharacterTextSplitter} with its \texttt{.fromLanguage()} method to parse code files based on their programming language. The advantage of this approach is that it prioritises splitting at language-specific boundaries (e.g., functions, classes) rather than arbitrary character limits.
+    \item Each chunk is limited to 1,500 tokens with a chunk overlap of 200 tokens. This overlap is key to maintaining context across chunk boundaries, ensuring that related code segments are not lost during retrieval.
 \end{enumerate}
 
 \subsection{Metadata Extraction}
-To provide richer context during retrieval, each code chunk contains additional metadata fields that are extracted during the parsing stage.
+To provide a richer context during retrieval, each code chunk includes additional metadata fields extracted during parsing.
 \begin{enumerate}
     \item The parser is utilised to scan for docstrings or comments preceding code entities. These high-level summaries provide semantic context during retrieval, improving the relevance of search results.
     \item To provide accurate citations during response generation, each chunk is tagged with its \texttt{filePath}, \texttt{repoFullName}, specific \texttt{startLine} and \texttt{endLine}.
@@ -158,8 +158,8 @@ To provide richer context during retrieval, each code chunk contains additional 
 \subsection{Storage of Code Chunks}
 The final stage involves storing the processed code chunks for low-latency retrieval during query time.
 \begin{enumerate}
-    \item The system uses Prisma ORM and PostgereSQL to track the real-time progress of the indexing lifecycle of each repository to the user (e.g., \texttt{CLONING}~$\rightarrow$~\texttt{PARSING}~$\rightarrow$ \allowbreak \texttt{INDEXING}~$\rightarrow$~\texttt{COMPLETED}). In the case of a network interruption, this serves as a checkpoint to resume indexing.
-    \item To optimise throughput, code chunks in batches of 100 are converted into embeddings using \texttt{bge-large-en-v1.5} model and upserted into Upstash Vector.
+    \item The system uses Prisma ORM and PostgresSQL to track the real-time progress of the indexing lifecycle of each repository to the user (e.g., \texttt{CLONING}~$\rightarrow$~\texttt{PARSING}~$\rightarrow$ \allowbreak \texttt{INDEXING}~$\rightarrow$~\texttt{COMPLETED}). In the event of a network interruption, this serves as a checkpoint to resume indexing.
+    \item To optimise throughput, code chunks are converted into embeddings using the \texttt{bge-large-en-v1.5} model and upserted into Upstash Vector in batches of 100.
 \end{enumerate}
 
 \section{Technical Stack Summary}

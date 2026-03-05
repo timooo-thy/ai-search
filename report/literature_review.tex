@@ -1,6 +1,6 @@
 \chapter{Literature Review}
 
-New developers often struggle with understanding new and unfamiliar codebases, leading to prolonged onboarding times and reduced productivity. Various strategies have been proposed to address this challenge such as improved documentation practices. However, these methods often fall short in providing comprehensive and efficient solutions for code comprehension. The rise in adoption of AI-assisted tools has introduced new challenges. One key challenge is that these tools hallucinate information that is often not grounded in actual source code. Furthermore, large codebases make it harder for LLMs to comprehend due to its limited context window.
+New developers often struggle with understanding new and unfamiliar codebases, leading to prolonged onboarding times and reduced productivity. Various strategies have been proposed to address this challenge, such as improved documentation practices. However, these methods often fall short in providing comprehensive and efficient solutions for code comprehension. The rise in adoption of AI-assisted tools has introduced new challenges. One key challenge is that these tools hallucinate information that is often not grounded in actual source code. Furthermore, large codebases make it harder for LLMs to comprehend due to their limited context window.
 
 This literature review examines five interrelated research domains critical to CodeOrient, an AI Search Tool for code comprehension:
 
@@ -16,7 +16,7 @@ The combination of these areas provides the theoretical foundation for building 
 \section{Software Complexity Metrics and Code Quality Measurements}
 
 \subsection{Cyclomatic Complexity as Foundation}
-Thomas J.McCabe introduced cyclomatic complexity, a quantitative measure of program complexity based on control graph flow analysis \cite{mccabe1976}. His work established that cyclomatic complexity directly correlates with code maintainability and testing. The formula $M=E-N+2P$, where $E$ represents edges, $N$ represents nodes, and $P$ represents the number of connected components in a control flow graph, represents the complexity as the number of linearly independent paths through a program’s source code \cite{mccabe1976}. As shown in \textit{Figure~\ref{fig:control_flow_graph}}, a simple control flow graph of a function below yields a complexity of 2, where $P=1$.
+Thomas J.McCabe introduced cyclomatic complexity, a quantitative measure of program complexity based on control graph flow analysis \cite{mccabe1976}. His work established that cyclomatic complexity directly correlates with code maintainability and testing. The formula $M=E-N+2P$, where $E$ represents edges, $N$ represents nodes, and $P$ represents the number of connected components in a control flow graph, and represents the complexity as the number of linearly independent paths through a program’s source code \cite{mccabe1976}. As shown in \textit{Figure~\ref{fig:control_flow_graph}}, a simple control flow graph of a function below yields a complexity of 2, where $P=1$.
 
 \begin{figure}[H]
     \centering
@@ -53,12 +53,12 @@ where $\vec{a}$ and $\vec{b}$ are the embedding vectors of the query and code sn
 \end{figure}
 
 \subsection{Structural Code Search with Domain-Specific Languages}
-Recent research conducted in 2025 explored structural code search techniques using Domain-Specific Languages (DSLs). Limpanukorn et al. proposed translating natural language queries into DSL queries which capture the structural relationships within a codebase, which goes beyond mere semantic similarity \cite{limpanukorn2025}. Their approach achieved a precision score of 55-70\% and outperformed semantic search baselines by up to 57\% on F1 scores \cite{limpanukorn2025}.
+Recent research conducted in 2025 explored structural code search techniques using Domain-Specific Languages (DSLs). Limpanukorn et al. proposed translating natural language queries into DSL queries, which capture the structural relationships within a codebase, which goes beyond mere semantic similarity \cite{limpanukorn2025}. Their approach achieved a precision score of 55-70\% and outperformed semantic search baselines by up to 57\% on F1 scores \cite{limpanukorn2025}.
 
 This research presents a critical missing link in developer tools, such as tracing an ``authentication flow'', where the relationships between modules are more informative than the functions' names themselves. Their findings highlight the need for code graph visualisation to represent these structural relationships effectively.
 
 \subsection{Retrieval using Code Embedding Models}
-Qodo introduced specialised code embedding models (Qodo Embed-1) that achieved state-of-the-art performance (product score of 3.72/5) in Codebase Understanding Gartner{\textregistered} in 2025 \cite{tai2025}. Their approach bypasses the intermediate language description step. Instead, their models directly encode code semantics, resulting the models to be computationally efficient while maintaining high retrieval accuracy for code search tasks \cite{tai2025}. 
+Qodo introduced specialised code embedding models (Qodo Embed-1) that achieved state-of-the-art performance (product score of 3.72/5) in Codebase Understanding Gartner{\textregistered} in 2025 \cite{tai2025}. Their approach bypasses the intermediate language description step. Instead, their models directly encode code semantics, resulting in the models being computationally efficient while maintaining high retrieval accuracy for code search tasks \cite{tai2025}. 
 
 \section{AI Hallucination and Grounded Code Comprehension}
 
@@ -94,7 +94,7 @@ The broader principle emerging from hallucination research is Retrieval-Augmente
 \section{Code Visualisation and Dependency Analysis}
 
 \subsection{Static Analysis and Dependency Graphs}
-To understand the real structure of a codebase, dependency graphs are essential. Using entities as nodes and relationships as edges, code graphs provide a visual representation of how different components interact with each other \cite{jit2025}. The lack of visualisation makes it difficult for developers to grasp the complex relationship that are present in modern software architectures. This motivates CodeOrient's code graph visualisation feature to help developers trace data flows across multiple modules, functions, and files. 
+To understand the real structure of a codebase, dependency graphs are essential. Using entities as nodes and relationships as edges, code graphs provide a visual representation of how different components interact \cite{jit2025}. The lack of visualisation makes it difficult for developers to grasp the complex relationships that are present in modern software architectures. This motivates CodeOrient's code graph visualisation feature to help developers trace data flows across multiple modules, functions, and files. 
 
 \subsection{Interactive Visualisation Tools}
 Among many code visualisation libraries, React Flow stands out for its interactivity and ease of integration with React applications \cite{jovanov2025}. React Flow allows developers to create interactive visualisations of code relationships. Rather than traditional large static diagrams, developers can pan and hover over nodes to reveal additional information, which is crucial for understanding complex codebases.
@@ -102,13 +102,13 @@ Among many code visualisation libraries, React Flow stands out for its interacti
 \section{Generative User Interface (UI)}
 
 \subsection{Adaptive and Dynamic Interfaces}
-Generative UI is an emerging field research by Google that focuses on using LLMs to generate dynamic UIs \cite{leviathan2025}. This extends the capability of text-based LLMs to generate UIs using task-driven data models \cite{cao2025}. Different queries will produce different UIs at runtime, allowing for highly personalised and adaptive interfaces. Their research shifts away from generating UI code snippets towards generating UI data models that is more aligned with user intent \cite{cao2025}. This approach directly motivates the use of Generative UI by rendering UI components instead of text-based responses in CodeOrient.
+Generative UI is an emerging field of research by Google that focuses on using LLMs to generate dynamic UIs \cite{leviathan2025}. This extends the capability of text-based LLMs to generate UIs using task-driven data models \cite{cao2025}. Different queries will produce different UIs at runtime, allowing for highly personalised and adaptive interfaces. Their research shifts away from generating UI code snippets towards generating UI data models that are more aligned with user intent \cite{cao2025}. This approach directly motivates the use of Generative UI by rendering UI components instead of text-based responses in CodeOrient.
 
 \section{Research Gaps and Motivation}
 The reviewed literature highlights several advancements in software complexity metrics, semantic code search, hallucination mitigation, code visualisation, and Generative UI. However, there has been limited work in integrating these advancements into a cohesive system for developer onboarding. The following research gaps motivate the development of CodeOrient:
 
 \subsection{Bridging Semantic and Structural Code Search}
-Current tools typically favour either semantic search (finding code that looks right) or structural analysis (finding code that is connected). As noted by Limpanukorn et al. (2025), structural search outperforms semantic baselines, yet most AI tools like GitHub Copilot still rely primarily on text-based RAG. There is a lack of research into how Generative UI can bridge this gap by dynamically synthesising a visual graph that represents both the user's natural language intent and the codebase's physical architecture.
+Current tools typically favour either semantic search (finding code that looks right) or structural analysis (finding code that is connected). As noted by Limpanukorn et al. (2025), structural search outperforms semantic baselines, yet most AI tools like GitHub Copilot still relies primarily on text-based RAG. There is a lack of research into how Generative UI can bridge this gap by dynamically synthesising a visual graph that represents both the user's natural language intent and the codebase's physical architecture.
 
 \subsection{The ``Black Box'' of Generative UI in Software Engineering}
 Research by Leviathan et al. \cite{leviathan2025} and Cao et al. \cite{cao2025} establishes the framework for task-driven UIs. However, these studies focus on general tasks such as education or shopping, as shown in \textit{Figure~\ref{fig:generative_ui}}. In the high-stakes domain of software engineering, it is unknown how a constantly changing, generative interface affects a developer's productivity. CodeOrient will serve as an experimental platform to explore whether Generative UI can effectively reduce cognitive load and accelerate code comprehension for developers.
