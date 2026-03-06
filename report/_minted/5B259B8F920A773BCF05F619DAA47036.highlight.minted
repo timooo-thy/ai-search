@@ -51,7 +51,7 @@ model Part \PYGZob{}
 
   // Generative UI and Tool Metadata
   tool\PYGZus{}toolCallId           String?
-  tool\PYGZus{}visualiseCodeGraph\PYGZus{}output Json? // Stores React Flow graph data
+  tool\PYGZus{}visualiseCodeGraph\PYGZus{}output Json?
   data\PYGZus{}codeGraph            Json?
 
   @@map(\PYGZdq{}part\PYGZdq{})
