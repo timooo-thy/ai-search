@@ -24,7 +24,7 @@ model IndexedRepository \PYGZob{}
   @@map(\PYGZdq{}indexed\PYGZus{}repository\PYGZdq{})
 \PYGZcb{}
 
-// Conversational State with Generative UI Support
+// Conversational State + Generative UI Support
 model Chat \PYGZob{}
   id        String    @id @default(cuid())
   title     String

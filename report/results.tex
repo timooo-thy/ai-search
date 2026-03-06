@@ -97,11 +97,11 @@ The ``multi-hop" retrieval mentioned in \autoref{Case_Study_1} showcases how the
 Without caching, the system's average latency is 62.79s. The RAG pipeline and Evaluation Loop, which requires multiple calls to the LLM and vector database, are the main contributors to this latency. Although caching strategies have been implemented to reduce latency for repeated queries, cold-start latency remains a concern for user experience. One solution implemented was to stream the response as it is generated, reducing the perceived latency for users.
 
 \subsubsection{Context Window}
-Current LLMs have a limited context window, which can pose challenges for queries that require retrieving many relevant files. If retrieved code snippets exceed the context window, they may result in incomplete or inaccurate responses.
+Although the context window of LLMs has increased significantly, it is still limited compared to the size of codebases. This can pose challenges for queries that require retrieving many relevant files. If the retrieved code snippets exceed the context window, the generated responses may be incomplete or inaccurate.
 
 \subsection{Threats to Validity}
 \subsubsection{Internal Validity} 
-As LLMs are inherently stochastic, results may vary across evaluation runs. This could potentially affect the internal validity of the evaluation. To mitigate this, a temperature of 0.0 was used for all LLM calls to ensure a more deterministic output.
+As LLMs are non-deterministic, there may be variations in results across evaluation runs. This could potentially affect the internal validity of the evaluation. In order to migate this issue, a temperature of 0.0 was used for all LLM inference calls to ensure a more deterministic and reproducible output.
 
 Additionally, it is important to acknowledge that evaluating faithfulness and graph recall involves some subjectivity. To address this, clear guidelines and criteria were established for scoring these metrics to ensure consistency and reduce bias. 
 \subsubsection{External Validity}

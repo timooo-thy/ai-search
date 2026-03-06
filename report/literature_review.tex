@@ -30,7 +30,7 @@ Thomas J.McCabe introduced cyclomatic complexity, a quantitative measure of prog
 McCabe's complexity measure allows developers to identify highly complex functions and recognise problematic code sections that require refactoring. When implementing the code graph visualisation feature in a code search application, cyclomatic complexity serves as one signal among many to highlight high-risk or critical code sections. 
 
 \subsection{Modern Complexity in Distributed Systems}
-Kafura's recent reflection on McCabe's work in 2025 acknowledges that cyclomatic complexity has proven durable for the last 50 years. However, modern software architectures, such as distributed systems and microservices, require additional metrics beyond control flow analysis \cite{kafura2025}. This observation showcases the potential of integrating graph visualisation into modern AI assistants to help developers understand not just function-level complexity but also system-level interactions.
+Kafura's recent reflection on McCabe's work in 2025 acknowledges that cyclomatic complexity has proven durable for the last 50 years. However, modern software architectures, such as distributed systems and microservices, require additional metrics beyond control flow analysis \cite{kafura2025}. This observation showcases the potential of integrating graph visualisation into modern AI assistants to help developers understand both functional and architectural complexity.
 
 \section{Code Search and Natural Language Query Processing}
 
@@ -94,7 +94,7 @@ The broader principle emerging from hallucination research is Retrieval-Augmente
 \section{Code Visualisation and Dependency Analysis}
 
 \subsection{Static Analysis and Dependency Graphs}
-To understand the real structure of a codebase, dependency graphs are essential. Using entities as nodes and relationships as edges, code graphs provide a visual representation of how different components interact \cite{jit2025}. The lack of visualisation makes it difficult for developers to grasp the complex relationships that are present in modern software architectures. This motivates CodeOrient's code graph visualisation feature to help developers trace data flows across multiple modules, functions, and files. 
+To understand the real structure of a codebase, dependency graphs are essential. Using entities as nodes and relationships as edges, code graphs provide a visual representation of how different components interact with each other \cite{jit2025}. The lack of visualisation makes it difficult for developers to grasp the complex relationship that are present in modern software architectures. This motivates CodeOrient’s code graph visualisation feature to help developers trace data flows across multiple modules, functions, and files.
 
 \subsection{Interactive Visualisation Tools}
 Among many code visualisation libraries, React Flow stands out for its interactivity and ease of integration with React applications \cite{jovanov2025}. React Flow allows developers to create interactive visualisations of code relationships. Rather than traditional large static diagrams, developers can pan and hover over nodes to reveal additional information, which is crucial for understanding complex codebases.

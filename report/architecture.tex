@@ -1,14 +1,14 @@
 \chapter{System Design and Architecture}
 
 \section{System Overview}
-This chapter details the system architecture of CodeOrient. It will provide a high-level overview of the core components, data flow architecture, frontend and backend design, data pipeline, and technical stack summary.
+This chapter details the system architecture of CodeOrient. It will provide the high-level overview of the core components, data flow architecture, frontend and backend design, data pipeline, and technical stack summary.
 
 \subsection{Core Components}
 The design of CodeOrient is composed of four main components:
 \begin{itemize}
-    \item \textbf{User Interface:} Built with Next.js and React Flow to provide an interactive experience between the user and the AI assistant.
+    \item \textbf{User Interface:} Built with Next.js and React Flow to provide an interactive experience between the user and AI assistant.
     \item \textbf{LLM Assistant:} Vercel AI SDK and OpenAI are utilised for natural language processing, tool calling, and response generation.
-    \item \textbf{Code Search Engine:} A hybrid search engine that combines semantic search with keyword-based retrieval to find relevant code snippets, falling back to the GitHub Search API when necessary.
+    \item \textbf{Code Search Engine:} A hybrid search engine that combines semantic search with keyword-based retrieval to find relevant code snippets which fallbacks to GitHub Search API when necessary.
     \item \textbf{Storage Solutions:} PostgreSQL is used for storing structured data, Upstash Redis for caching frequent queries, and Upstash Vector for storing vector embeddings of code chunks.
 \end{itemize}
 
@@ -25,7 +25,7 @@ A multi-stage pipeline optimised for speed and quality of responses is built to 
 \end{figure}
 
 \subsection{Code Indexing Phase}
-Code indexing is a prerequisite step that ingests the required code repository for vector-based retrieval. This phase parses the source code files, chunks them, and generates vector embeddings for storage in a vector database. To improve recall, docstrings and comments are also extracted. In cases where indexing is not performed, CodeOrient falls back to searching the codebase directly via GitHub Search API during query time.
+Code indexing is a prerequisite step that ingests the required code repository for vector-based retrieval. This phase parses the source code files, chunks them, and generates vector embeddings to be stored in a vector database. To improve the recall, docstrings and comments are extracted as well. In cases where indexing is not performed, CodeOrient falls back to searching the codebase directly via GitHub Search API during query time.
 
 \subsection{Query Response Phase}
 This phase is triggered when a user submits a query. The steps involved are as follows:
@@ -66,7 +66,7 @@ Even as a monorepo, the backend logic is divided into specialised services that 
 \end{itemize}
 
 \subsection{User Interface Design}
-This section discusses the key design principles and layout of the chat page of the CodeOrient application. \textit{Figure~\ref{fig:chat_page_layout}} showcases the chat page layout, which features a split-pane design that prioritises the chat interface with the AI assistant and the source code.
+This section discusses the key design principles and layout of the chat page of CodeOrient application. \textit{Figure~\ref{fig:chat_page_layout}} showcases the chat page layout, which features a split-pane design that prioritises the chat interface with the AI assistant and the source code.
 \begin{figure}[H]
     \centering
     {\small

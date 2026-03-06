@@ -24,7 +24,7 @@ Based on the research questions, the following hypotheses are proposed:
 \section{Experimental Setup}
 To rigorously test the hypotheses, an evaluation pipeline is created to simulate real-world developer queries and measure the performance of CodeOrient against baselines.
 \subsection{Dataset}
-The evaluation dataset consists of 30 distinct natural language queries across 3 open-source projects with varying codebase sizes (\href{https://github.com/fastapi/fastapi}{\texttt{fastapi/fastapi}}, \href{https://github.com/shadcn-ui/ui}{\texttt{shadcn-ui/ui}}, \href{https://github.com/langchain-ai/langchain}{\texttt{langchain-ai/langchain}}). The queries are designed to reflect real-world intents, which range from simple component location (e.g., ``Where is the accessible dialog overlay logic?") to more complex architectural questions (e.g., ``How does the system resolve and inject dependencies?"). Each query was executed across all evaluated methods to establish a direct comparison. The full list of queries is provided in \autoref{appendix:Quantitative_Results_Table}.
+The evaluation dataset consists of 30 distinct natural language queries across 3 open-source projects with varying codebase sizes (\href{https://github.com/fastapi/fastapi}{\texttt{fastapi/fastapi}}, \href{https://github.com/shadcn-ui/ui}{\texttt{shadcn-ui/ui}}, \href{https://github.com/langchain-ai/langchain}{\texttt{langchain-ai/langchain}}). The queries are designed to mimic real-world developer intents. This ranges from locating simple components (e.g., ``Where is the accessible dialog overlay logic?") to more complex architectural questions (e.g., ``How does the system resolve and inject dependencies?"). Each query was executed across all evaluated methods to establish a direct comparison. The full list of queries is provided in \autoref{appendix:Quantitative_Results_Table}.
 \subsection{Baseline Comparisons}
 CodeOrient's performance is compared against two baselines:
 \begin{itemize}
@@ -36,11 +36,11 @@ CodeOrient's performance is compared against two baselines:
 \subsection{Recall@System}
 This metric measures the recall rate of the retrieved code snippets, which is the proportion of relevant code snippets that were successfully retrieved by CodeOrient compared to the total number of relevant snippets based on ground truths. 
 \subsection{Success@Turn}
-This metric measures the average number of turns CodeOrient takes to retrieve the correct code files for a given query. A turn is defined as a search-and-retrieval cycle, with a maximum of 3 turns per query. A lower Success@Turn indicates a more efficient retrieval process. If the system fails to retrieve the correct code files within the threshold, a penalty score of $Max + 1$ (4 in this case) is assigned to reflect the retrieval failure.
+This metric measures the average number of turns CodeOrient takes to retrieve the correct code files for a given query. A turn is defined as a search-and-retrieval cycle, with a maximum of 3 turns per query. A lower Success@Turn indicates a more efficient retrieval process. If the system fails to retrieve the correct code files within the threshold, a penalty score of $Max + 1$ (4 in this instance) is assigned to reflect the retrieval failure.
 \subsection{Graph Recall}
-Graph Recall measures the completeness of the generated graph visualisations. It assesses whether the system successfully renders all relevant nodes in response to the query.
+Graph Recall measures the completeness of the generated graph visualisations. It is a measure of how many relevant nodes are successfully rendered in the graph compared to the total number of relevant nodes identified in the ground truth.
 \subsection{Faithfulness (Hallucination Rate)}
-Faithfulness measures the factual alignment of the generated explanations and code snippets with the actual codebase. A lower hallucination rate indicates that the system relied primarily on retrieved snippets rather than its prior knowledge.
+Faithfulness measures the factual alignment of the generated explanations and code snippets with the actual codebase. Having a lower hallucination rate indicates that the system generates responses that are grounded in the retrieved code snippets rather than its pre-trained knowledge.
 \subsection{Latency and Caching Efficiency}
 Latency is a critical metric for evaluating CodeOrient's responsiveness. It is measured in seconds and captures the time taken for the system to process a query and generate a response. Furthermore, the efficiency of caching is evaluated by measuring the latency of repeated queries in the same session that should benefit from cached results.
 \subsection{Clicks to Destination (CTD)}

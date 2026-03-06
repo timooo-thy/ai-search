@@ -204,7 +204,7 @@ To optimise the performance of the LLM and reduce hallucinations during code exp
 This pipeline iteratively retrieves relevant code snippets to ground the LLM's responses. The key components are outlined below:
 
 \subsubsection{Query Processing}
-User queries are usually ambiguous and may include typos. To address this, the pipeline first rephrases the query into technical search queries that align with the codebase's terminology and structure. This is achieved using the Search Architect persona described earlier.
+User queries are usually ambiguous and may include typos. To address this, the pipeline first rephrases the query into technical search queries (using the Search Architect persona) that align with the codebase's terminology and structure. 
 
 \subsubsection{Multistep Planning \& Exploration}
 Mentioned previously, the Search Architect persona decomposes complex queries and conducts a breadth-first exploration. 
@@ -288,7 +288,7 @@ model IndexedRepository {
   @@map("indexed_repository")
 }
 
-// Conversational State with Generative UI Support
+// Conversational State + Generative UI Support
 model Chat {
   id        String    @id @default(cuid())
   title     String
@@ -336,12 +336,12 @@ enum IndexingStatus {
 \end{center}
 
 \section{UI/UX Enhancements}
-This section highlights the various UI/UX features implemented to enhance user experience in CodeOrient.
+To further enhance the user experience in CodeOrient, several additional features were implemented beyond the core functionalities:
 \subsection{Account Dashboard}
-The account dashboard allows users to monitor their interaction with the platform. As shown in \textit{Figure~\ref{fig:account_dashboard}}, users can view statistics such as:
+The account dashboard allows users to monitor any activity related to their account. As shown in \textit{Figure~\ref{fig:account_dashboard}}, users can view statistics such as:
 \begin{itemize}
     \item Recent Activities
-    \item Usage statistics (e.g., lifetime searches, total repositories analysed)
+    \item Usage statistics (e.g., number of lifetime searches, total repositories analysed over time)
 \end{itemize}
 
 \begin{figure}[H]
@@ -354,7 +354,7 @@ The account dashboard allows users to monitor their interaction with the platfor
 \end{figure}
 
 \subsection{Sharing of Conversations}
-To facilitate collaboration, CodeOrient supports the sharing of conversations via unique read-only links. \textit{Figure~\ref{fig:sharing_conversation_link}} illustrates the shared chat view where authorised users can view the conversation history in read-only mode.
+As collaboration is a key aspect of software development, CodeOrient supports the sharing of conversations via unique read-only links. \textit{Figure~\ref{fig:sharing_conversation_link}} demonstrates the shared chat view where authorised users can view the conversation history in read-only mode.
 \begin{figure}[H]
     \centering
     {\small
